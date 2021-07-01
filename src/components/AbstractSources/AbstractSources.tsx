@@ -23,7 +23,7 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElem
     const sources = processLinkData(doc, null);
 
     return (
-      <section>
+      <div>
         <h3 id="sources" className="sr-only">
           Sources
         </h3>
@@ -37,7 +37,7 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): React.ReactElem
             <DataProduct key={sourceData.name} source={sourceData} />
           ))}
         </div>
-      </section>
+      </div>
     );
   };
 
