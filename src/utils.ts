@@ -1,4 +1,4 @@
-import AdsApi, { IADSApiSearchParams, IDocsEntity, IUserData } from '@api';
+import AdsApi, { IDocsEntity, IUserData } from '@api';
 import { MetricsResponseKey, CitationsStatsKey, BasicStatsKey } from '@api/lib/metrics/types';
 import { abstractPageNavDefaultQueryFields } from '@components/AbstractSideNav/model';
 import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
@@ -20,12 +20,12 @@ export const normalizeURLParams = (query: ParsedUrlQuery): Record<string, string
   }, {});
 };
 
-export const initMiddleware = (
-  middleware: (req: NextApiRequest, res: NextApiResponse, cb: (result: unknown) => void) => unknown,
-) => (req: NextApiRequest, res: NextApiResponse): Promise<unknown> =>
-  new Promise((resolve, reject) =>
-    middleware(req, res, (result) => (result instanceof Error ? reject(result) : resolve(result))),
-  );
+export const initMiddleware =
+  (middleware: (req: NextApiRequest, res: NextApiResponse, cb: (result: unknown) => void) => unknown) =>
+  (req: NextApiRequest, res: NextApiResponse): Promise<unknown> =>
+    new Promise((resolve, reject) =>
+      middleware(req, res, (result) => (result instanceof Error ? reject(result) : resolve(result))),
+    );
 
 export type ADSServerSideContext = GetServerSidePropsContext & {
   req: GetServerSidePropsContext['req'] & { session: { userData: IUserData } };
