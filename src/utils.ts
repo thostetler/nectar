@@ -44,7 +44,35 @@ export interface IOriginalDoc {
 export const getDocument = async (api: AdsApi, id: string): Promise<IOriginalDoc> => {
   const result = await api.search.query({
     q: `identifier:${id}`,
-    fl: [...abstractPageNavDefaultQueryFields, 'title', 'bibcode'],
+    fl: [
+      ...abstractPageNavDefaultQueryFields,
+      'identifier',
+      'bibcode',
+      'title',
+      'author',
+      'author_count',
+      'pubdate',
+      'abstract',
+      'doi',
+      'data',
+      'keyword',
+      'pub',
+      'comment',
+      'esources',
+      'property',
+      'orcid_pub',
+      'orcid_user',
+      'orcid_other',
+      'aff',
+      'bibstem',
+      'doctype',
+      'volume',
+      'page_range',
+      'issue',
+      'page',
+      'isbn',
+      'issn',
+    ],
   });
 
   return result.isErr()
