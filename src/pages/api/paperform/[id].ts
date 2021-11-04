@@ -1,5 +1,6 @@
 import Adsapi from '@api';
 import { PaperFormController, PaperFormType, RawPaperFormParams } from '@controllers/paperformController';
+import { withSentry } from '@sentry/nextjs';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export interface PaperFormRequest extends NextApiRequest {
@@ -9,7 +10,7 @@ export interface PaperFormRequest extends NextApiRequest {
   };
 }
 
-export default async (req: PaperFormRequest, res: NextApiResponse): Promise<void> => {
+export default withSentry(async (req: PaperFormRequest, res: NextApiResponse): Promise<void> => {
   const {
     query: { id },
     body,
@@ -26,4 +27,4 @@ export default async (req: PaperFormRequest, res: NextApiResponse): Promise<void
   } finally {
     res.end();
   }
-};
+});
