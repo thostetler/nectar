@@ -22,9 +22,10 @@ const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((
 
 type NectarAppProps = {
   session: IncomingMessage['session'];
+  err: unknown;
 } & AppProps;
 
-const NectarApp = ({ Component, pageProps, session }: NectarAppProps): ReactElement => {
+const NectarApp = ({ Component, pageProps, session, err }: NectarAppProps): ReactElement => {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -41,7 +42,15 @@ const NectarApp = ({ Component, pageProps, session }: NectarAppProps): ReactElem
             <TopProgressBar />
             <ToastContainer />
             <Layout>
-              <Component {...pageProps} />
+              <Component {...pageProps} err={err} />
+              <button
+                type="button"
+                onClick={() => {
+                  throw new Error('Sentry Frontend Error');
+                }}
+              >
+                Throw error
+              </button>
             </Layout>
           </Hydrate>
           <ReactQueryDevtools />
