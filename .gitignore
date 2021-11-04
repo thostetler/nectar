@@ -118,3 +118,6 @@ dist
 .vscode/
 dev/
 storybook-static/
+
+# Sentry
+.sentryclirc
