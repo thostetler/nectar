@@ -3,14 +3,17 @@ import { Button } from '@components/Button';
 import { Panel } from '@components/Panel';
 import { Transition } from '@headlessui/react';
 import { DownloadIcon, DuplicateIcon, RefreshIcon } from '@heroicons/react/solid';
+import dynamic from 'next/dynamic';
 import PT from 'prop-types';
 import { ChangeEvent, HTMLAttributes, ReactElement, useEffect, useRef, useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { exportFormats } from './constants';
 import { FormatSelector } from './FormatSelector';
 import { useExportMachine } from './hook';
-import { LimitRange } from './LimitRange';
+import { ILimitRangeProps } from './LimitRange';
 import { ExportState } from './types';
+
+const LimitRange = dynamic<ILimitRangeProps>(() => import('./LimitRange').then((_) => _.LimitRange));
 
 export interface IExportProps extends HTMLAttributes<HTMLDivElement> {
   initialFormat?: ExportState['format'];

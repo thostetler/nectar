@@ -4,7 +4,7 @@ import { getTrackBackground, Range } from 'react-range';
 import { MAX_RECORDS } from './constants';
 import { ExportState } from './types';
 
-interface ILimitRangeProps {
+export interface ILimitRangeProps {
   limit: ExportState['limit'];
   max: number;
   onLimitChange: (limit: ExportState['limit']) => void;
