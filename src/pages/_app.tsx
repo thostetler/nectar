@@ -10,12 +10,12 @@ import 'nprogress/nprogress.css';
 import { ReactElement, useEffect, useState } from 'react';
 import { Hydrate, QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'tailwindcss/tailwind.css';
 import '../styles/styles.css';
 
-const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((mod) => mod.TopProgressBar), {
+const ToastContainer = dynamic(() => import('react-toastify').then((_) => _.ToastContainer), { ssr: false });
+const TopProgressBar = dynamic(() => import('@components/TopProgressBar').then((_) => _.TopProgressBar), {
   ssr: false,
 });
 
