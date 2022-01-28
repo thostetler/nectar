@@ -1,3 +1,4 @@
+import { ChakraProvider } from '@chakra-ui/react';
 import { Layout } from '@components';
 import { ApiProvider } from '@providers/api';
 import { AppState, StoreProvider, useCreateStore, useStore } from '@store';
@@ -44,9 +45,11 @@ const NectarApp = ({ Component, pageProps }: AppProps): ReactElement => {
             <ThemeRouter />
             <TopProgressBar />
             <ToastContainer />
-            <Layout>
-              <Component {...pageProps} />
-            </Layout>
+            <ChakraProvider>
+              <Layout>
+                <Component {...pageProps} />
+              </Layout>
+            </ChakraProvider>
           </Hydrate>
           <ReactQueryDevtools />
         </ApiProvider>
