@@ -6,7 +6,7 @@ export interface I${name}Props extends HTMLAttributes<HTMLDivElement> {
 }
 
 const propTypes = {
-  children: PT.element;
+  children: PT.element,
 }
 
 const defaultProps = {};
