@@ -29,6 +29,9 @@ export interface IADSApiSearchResponse {
     docs: IDocsEntity[];
   };
   stats?: ISearchStatsFields;
+  highlighting?: unknown;
+
+  // TODO: convert highlights to: Record<IDocsEntity['id'], Record<string, string[]>>;
 }
 
 export interface ISearchStatsFields {

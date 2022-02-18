@@ -2,6 +2,7 @@ import { IADSApiSearchParams, IDocsEntity } from '@api';
 import { APP_DEFAULTS } from '@config';
 
 export const defaultFields: IADSApiSearchParams['fl'] = [
+  'id',
   'bibcode',
   'title',
   'author',
@@ -21,7 +22,7 @@ export const defaultSort: IADSApiSearchParams['sort'] = ['date desc'];
 
 export const defaultParams: IADSApiSearchParams = {
   q: '*:*',
-  sort: ['date desc'],
+  sort: ['date desc', 'bibcode desc'],
   fl: defaultFields,
   start: 0,
   rows: APP_DEFAULTS.RESULT_PER_PAGE,
@@ -90,11 +91,11 @@ export const getAbstractParams = (id: string): IADSApiSearchParams => ({
 export const getAffiliationParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => ({
   ...defaultParams,
   fl: [
-    `[fields author=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
-    `[fields aff=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
-    `[fields orcid_pub=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
-    `[fields orcid_user=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
-    `[fields orcid_other=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    // `[fields author=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    // `[fields aff=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    // `[fields orcid_pub=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    // `[fields orcid_user=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
+    // `[fields orcid_other=${start + APP_DEFAULTS.DETAILS_MAX_AUTHORS}]`,
     'author',
     'aff',
     'orcid_pub',
@@ -110,4 +111,15 @@ export const getSearchStatsParams = (params: IADSApiSearchParams, field: string)
   fl: ['id'],
   stats: true,
   'stats.field': field.replace(/\s(asc|desc)$/, ''),
+});
+
+export const getHighlightsParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
+  ...defaultParams,
+  ...params,
+  fl: ['id'],
+  hl: true,
+  'hl.fl': 'title,abstract,body,ack,*',
+  'hl.maxAnalyzedChars': 150000,
+  'hl.requireFieldMatch': true,
+  'hl.usePhraseHighlighter': true,
 });

@@ -2,7 +2,7 @@ import { IADSApiSearchParams, IADSApiSearchResponse, SolrSort } from '@api';
 import { Box, Flex } from '@chakra-ui/layout';
 import { Alert, AlertIcon } from '@chakra-ui/react';
 import { VisuallyHidden } from '@chakra-ui/visually-hidden';
-import { NumFound, SearchBar, SimpleResultList } from '@components';
+import { NumFound, ResultActionBar, SearchBar, SimpleResultList } from '@components';
 import { Pagination } from '@components/ResultList/Pagination';
 import { AppState, useStore, useStoreApi } from '@store';
 import { normalizeURLParams } from '@utils';
@@ -121,8 +121,13 @@ const SearchPage: NextPage<ISearchPageProps> = ({ searchParams }) => {
               {axios.isAxiosError(error) && error.message}
             </Alert>
           )}
-          {isSuccess && <SimpleResultList docs={data.docs} indexStart={params.start} />}
-          {isSuccess && <Pagination totalResults={data.numFound} numPerPage={10} onPageChange={handlePageChange} />}
+          {isSuccess && (
+            <>
+              <ResultActionBar docs={data.docs} />
+              <SimpleResultList docs={data.docs} indexStart={params.start} />
+              <Pagination totalResults={data.numFound} numPerPage={10} onPageChange={handlePageChange} />
+            </>
+          )}
         </Box>
       </form>
     </Box>

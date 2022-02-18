@@ -9,6 +9,7 @@ import {
   getAffiliationParams,
   getCitationsParams,
   getCoreadsParams,
+  getHighlightsParams,
   getReferencesParams,
   getSearchStatsParams,
   getSimilarParams,
@@ -17,12 +18,16 @@ import {
 
 export type UseSearchResult = UseQueryResult<Partial<IADSApiSearchResponse['response']>>;
 export type UseSearchStatsResult = UseQueryResult<Partial<IADSApiSearchResponse['stats']>>;
+export type UseHighlightsResult = UseQueryResult<IADSApiSearchResponse['highlighting']>;
 
 export const responseSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['response'] => data.response;
 export const statsSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['stats'] => data.stats;
+export const highlightsSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['highlighting'] =>
+  data.highlighting;
 
 export const searchKeys = {
   primary: (params: IADSApiSearchParams) => ['search', params] as const,
+  highlights: (params: IADSApiSearchParams) => ['search/highlights', params] as const,
   preview: (bibcode: IDocsEntity['bibcode']) => ['search/preview', { bibcode }] as const,
   abstract: (id: string) => ['search/abstract', { id }] as const,
   affiliations: ({ bibcode, start }: { bibcode: IDocsEntity['bibcode']; start: number }) =>
@@ -177,6 +182,24 @@ export const useGetAbstractPreview: ADSQuery<{ bibcode: IDocsEntity['bibcode'] }
 };
 
 /**
+ * Get highlights for a particular set of bibcodes
+ */
+export const useGetHighlights: ADSQuery<IADSApiSearchParams, UseHighlightsResult> = (params, options) => {
+  const searchParams = getHighlightsParams(params);
+
+  // omit fields from queryKey
+  const { fl, ...cleanParams } = params;
+
+  return useQuery({
+    queryKey: searchKeys.highlights(cleanParams),
+    queryFn: fetchSearch,
+    meta: { params: searchParams },
+    select: highlightsSelector,
+    ...options,
+  });
+};
+
+/**
  * Get search stats based on a solr query
  *
  * *only runs if sort is `citation_count` or `citation_count_norm`*
@@ -211,6 +234,7 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta: 
     url: ApiTargets.SEARCH,
     params,
   };
+
   const { data } = await api.request<IADSApiSearchResponse>(config);
   return data;
 };

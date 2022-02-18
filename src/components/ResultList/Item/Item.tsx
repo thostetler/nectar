@@ -10,6 +10,7 @@ import { ChangeEvent, ReactElement, useCallback } from 'react';
 import shallow from 'zustand/shallow';
 import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
+import { ResultHighlights } from './ResultHighlights';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
   () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
@@ -32,6 +33,8 @@ export const Item = (props: IItemProps): ReactElement => {
   const formattedPubDate = getFomattedNumericPubdate(pubdate);
   const [formattedBibstem] = bibstem;
   const isClient = useIsClient();
+
+  console.log({ doc });
 
   // memoize the isSelected callback on bibcode
   const isChecked = useStore(useCallback((state) => state.isDocSelected(bibcode), [bibcode]));
@@ -97,6 +100,7 @@ export const Item = (props: IItemProps): ReactElement => {
             {cite && (formattedPubDate || formattedBibstem) ? <span className="px-2">·</span> : null}
             {cite}
           </Text>
+          <ResultHighlights id={doc.id} />
           <AbstractPreview bibcode={bibcode} />
         </Flex>
       </Stack>

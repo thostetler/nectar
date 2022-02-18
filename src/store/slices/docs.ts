@@ -5,12 +5,14 @@ export interface IAppStateDocsSlice {
     doc: string;
     current: string[];
     selected: string[];
+    showHighlights: boolean;
   };
   selectDoc: (doc: string) => void;
   unSelectDoc: (doc: string) => void;
   setSelected: (selected: string[]) => void;
   setDocs: (docs: string[]) => void;
   isDocSelected: (doc: string) => boolean;
+  toggleHighlights: () => void;
 }
 
 export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
@@ -21,6 +23,7 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
     // current search results (bibcodes), and selection
     current: [],
     selected: [],
+    showHighlights: false,
   },
 
   // sets the current docs
@@ -59,4 +62,11 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
     const selected = get().docs.selected ?? [];
     return selected.includes(doc);
   },
+
+  toggleHighlights: () =>
+    set(
+      (state) => ({ docs: { ...state.docs, showHighlights: !state.docs.showHighlights } }),
+      false,
+      'docs/toggleHighlights',
+    ),
 });
