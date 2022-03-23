@@ -29,7 +29,7 @@ const config = {
     domains: ['s3.amazonaws.com'],
   },
   compiler: {
-    reactRemoveProperties: true,
+    reactRemoveProperties: false,
   },
   swcMinify: false,
   experimental: {

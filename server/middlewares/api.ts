@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { RequestHandler as Middleware } from 'express';
 import Adsapi from '../../src/api';
 import { checkUserData } from '../../src/api/lib/utils';
@@ -21,7 +22,9 @@ export const api: Middleware = async (req, res, next) => {
     session.userData = data;
 
     // should have recieved a session cookie, pass that in the response
-    res.setHeader('set-cookie', headers['set-cookie']);
+    if ('set-cookie' in headers) {
+      res.setHeader('set-cookie', headers['set-cookie']);
+    }
   }
 
   next();

@@ -6,6 +6,25 @@ import qs from 'qs';
 import { map, range, slice } from 'ramda';
 
 export const handlers = [
+  rest.get('https://devapi.adsabs.harvard.edu/v1/accounts/bootstrap', (req, res, ctx) => {
+    return res(
+      ctx.status(200),
+      ctx.cookie('session', 'test-session'),
+      ctx.json({
+        username: 'anonymous@ads',
+        scopes: ['api', 'execute-query', 'store-query'],
+        client_id: 'ONsfcxVTNIae5vULWlH7bLE8F6MpIZgW0Bhghzny',
+        access_token: 'yDCIgkpQjCrNWUqTfVbrrmBYImY6bJHWlHON45eq',
+        client_name: 'BB client',
+        token_type: 'Bearer',
+        ratelimit: 1.0,
+        anonymous: true,
+        client_secret: 'ly8MkAN34LBNDwco3Ptl4tPMFuNzsEzMXGS8KYMneokpZsSYrVgSrs1lJJx7',
+        expire_in: '2022-03-22T14:50:07.712037',
+        refresh_token: 'BENF2Gu2EXDXreAjzkiDoV7ReXaNisy4j9kn088u',
+      }),
+    );
+  }),
   rest.get('https://devapi.adsabs.harvard.edu/v1/search/query', (req, res, ctx) => {
     const params = qs.parse(req.url.search.slice(1));
 
