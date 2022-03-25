@@ -15,7 +15,8 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "build-storybook": "build-storybook -s public",
+    "lint": "xo --prettier"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.1",
@@ -99,13 +100,12 @@
     "@types/react": "^17.0.2",
     "@types/react-is": "^17.0.2",
     "@types/uuid": "^8.3.0",
-    "@typescript-eslint/eslint-plugin": "^5.14.0",
-    "@typescript-eslint/parser": "^5.14.0",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
     "autoprefixer": "^10.2.4",
     "babel-loader": "^8.0.0",
     "babel-plugin-optimize-clsx": "^2.6.2",
     "cypress": "^6.8.0",
-    "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest": "^26.1.1",
     "eslint-plugin-jest-dom": "^4.0.1",
@@ -121,7 +121,6 @@
     "nodemon": "^2.0.7",
     "pino-pretty": "^5.1.2",
     "postcss": "^8.2.6",
-    "prettier": "^2.2.1",
     "prettier-plugin-tailwind": "^2.2.10",
     "react-dom": "^17.0.2",
     "react-is": "^17.0.2",
@@ -134,7 +133,8 @@
     "tsconfig-paths-webpack-plugin": "^3.5.1",
     "tslib": "^2.2.0",
     "typescript": "^4.3.5",
-    "webpack": "^5.69.1"
+    "webpack": "^5.69.1",
+    "xo": "^0.48.0"
   },
   "volta": {
     "node": "14.17.6",
@@ -148,5 +148,31 @@
   },
   "msw": {
     "workerDirectory": "public"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "tabWidth": 2,
+    "semi": true,
+    "useTabs": false,
+    "trailingComma": "all",
+    "arrowParens": "always",
+    "bracketSpacing": true
+  },
+  "xo": {
+    "rules": {
+      "import/extensions": "off",
+      "@typescript-eslint/indent": ["error", 2],
+      "unicorn/filename-case": [
+        "error",
+        {
+          "cases": {
+            "kebabCase": true,
+            "pascalCase": true
+          }
+        }
+      ],
+      "arrow-body-style": ["error", "as-needed"],
+      "@typescript-eslint/object-curly-spacing": "off"
+    }
   }
 }
