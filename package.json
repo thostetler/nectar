@@ -16,7 +16,7 @@
     "cypress:run": "cypress run",
     "storybook": "start-storybook -p 6006 -s public",
     "build-storybook": "build-storybook -s public",
-    "lint": "xo --prettier"
+    "lint": "xo --prettier --space"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.1",
@@ -159,20 +159,29 @@
     "bracketSpacing": true
   },
   "xo": {
+    "overrides": {
+      "parserOptions":{
+        "ecmaVersion": "latest",
+        "project": ["./tsconfig.json", "./cypress/tsconfig.json"]
+      }
+    },
     "rules": {
       "import/extensions": "off",
-      "@typescript-eslint/indent": ["error", 2],
-      "unicorn/filename-case": [
+      "unicorn/filename-case": "off",
+      "arrow-body-style": "off",
+      "@typescript-eslint/object-curly-spacing": "off",
+      "capitalized-comments": "off",
+      "@typescript-eslint/no-confusing-void-expression": [
         "error",
-        {
-          "cases": {
-            "kebabCase": true,
-            "pascalCase": true
-          }
-        }
+        { "ignoreArrowShorthand": true }
       ],
-      "arrow-body-style": ["error", "as-needed"],
-      "@typescript-eslint/object-curly-spacing": "off"
+      "import/no-extraneous-dependencies": "off",
+      "unicorn/prevent-abbreviations": "off",
+      "prefer-destructuring": "off",
+      "import/no-anonymous-default-export": "off",
+      "@typescript-eslint/naming-convention": "off",
+      "import/no-cycle": "off",
+      "node/no-unsupported-features/es-syntax": "off"
     }
   }
 }
