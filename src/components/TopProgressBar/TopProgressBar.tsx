@@ -8,6 +8,7 @@ export const TopProgressBar = (): ReactElement => {
   const load = () => {
     NProgress.start();
   };
+
   const stop = () => {
     NProgress.done();
   };

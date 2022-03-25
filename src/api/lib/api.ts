@@ -7,6 +7,7 @@ import { ReferenceService } from './reference';
 import { SearchService } from './search/search';
 import { IServiceConfig } from './service';
 import { VaultService } from './vault';
+
 export class Adsapi {
   public search: SearchService;
   public libraries: LibrariesService;

@@ -26,7 +26,7 @@ export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): React.React
     {
       enabled: show,
       keepPreviousData: true,
-      onError: () => {
+      onError() {
         // show toast notification on error, and close drawer
         toast(text.error, { type: 'error' });
         setShow(false);

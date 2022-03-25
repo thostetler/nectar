@@ -40,7 +40,7 @@ export class AccountService extends Service {
   private async getCSRFToken(): Promise<Result<ICSRFResponse['csrf'], Error | AxiosError>> {
     const config: AxiosRequestConfig = { method: 'get', url: ApiTargets.CSRF };
 
-    return await new Promise((resolve) => {
+    return new Promise((resolve) => {
       this.request<ICSRFResponse>(config).then(
         (result) => {
           result.match(
@@ -48,7 +48,7 @@ export class AccountService extends Service {
             (e: Error | AxiosError) => resolve(err(e)),
           );
         },
-        (e: Error | AxiosError) => resolve(err(e)),
+        (error: Error | AxiosError) => resolve(err(error)),
       );
     });
   }
@@ -60,13 +60,13 @@ export class AccountService extends Service {
       baseURL: resolveApiBaseUrl(),
     };
 
-    return await new Promise((resolve) => {
+    return new Promise((resolve) => {
       // use the service directly, to get around overriding `this.request`
       const service = this.getAxiosInstance();
 
       service.request<IBootstrapPayload, IADSApiBootstrapResponse>(config).then(
         (response) => resolve(ok(response)),
-        (e: Error | AxiosError) => resolve(err(e)),
+        (error: Error | AxiosError) => resolve(err(error)),
       );
     });
   }

@@ -3,6 +3,7 @@ import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
 import { ApiTargets } from '../models';
 import { Service } from '../service';
+
 export class GraphicsService extends Service {
   async query(params: IADSApiGraphicsParams): Promise<Result<IADSApiGraphicsResponse, Error | AxiosError>> {
     const config: AxiosRequestConfig = {
@@ -10,7 +11,7 @@ export class GraphicsService extends Service {
       url: `${ApiTargets.GRAPHICS}/${params.bibcode}`,
     };
 
-    return await new Promise((resolve) => {
+    return new Promise((resolve) => {
       this.request<IADSApiGraphicsResponse>(config).then(
         (result) => {
           result.match(
@@ -24,7 +25,7 @@ export class GraphicsService extends Service {
             (e: Error | AxiosError) => resolve(err(e)),
           );
         },
-        (e: Error | AxiosError) => resolve(err(e)),
+        (error: Error | AxiosError) => resolve(err(error)),
       );
     });
   }

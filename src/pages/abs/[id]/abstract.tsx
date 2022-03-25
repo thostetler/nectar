@@ -20,7 +20,7 @@ import NextLink from 'next/link';
 import { isNil } from 'ramda';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
-  () => import('@components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
+  async () => import('@components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
   { ssr: false },
 );
 

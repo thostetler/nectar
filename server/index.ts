@@ -24,6 +24,7 @@ const port = process.env.PORT || 8000;
       if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
         res.setHeader('Service-Worker-Allowed', '/');
       }
+
       void handle(req, res);
     });
 
@@ -32,8 +33,8 @@ const port = process.env.PORT || 8000;
 
       console.log(`> Ready on http://localhost:${port} [${process.env.NODE_ENV ?? 'development'}]`);
     });
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
     process.exit(1);
   }
 })();

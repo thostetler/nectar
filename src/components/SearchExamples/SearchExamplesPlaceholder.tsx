@@ -11,12 +11,12 @@ export const SearchExamplesPlaceholder = () => {
       </Heading>
       <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={5}>
         <GridItem>
-          {examples['GENERAL'].left.map(({ label, text }) => (
+          {examples.GENERAL.left.map(({ label, text }) => (
             <SearchExample label={label} example={text} key={label} data-text={text} />
           ))}
         </GridItem>
         <GridItem>
-          {examples['GENERAL'].right.map(({ label, text }) => (
+          {examples.GENERAL.right.map(({ label, text }) => (
             <SearchExample label={label} example={text} key={label} data-text={text} />
           ))}
         </GridItem>

@@ -3,7 +3,7 @@ import { IServiceConfig } from '@api/lib/service';
 import { createContext, createElement, PropsWithChildren, ReactElement, useEffect, useRef } from 'react';
 
 export type APIContext = { api: Adsapi };
-export const apiCtx = createContext<APIContext | null>(null);
+export const apiCtx = createContext<APIContext | undefined>(null);
 
 export const ApiProvider = (
   props: PropsWithChildren<{ config?: IServiceConfig; overrideInstance?: Adsapi }>,

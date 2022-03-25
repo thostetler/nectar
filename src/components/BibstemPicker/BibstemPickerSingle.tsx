@@ -6,14 +6,17 @@ import { DetailedHTMLProps, InputHTMLAttributes, ReactElement, useMemo, useState
 import type { IBibstemMenuProps } from './BibstemMenu';
 import { ITEM_DELIMITER } from './models';
 
-const BibstemMenu = dynamic<IBibstemMenuProps>(() => import('./BibstemMenu').then((module) => module.BibstemMenu), {
-  loading: () => (
-    <ul className="relative">
-      <li>loading...</li>
-    </ul>
-  ),
-  ssr: false,
-});
+const BibstemMenu = dynamic<IBibstemMenuProps>(
+  async () => import('./BibstemMenu').then((module) => module.BibstemMenu),
+  {
+    loading: () => (
+      <ul className="relative">
+        <li>loading...</li>
+      </ul>
+    ),
+    ssr: false,
+  },
+);
 
 export interface IBibstemPickerSingleProps
   extends DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement> {
@@ -42,13 +45,13 @@ export const BibstemPickerSingle = (props: IBibstemPickerSingleProps): ReactElem
   } = useCombobox<string>({
     items,
     initialSelectedItem,
-    onInputValueChange: ({ inputValue }) => {
+    onInputValueChange({ inputValue }) {
       // update item if user clears input
       if (typeof onItemUpdate === 'function' && inputValue.length === 0) {
         onItemUpdate(inputValue);
       }
     },
-    onSelectedItemChange: ({ inputValue }) => {
+    onSelectedItemChange({ inputValue }) {
       if (typeof onItemUpdate === 'function') {
         onItemUpdate(inputValue);
       }

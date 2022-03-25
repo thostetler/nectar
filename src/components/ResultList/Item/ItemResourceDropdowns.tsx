@@ -83,7 +83,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   }
 
   const handleResourceClick: MouseEventHandler<HTMLElement> = (e) => {
-    const id = e.currentTarget.dataset['id'];
+    const id = e.currentTarget.dataset.id;
     const path = fullSourceItems.find((item) => id === item.id)?.path;
     if (isBrowser() && path) {
       window.open(path, '_blank', 'noopener,noreferrer');
@@ -91,7 +91,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   };
 
   const handleReferenceClick: MouseEventHandler<HTMLElement> = (e) => {
-    const id = e.currentTarget.dataset['id'];
+    const id = e.currentTarget.dataset.id;
     const path = referenceItems.find((item) => id === item.id)?.path;
     if (isBrowser() && path) {
       void router.push(path);
@@ -99,7 +99,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   };
 
   const handleDataProductClick: MouseEventHandler<HTMLElement> = (e) => {
-    const id = e.currentTarget.dataset['id'];
+    const id = e.currentTarget.dataset.id;
     const path = dataProductItems.find((item) => id === item.id)?.path;
     if (isBrowser() && path) {
       window.open(path, '_blank', 'noopener,noreferrer');

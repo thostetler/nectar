@@ -9,8 +9,10 @@ export const api: Middleware = async (req, res, next) => {
 
   // check if we have valid current userData, if so move on
   if (checkUserData(currentUserData)) {
-    return next();
+    next();
+    return;
   }
+
   const api = new Adsapi();
 
   const bootstrapResponse = await api.accounts.bootstrap();

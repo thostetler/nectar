@@ -94,6 +94,7 @@ const SelectAllCheckbox = () => {
       selectAll();
     }
   };
+
   return (
     <Checkbox
       size="md"

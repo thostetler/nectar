@@ -35,17 +35,18 @@ export const withDetailsPage = async (
         id: query.id,
       },
     };
-  } catch (e) {
-    if (axios.isAxiosError(e) && e.response) {
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
       return {
         props: {
           error: {
-            status: e.response.status,
-            message: e.message,
+            status: error.response.status,
+            message: error.message,
           },
         },
       };
     }
+
     return {
       props: {
         error: {

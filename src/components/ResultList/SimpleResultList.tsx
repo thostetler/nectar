@@ -28,4 +28,5 @@ export const SimpleResultList = (props: ISimpleResultListProps): ReactElement =>
     </Flex>
   );
 };
+
 SimpleResultList.propTypes = propTypes;

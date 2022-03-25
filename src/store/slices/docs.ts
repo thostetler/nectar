@@ -98,7 +98,7 @@ export const docsSlice: StoreSlice<IAppStateDocsSlice> = (set, get) => ({
     ),
 
   // checks if a doc (identifier) is present in our selected list
-  isDocSelected: (doc: string) => {
+  isDocSelected(doc: string) {
     const selected = get().docs.selected ?? [];
     return selected.includes(doc);
   },

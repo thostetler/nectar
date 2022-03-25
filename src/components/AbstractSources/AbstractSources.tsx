@@ -49,7 +49,7 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
   );
 };
 
-///// dropdown components //////
+/// // dropdown components //////
 
 interface IFullTextDropdownProps {
   sources: IFullTextSource[];
@@ -77,7 +77,7 @@ const FullTextDropdown = (props: IFullTextDropdownProps): ReactElement => {
   }));
 
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
-    const id = (e.target as HTMLElement).dataset['id'];
+    const id = (e.target as HTMLElement).dataset.id;
     const path = fullSourceItems.find((item) => id === item.id)?.path;
     if (isClient && path) {
       window.open(path, '_blank', 'noopener,noreferrer');
@@ -151,28 +151,32 @@ const DataProductDropdown = (props: IRelatedMaterialsDropdownProps): ReactElemen
 
   if (dataProductItems.length > 0) {
     // data product heading
-    items.push({
-      id: 'data-subheading',
-      label: 'Data Products:',
-      path: '',
-      disabled: true,
-    });
-    items.push(...dataProductItems);
+    items.push(
+      {
+        id: 'data-subheading',
+        label: 'Data Products:',
+        path: '',
+        disabled: true,
+      },
+      ...dataProductItems,
+    );
   }
 
   if (relatedWorkItems.length > 0) {
     // related works heading
-    items.push({
-      id: 'related-subheading',
-      label: 'Related Materials:',
-      path: '',
-      disabled: true,
-    });
-    items.push(...relatedWorkItems);
+    items.push(
+      {
+        id: 'related-subheading',
+        label: 'Related Materials:',
+        path: '',
+        disabled: true,
+      },
+      ...relatedWorkItems,
+    );
   }
 
   const handleSelect: MouseEventHandler<HTMLElement> = (e) => {
-    const id = e.currentTarget.dataset['id'];
+    const id = e.currentTarget.dataset.id;
     const path = items.find((item) => id === item.id)?.path;
     if (isClient && path) {
       window.open(path, '_blank', 'noopener,noreferrer');

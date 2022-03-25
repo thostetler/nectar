@@ -37,7 +37,7 @@ export const Sort = (props: ISortProps): ReactElement => {
   // fire onChange handler for direction change
   const handleDirectionChange: MouseEventHandler<HTMLButtonElement> = useCallback(
     (e) => {
-      onChange([`${selected} ${e.currentTarget.dataset['direction']}` as SolrSort, ...allSorts.slice(1)]);
+      onChange([`${selected} ${e.currentTarget.dataset.direction}` as SolrSort, ...allSorts.slice(1)]);
     },
     [selected, onChange],
   );

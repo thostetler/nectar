@@ -1,9 +1,9 @@
 import { AxiosError, AxiosRequestConfig } from 'axios';
 import { err, ok, Result } from 'neverthrow';
-import { IExportApiResponse } from '.';
 import { ApiTargets } from '../models';
 import { Service } from '../service';
 import { IExportApiParams } from './types';
+import { IExportApiResponse } from '.';
 
 export class ExportService extends Service {
   async getExportText(params: IExportApiParams): Promise<Result<string, Error | AxiosError>> {
@@ -14,7 +14,7 @@ export class ExportService extends Service {
       data: { ...data, format: customFormat },
     };
 
-    return await new Promise((resolve) => {
+    return new Promise((resolve) => {
       this.request<IExportApiResponse>(config).then(
         (result) => {
           result.match(
@@ -22,7 +22,7 @@ export class ExportService extends Service {
             (e: Error | AxiosError) => resolve(err(e)),
           );
         },
-        (e: Error | AxiosError) => resolve(err(e)),
+        (error: Error | AxiosError) => resolve(err(error)),
       );
     });
   }

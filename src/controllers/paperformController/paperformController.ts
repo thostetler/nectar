@@ -6,7 +6,7 @@ export class PaperFormController {
   public params: PaperFormParams;
   public query: string;
 
-  constructor(public type: PaperFormType, public rawParams: RawPaperFormParams, private adsapi: Adsapi) {
+  constructor(public type: PaperFormType, public rawParams: RawPaperFormParams, private readonly adsapi: Adsapi) {
     this.params = this.sanitizeRawParams();
   }
 
@@ -23,6 +23,7 @@ export class PaperFormController {
             if (r.score !== '0.0' && typeof r.bibcode === 'string') {
               return r.bibcode;
             }
+
             throw new Error(r.comment || 'No bibcodes matching reference string found');
           },
           (e) => {
@@ -31,6 +32,7 @@ export class PaperFormController {
         );
         return stringify({ q: `bibcode:${bibcode}` });
       }
+
       case PaperFormType.BIBCODE_QUERY: {
         const { bibcodes } = this.params;
 

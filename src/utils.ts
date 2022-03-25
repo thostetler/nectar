@@ -1,8 +1,8 @@
+import { ParsedUrlQuery } from 'node:querystring';
 import { IADSApiSearchParams, IDocsEntity, IUserData, SolrSort } from '@api';
 import { fromThrowable } from 'neverthrow';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
-import { ParsedUrlQuery } from 'querystring';
 import { clamp, filter, last } from 'ramda';
 
 export const normalizeURLParams = (query: ParsedUrlQuery): Record<string, string> => {
@@ -43,12 +43,13 @@ export interface IOriginalDoc {
   numFound?: number;
 }
 
-export const getFomattedNumericPubdate = (pubdate: string): string | null => {
+export const getFomattedNumericPubdate = (pubdate: string): string | undefined => {
   const regex = /^(?<year>\d{4})-(?<month>\d{2})/;
   const match = regex.exec(pubdate);
   if (match === null) {
     return null;
   }
+
   const { year, month } = match.groups;
   return `${year}/${month}`;
 };
@@ -60,7 +61,7 @@ export const safeParse = <T>(value: string, defaultValue: T): T => {
     }
 
     return JSON.parse(value) as T;
-  } catch (e) {
+  } catch {
     return defaultValue;
   }
 };
@@ -72,7 +73,7 @@ export const useBaseRouterPath = (): { basePath: string } => {
 
 export const truncateDecimal = (num: number, d: number): number => {
   const regex = new RegExp(`^-?\\d+(\\.\\d{0,${d}})?`);
-  return parseFloat(regex.exec(num.toString())[0]);
+  return Number.parseFloat(regex.exec(num.toString())[0]);
 };
 
 type IncomingGSSP = (
@@ -90,6 +91,7 @@ export const composeNextGSSP =
       if ('props' in result) {
         props = { ...ssrProps.props, ...result.props };
       }
+
       ssrProps = { ...ssrProps, ...result, props };
     }
 
@@ -110,9 +112,9 @@ export const parseNumberAndClamp = (
   max: number = Number.MAX_SAFE_INTEGER,
 ): number => {
   try {
-    const page = parseInt(Array.isArray(value) ? value[0] : value, 10);
+    const page = Number.parseInt(Array.isArray(value) ? value[0] : value, 10);
     return clamp(min, max, Number.isNaN(page) ? min : page);
-  } catch (e) {
+  } catch {
     return min;
   }
 };
@@ -181,8 +183,9 @@ export const normalizeSolrSort = (rawSolrSort: unknown): SolrSort[] => {
   const validSort = filter(isSolrSort, sort);
 
   // append 'date desc' onto sort list, if not there already
-  if ('date desc' === last(validSort)) {
+  if (last(validSort) === 'date desc') {
     return validSort;
   }
-  return validSort.concat('date desc');
+
+  return [...validSort, 'date desc'];
 };

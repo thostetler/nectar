@@ -11,6 +11,6 @@ export default meta;
 
 const Template: Story<IItemProps> = (args) => <Item {...args} />;
 
-export const Default = Template.bind({}) ;
+export const Default = Template.bind({});
 
 Default.args = { doc, index: 0, hideCheckbox: false, hideActions: false };

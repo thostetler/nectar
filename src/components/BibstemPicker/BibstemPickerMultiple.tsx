@@ -8,14 +8,17 @@ import { ReactElement, useEffect, useMemo, useState } from 'react';
 import type { IBibstemMenuProps } from './BibstemMenu';
 import { ITEM_DELIMITER } from './models';
 
-const BibstemMenu = dynamic<IBibstemMenuProps>(() => import('./BibstemMenu').then((module) => module.BibstemMenu), {
-  loading: () => (
-    <ul className="relative">
-      <li>loading...</li>
-    </ul>
-  ),
-  ssr: false,
-});
+const BibstemMenu = dynamic<IBibstemMenuProps>(
+  async () => import('./BibstemMenu').then((module) => module.BibstemMenu),
+  {
+    loading: () => (
+      <ul className="relative">
+        <li>loading...</li>
+      </ul>
+    ),
+    ssr: false,
+  },
+);
 
 export interface IBibstemPickerMultipleProps {
   initialSelectedItems?: string[];

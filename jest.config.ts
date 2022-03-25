@@ -1,7 +1,7 @@
+import { readdirSync } from 'node:fs';
 import { Config } from '@jest/types';
-import { readdirSync } from 'fs';
 import nextJest from 'next/jest';
-import { parse, resolve } from 'path';
+import { parse, resolve } from 'node:path';
 
 /**
  * Run through all the files at /src, strip extensions,

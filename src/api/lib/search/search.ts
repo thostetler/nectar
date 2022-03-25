@@ -27,7 +27,7 @@ export class SearchService extends Service {
       params,
     };
 
-    return await new Promise((resolve) => {
+    return new Promise((resolve) => {
       this.request<IADSApiSearchResponse>(config).then(
         (result) => {
           result.match(
@@ -35,12 +35,12 @@ export class SearchService extends Service {
             (e: Error | AxiosError) => resolve(err(e)),
           );
         },
-        (e: Error | AxiosError) => resolve(err(e)),
+        (error: Error | AxiosError) => resolve(err(error)),
       );
     });
   }
 
-  async getDocument(identifier: string, fields: Partial<keyof IDocsEntity>[]): Promise<IDocument> {
+  async getDocument(identifier: string, fields: Array<Partial<keyof IDocsEntity>>): Promise<IDocument> {
     const result = await this.query({
       q: `identifier:${identifier}`,
       fl: fields,

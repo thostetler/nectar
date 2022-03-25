@@ -60,9 +60,10 @@ export const TypeaheadMenu = (props: ControllerStateAndHelpers<TypeaheadOption>)
  * @returns {TypeaheadOption[]} set of filtered results
  */
 const filterOptions = (rawValue: string): TypeaheadOption[] => {
-  if (/\s+$/.exec(rawValue)) {
+  if (/\s+$/.test(rawValue)) {
     return [];
   }
+
   const fields = rawValue.match(/(?:[^\s"]+|"[^"]*")+/g);
   const value = fields === null ? rawValue : last(fields);
 

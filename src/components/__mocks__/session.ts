@@ -1,4 +1,4 @@
-import { IncomingMessage } from 'http';
+import { IncomingMessage } from 'node:http';
 
 export const mockSession: IncomingMessage['session'] = {
   userData: {

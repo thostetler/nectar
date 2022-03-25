@@ -8,6 +8,7 @@ import { CitationsTable } from './CitationsTable';
 import { MetricsGraph } from './MetricsGraph';
 import { ReadsTable } from './ReadsTable';
 import { IMetricsGraphs } from './types';
+
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;
@@ -48,12 +49,14 @@ const MetricsGraphs = ({ graphs }: { graphs: IMetricsGraphs }): ReactElement => 
     if (data.length <= 9) {
       return undefined;
     }
+
     const ticks: number[] = [];
-    data.forEach((row) => {
+    for (const row of data) {
       if ((row.year as number) % 5 === 0) {
         ticks.push(row.year as number);
       }
-    });
+    }
+
     return ticks;
   };
 

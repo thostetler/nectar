@@ -17,29 +17,29 @@ const options = states.map((state, index) => ({
 
 const Template: Story<ISelectProps<string>> = (args) => <Select {...args} />;
 
-export const Default = Template.bind({}) ;
+export const Default = Template.bind({});
 
 Default.args = {
   formLabel: 'States',
-  options: options,
+  options,
   value: options[0],
   styles: DefaultSelectorStyle,
 };
 
-export const ThemeSelector = Template.bind({}) ;
+export const ThemeSelector = Template.bind({});
 
 ThemeSelector.args = {
   formLabel: 'Themes',
-  options: options,
+  options,
   value: options[0],
   styles: ThemeSelectorStyle,
 };
 
-export const SortSelector = Template.bind({}) ;
+export const SortSelector = Template.bind({});
 
 SortSelector.args = {
   formLabel: 'Sort by',
-  options: options,
+  options,
   value: options[0],
   styles: SortSelectorStyle,
 };

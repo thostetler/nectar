@@ -1,7 +1,7 @@
-import { ListType } from './types';
 import { isBrowser } from '@utils';
 import { ReactElement, MouseEvent } from 'react';
 import { useRouter } from 'next/router';
+import { ListType } from './types';
 import { MenuDropdown } from './MenuDropdown';
 
 export const items = [
@@ -28,7 +28,7 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
   const router = useRouter();
 
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
-    const id = (e.target as HTMLElement).dataset['id'];
+    const id = (e.target as HTMLElement).dataset.id;
     if (isBrowser()) {
       void router.push(items.find((item) => id === item.id).path);
       if (onFinished) {

@@ -60,7 +60,7 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
     {
       enabled: isOpen,
       keepPreviousData: true,
-      onError: () => {
+      onError() {
         toast({
           title: 'Error',
           description: 'Could not fetch author information, please try again',

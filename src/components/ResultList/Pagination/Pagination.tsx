@@ -79,7 +79,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
    * Update our internal state perPage, which will trigger on the pagination hook
    */
   const perPageChangeHandler = (id: string) => {
-    const numPerPage = parseInt(id, 10) as typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
+    const numPerPage = Number.parseInt(id, 10) as typeof APP_DEFAULTS['PER_PAGE_OPTIONS'][number];
     dispatch({ type: 'SET_PERPAGE', payload: numPerPage });
   };
 
@@ -119,7 +119,7 @@ export const Pagination = (props: IPaginationProps): ReactElement => {
               ariaLabel="Select number of results to show per page"
               options={pageOptions}
               onChange={perPageChangeHandler}
-              value={pageOptions.find((o) => parseInt(o.value) === numPerPage)}
+              value={pageOptions.find((o) => Number.parseInt(o.value) === numPerPage)}
               styles={DefaultSelectorStyleSM}
               menuPlacement={perPageMenuPlacement}
             />
@@ -217,6 +217,7 @@ const ManualPageSelect = ({
       handleSubmit();
     }
   };
+
   const pagePickerRef = useRef(null);
 
   return (

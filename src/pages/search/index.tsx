@@ -31,7 +31,7 @@ const useSearchQuery = (submitted: boolean, query: IADSApiSearchParams) => {
     // this is to keep stable data available for other hooks to use
     keepPreviousData: true,
     enabled: submitted,
-    onSettled: () => {
+    onSettled() {
       // omit superfluous params
       const params = omit(['fl', 'start', 'rows'], query);
 
@@ -65,6 +65,7 @@ const SearchPage: NextPage<ISearchPageProps> = () => {
     if (params) {
       updateQuery(params);
     }
+
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 0);
   };
@@ -183,11 +184,11 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
   // prefetch the citation counts for this query
   if (/^citation_count(_norm)?/.test(params.sort[0])) {
-    void (await queryClient.prefetchQuery({
+    await queryClient.prefetchQuery({
       queryKey: searchKeys.stats(cleanedParams),
       queryFn: fetchSearch,
       meta: { params: getSearchStatsParams(params, params.sort[0]) },
-    }));
+    });
   }
 
   const initialState = createStore().getState();

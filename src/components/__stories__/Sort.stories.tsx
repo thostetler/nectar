@@ -20,6 +20,6 @@ export default meta;
 
 const Template: Story<ISortProps> = (args) => <Sort {...args} />;
 
-export const Default = Template.bind({}) ;
+export const Default = Template.bind({});
 
 Default.args = {};

@@ -1,10 +1,10 @@
+import { PathLike } from 'node:fs';
 import { IUserData } from '@api';
 import { IBootstrapPayload } from '@api/lib/accounts/types';
 import { ApiTargets } from '@api/lib/models';
 import { APP_STORAGE_KEY, updateAppUser } from '@store';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
-import { PathLike } from 'fs';
 import getConfig from 'next/config';
 import qs from 'qs';
 import { isNil } from 'ramda';
@@ -52,7 +52,7 @@ const getUserData = (): IUserData => {
       state: { user },
     } = JSON.parse(localStorage.getItem(APP_STORAGE_KEY)) as { state: { user: IUserData } };
     return user;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
@@ -70,12 +70,10 @@ const injectAuth = async (request: ApiRequestConfig, invalidate?: boolean): Prom
   const user = getUserData();
 
   // check if we have persisted userData in localStorage
-  if (typeof window !== 'undefined' && !invalidate) {
-    if (checkUserData(user)) {
-      // add authorization header to request
-      request.headers.authorization = `Bearer:${user.access_token}`;
-      return request;
-    }
+  if (typeof window !== 'undefined' && !invalidate && checkUserData(user)) {
+    // add authorization header to request
+    request.headers.authorization = `Bearer:${user.access_token}`;
+    return request;
   }
 
   // fetch the current userData using default axios instance
@@ -100,7 +98,7 @@ export interface ApiRequestConfig extends AxiosRequestConfig {
 const config: AxiosRequestConfig = {
   baseURL: resolveApiBaseUrl(),
   withCredentials: true,
-  timeout: 30000,
+  timeout: 30_000,
   paramsSerializer: (params: PathLike) => qs.stringify(params, { indices: false }),
   headers: {
     common: {
@@ -115,7 +113,7 @@ class Api {
 
   // token property will only be used server-side
   private token: string;
-  private service: AxiosInstance;
+  private readonly service: AxiosInstance;
   private latestRequest: ApiRequestConfig;
 
   private constructor() {
@@ -127,6 +125,7 @@ class Api {
     if (!Api.instance) {
       Api.instance = new Api();
     }
+
     return Api.instance;
   }
 
@@ -134,7 +133,7 @@ class Api {
     this.token = token;
   }
 
-  request<T>(config: ApiRequestConfig): Promise<AxiosResponse<T>> {
+  async request<T>(config: ApiRequestConfig): Promise<AxiosResponse<T>> {
     return this.service.request<T>(config);
   }
 
@@ -165,9 +164,10 @@ class Api {
         const request = await injectAuth(this.latestRequest, true);
 
         // replay the request
-        return await this.service.request(request);
+        return this.service.request(request);
       }
-      return Promise.reject(error);
+
+      throw error;
     };
 
     this.service.interceptors.response.use((_) => _, handleResponseError);

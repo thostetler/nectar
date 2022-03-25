@@ -25,7 +25,7 @@ const retryFn = (count: number, error: unknown) => {
 /**
  * Fetches graphics and returns true if the request returns successfully
  */
-export const useHasGraphics: ADSQuery<IDocsEntity['bibcode'], IADSApiGraphicsResponse, null, boolean> = (
+export const useHasGraphics: ADSQuery<IDocsEntity['bibcode'], IADSApiGraphicsResponse, undefined, boolean> = (
   bibcode,
   options,
 ) => {

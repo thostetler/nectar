@@ -1,10 +1,8 @@
-export interface IADSApiUserResponse {
-  [key: string]: unknown;
-}
+import { AxiosResponse } from 'axios';
 
-export interface IADSApiUserErrorResponse {
-  [key: string]: unknown;
-}
+export type IADSApiUserResponse = Record<string, unknown>;
+
+export type IADSApiUserErrorResponse = Record<string, unknown>;
 
 export interface IRegisterParams {
   email: string;
@@ -27,8 +25,6 @@ export interface IRegisterErrorResponse {
 export interface ICSRFResponse {
   csrf: string;
 }
-
-import { AxiosResponse } from 'axios';
 
 export interface IBootstrapPayload {
   username: string;

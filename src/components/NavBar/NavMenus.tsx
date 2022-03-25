@@ -18,6 +18,7 @@ export const NavMenus = (): ReactElement => {
       onOpen();
     }
   };
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const hamburgerRef = useRef();
 

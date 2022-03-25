@@ -1,6 +1,3 @@
-import { Adsapi } from './lib/api';
-export default Adsapi;
-
 export type { IADSApiBootstrapResponse, IUserData } from './lib/accounts/types';
 export type { ExportApiFormat, IExportApiParams, IExportApiResponse, isExportApiFormat } from './lib/export/types';
 export type { IADSApiGraphicsParams, IADSApiGraphicsResponse } from './lib/graphics/types';
@@ -18,3 +15,5 @@ export type {
   IADSApiSearchResponse,
   IDocsEntity,
 } from './lib/search/types';
+
+export { Adsapi as default } from './lib/api';

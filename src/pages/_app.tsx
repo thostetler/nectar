@@ -22,7 +22,7 @@ if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !=
 }
 
 const TopProgressBar = dynamic<Record<string, never>>(
-  () => import('@components/TopProgressBar').then((mod) => mod.TopProgressBar),
+  async () => import('@components/TopProgressBar').then((mod) => mod.TopProgressBar),
   {
     ssr: false,
   },
@@ -47,7 +47,7 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
   const [queryClient] = useState(
     () =>
       new QueryClient({
-        defaultOptions: { queries: { refetchOnWindowFocus: false, staleTime: Infinity } },
+        defaultOptions: { queries: { refetchOnWindowFocus: false, staleTime: Number.POSITIVE_INFINITY } },
       }),
   );
 
@@ -73,10 +73,8 @@ const ThemeRouter = (): ReactElement => {
 
   useEffect(() => {
     // redirect to main form if path is not valid
-    if (isBrowser()) {
-      if (theme !== Theme.ASTROPHYSICS && /^\/(classic|paper)-form.*$/.test(router.asPath)) {
-        void router.replace('/');
-      }
+    if (isBrowser() && theme !== Theme.ASTROPHYSICS && /^\/(classic|paper)-form.*$/.test(router.asPath)) {
+      void router.replace('/');
     }
   }, [theme, router.asPath]);
 

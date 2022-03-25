@@ -1,9 +1,9 @@
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/menu';
 import { HStack, List, ListItem } from '@chakra-ui/layout';
-import { ListType, ItemType } from './types';
 import { isBrowser } from '@utils';
 import { MouseEvent, ReactElement, KeyboardEvent } from 'react';
+import { ListType, ItemType } from './types';
 
 interface IMenuDropdownProps {
   id: string;
@@ -18,14 +18,13 @@ export const MenuDropdown = (props: IMenuDropdownProps): ReactElement => {
 
   const handleKeydown = (e: KeyboardEvent, index: number) => {
     switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        focusItem(index + 1);
-        return;
-      case 'ArrowUp':
-        e.preventDefault();
-        focusItem(index - 1);
-        return;
+    case 'ArrowDown':
+      e.preventDefault();
+      focusItem(index + 1);
+      return;
+    case 'ArrowUp':
+      e.preventDefault();
+      focusItem(index - 1);
     }
   };
 

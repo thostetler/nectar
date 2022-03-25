@@ -9,6 +9,7 @@ export class ClassicformController {
   constructor(public rawParams: RawClassicFormParams) {
     this.params = this.sanitizeRawParams();
   }
+
   getQuery(): string {
     const query = [
       stringifiers.collections(this.params),
@@ -25,6 +26,7 @@ export class ClassicformController {
     this.query = `q=${query}&sort=${this.params.sort}`;
     return this.query;
   }
+
   sanitizeRawParams(): ClassicFormParams {
     const {
       limit_astronomy,

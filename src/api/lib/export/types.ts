@@ -26,7 +26,7 @@ export type ExportApiFormat =
 
 export interface IExportApiParams {
   format: ExportApiFormat;
-  bibcode: IDocsEntity['bibcode'][];
+  bibcode: Array<IDocsEntity['bibcode']>;
   sort?: IADSApiSearchParams['sort'];
   customFormat?: [string];
   authorcutoff?: [number];

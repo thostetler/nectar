@@ -10,7 +10,6 @@ import { AppState } from './types';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const createStore = (preloadedState: Partial<AppState> = {}) => {
   const state = (set: NamedSet<AppState>, get: GetState<AppState>) => ({
     ...searchSlice(set, get),
@@ -35,7 +34,7 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
       persist(state, {
         name: APP_STORAGE_KEY,
         partialize: (state) => ({ user: state.user, theme: state.theme }),
-        merge: (persistedState: AppState, currentState: AppState) => {
+        merge(persistedState: AppState, currentState: AppState) {
           // for now user and theme are all that need persistence
           return {
             ...currentState,
@@ -49,6 +48,7 @@ export const createStore = (preloadedState: Partial<AppState> = {}) => {
   );
   return store;
 };
+
 export type Store = ReturnType<typeof createStore>;
 
 let store: Store;

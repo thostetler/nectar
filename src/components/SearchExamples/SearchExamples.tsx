@@ -15,7 +15,7 @@ export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
   const store = useStoreApi();
 
   const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
-    const text = e.currentTarget.dataset['text'];
+    const text = e.currentTarget.dataset.text;
     const query = store.getState().query;
 
     // Add our text to the end of the query

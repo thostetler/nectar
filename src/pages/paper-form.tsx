@@ -41,8 +41,8 @@ const PaperForm: NextPage = () => {
 
       // generate a search url from the query
       void router.push(`/search?${query}`);
-    } catch (e) {
-      console.error(e);
+    } catch (error) {
+      console.error(error);
     }
   });
 
@@ -57,6 +57,7 @@ const PaperForm: NextPage = () => {
     </VStack>
   );
 };
+
 export default PaperForm;
 
 type SubmitHandler = <T>(params: T) => Promise<void>;

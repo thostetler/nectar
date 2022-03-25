@@ -1,7 +1,7 @@
+import { PathLike } from 'node:fs';
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import * as AxiosLogger from 'axios-logger';
 import { RequestLogConfig } from 'axios-logger/lib/common/types';
-import { PathLike } from 'fs';
 import { ok, Result } from 'neverthrow';
 import qs from 'qs';
 import { identity, mergeDeepLeft } from 'ramda';
@@ -16,7 +16,7 @@ export interface IServiceConfig extends AxiosRequestConfig {
 export const baseConfig: IServiceConfig = {
   baseURL: resolveApiBaseUrl(),
   withCredentials: true,
-  timeout: 30000,
+  timeout: 30_000,
   paramsSerializer: (params: PathLike) => qs.stringify(params, { indices: false }),
   headers: {
     common: {
@@ -35,7 +35,7 @@ const loggerConfig: RequestLogConfig = {
 type MDL = <T>(ob1: T, obj2: T) => T;
 
 export class Service {
-  private service: AxiosInstance;
+  private readonly service: AxiosInstance;
   private latestRequest: AxiosRequestConfig;
 
   constructor(config: IServiceConfig) {
@@ -46,7 +46,7 @@ export class Service {
     const injectToken = async (request: AxiosRequestConfig) => {
       // will use passed-in token, if it was done server-side
       if (typeof token === 'string' && token.length > 0 && typeof window === 'undefined') {
-        (request.headers as { authorization: string })['authorization'] = `Bearer:${token}`;
+        (request.headers as { authorization: string }).authorization = `Bearer:${token}`;
         return request;
       }
 
@@ -54,6 +54,7 @@ export class Service {
         // if the request is to bootstrap, don't re-check token
         return request;
       }
+
       const requestWithAuth = await injectAuth(request);
       this.latestRequest = requestWithAuth;
       return requestWithAuth;
@@ -66,9 +67,10 @@ export class Service {
         const request = await injectAuth(this.latestRequest, true);
 
         // replay the request
-        return await this.service.request(request);
+        return this.service.request(request);
       }
-      return Promise.reject(error);
+
+      throw error;
     };
 
     this.service.interceptors.response.use(identity, handleResponseError);
@@ -89,8 +91,6 @@ export class Service {
     try {
       const { data } = await this.service.request<T>(config);
       return ok(data);
-    } catch (e) {
-      return;
-    }
+    } catch {}
   }
 }

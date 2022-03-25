@@ -4,11 +4,12 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 export const validateMiddleware = (validations: ValidationChain[], validationResult: ResultFactory<unknown>) => {
   return async (req: NextApiRequest, res: NextApiResponse, next: NextFunction): Promise<unknown> => {
-    await Promise.all(validations.map((validation) => validation.run(req)));
+    await Promise.all(validations.map(async (validation) => validation.run(req)));
 
     const errors = validationResult(req);
     if (errors.isEmpty()) {
-      return next();
+      next();
+      return;
     }
 
     res.status(422).json({ errors: errors.array() });

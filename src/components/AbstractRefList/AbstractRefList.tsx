@@ -7,6 +7,7 @@ import { parseNumberAndClamp } from '@utils';
 import NextLink, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
 import { ReactElement, useEffect } from 'react';
+
 export interface IAbstractRefListProps {
   docs: IDocsEntity[];
   indexStart: ISimpleResultListProps['indexStart'];

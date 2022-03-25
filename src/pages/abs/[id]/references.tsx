@@ -14,6 +14,7 @@ import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
+
 export interface IReferencesPageProps {
   id: string;
   defaultParams: {
@@ -85,7 +86,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
   const axios = (await import('axios')).default;
   api.setToken(ctx.req.session.userData.access_token);
   const query = normalizeURLParams(ctx.query);
-  const parsedPage = parseInt(query.p, 10);
+  const parsedPage = Number.parseInt(query.p, 10);
   const page = isNaN(parsedPage) || Math.abs(parsedPage) >= 100 ? 1 : Math.abs(parsedPage);
 
   try {
@@ -98,11 +99,11 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
     } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
     const params = getReferencesParams(bibcode, (page - 1) * APP_DEFAULTS.RESULT_PER_PAGE);
-    void (await queryClient.prefetchQuery({
+    await queryClient.prefetchQuery({
       queryKey: searchKeys.references({ bibcode, start: params.start }),
       queryFn: fetchSearch,
       meta: { params },
-    }));
+    });
 
     return {
       props: {
@@ -112,17 +113,18 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
         },
       },
     };
-  } catch (e) {
-    if (axios.isAxiosError(e) && e.response) {
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
       return {
         props: {
           error: {
-            status: e.response.status,
-            message: e.message,
+            status: error.response.status,
+            message: error.message,
           },
         },
       };
     }
+
     return {
       props: {
         error: {

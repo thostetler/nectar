@@ -19,7 +19,7 @@ const items = states.map((state) => ({
 
 const Template: Story<ISimpleLinkListProps> = (args) => <SimpleLinkList {...args} />;
 
-export const Horizontal = Template.bind({}) ;
+export const Horizontal = Template.bind({});
 
 Horizontal.args = {
   items,
@@ -29,7 +29,7 @@ Horizontal.args = {
   asRow: true,
 };
 
-export const Vertical = Template.bind({}) ;
+export const Vertical = Template.bind({});
 
 Vertical.args = {
   items,

@@ -17,7 +17,7 @@ export const SimpleSortDropdown = (props: ISimpleSortDropdownProps): ReactElemen
   const [sort, dir] = selected.split(' ') as [SolrSortField, SolrSortDirection];
 
   const sortItems = sortValues.map(({ id, text }) => ({
-    id: id,
+    id,
     label: text,
     path: `/search?${qs.stringify({ q: query, sort: `${id} ${dir}`, p: page })}`,
   }));

@@ -58,5 +58,6 @@ const SortStats = () => {
       </>
     );
   }
+
   return null;
 };

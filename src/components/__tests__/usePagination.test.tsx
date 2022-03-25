@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/require-await */
 import {
   IPaginationState,
   IUsePaginationProps,
@@ -34,21 +33,21 @@ const setup = (props?: Partial<IUsePaginationProps>) => {
 const gen = (
   num: number,
   defaultProps?: Partial<IUsePaginationResult>,
-): [[number, IPaginationState['numPerPage']], Partial<IUsePaginationResult>][] =>
+): Array<[[number, IPaginationState['numPerPage']], Partial<IUsePaginationResult>]> =>
   [10, 25, 50, 100].map((perPage) => [
     [num, perPage as IPaginationState['numPerPage']],
     { totalPages: 1, noPagination: true, ...defaultProps },
   ]);
 
 // [page, numPerPage]
-const basicTests: [[number, IPaginationState['numPerPage']], Partial<IUsePaginationResult>][] = [
+const basicTests: Array<[[number, IPaginationState['numPerPage']], Partial<IUsePaginationResult>]> = [
   ...gen(0),
   ...gen(1),
   ...gen(-1),
   ...gen(9),
-  ...gen(-90000),
-  ...gen(1.2343434),
-  ...gen(-394834),
+  ...gen(-90_000),
+  ...gen(1.234_343_4),
+  ...gen(-394_834),
 
   // 19
   [[19, 10], { totalPages: 2, noPagination: false }],
@@ -81,10 +80,10 @@ const basicTests: [[number, IPaginationState['numPerPage']], Partial<IUsePaginat
   [[2000.333, 100], { totalPages: 21, noPagination: false }],
 
   // 384455
-  [[384455, 10], { totalPages: 38446, noPagination: false }],
-  [[384455, 25], { totalPages: 15379, noPagination: false }],
-  [[384455, 50], { totalPages: 7690, noPagination: false }],
-  [[384455, 100], { totalPages: 3845, noPagination: false }],
+  [[384_455, 10], { totalPages: 38_446, noPagination: false }],
+  [[384_455, 25], { totalPages: 15_379, noPagination: false }],
+  [[384_455, 50], { totalPages: 7690, noPagination: false }],
+  [[384_455, 100], { totalPages: 3845, noPagination: false }],
 ];
 
 test.concurrent.each(basicTests)(`Page Test %p`, async ([numFound, numPerPage], expected) => {
@@ -94,7 +93,7 @@ test.concurrent.each(basicTests)(`Page Test %p`, async ([numFound, numPerPage], 
 });
 
 // [page, numFound]
-const indexTests: [[number, number], Partial<IUsePaginationResult>][] = [
+const indexTests: Array<[[number, number], Partial<IUsePaginationResult>]> = [
   [[1, 100], { page: 1, noNext: false, noPrev: true, startIndex: 0, endIndex: 10 }],
   [[2, 100], { page: 2, noNext: false, noPrev: false, startIndex: 11, endIndex: 20 }],
   [[Number.MAX_SAFE_INTEGER, 100], { page: 10, noNext: true, noPrev: false, startIndex: 91, endIndex: 100 }],

@@ -13,7 +13,7 @@ export class VaultService extends Service {
     fq = '{!bitset}',
     ...otherParams
   }: IADSApiVaultParams): Promise<Result<IADSApiVaultResponse, Error | AxiosError>> {
-    return await new Promise((resolve) => {
+    return new Promise((resolve) => {
       const config: AxiosRequestConfig = {
         method: 'POST',
         url: `${ApiTargets.MYADS_STORAGE}/query`,
@@ -36,7 +36,7 @@ export class VaultService extends Service {
             (e: Error | AxiosError) => resolve(err(e)),
           );
         },
-        (e: Error | AxiosError) => resolve(err(e)),
+        (error: Error | AxiosError) => resolve(err(error)),
       );
     });
   }

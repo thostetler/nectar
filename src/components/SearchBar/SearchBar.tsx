@@ -28,7 +28,7 @@ import { TypeaheadOption } from './types';
  * @returns {TypeaheadOption[]} set of filtered results
  */
 const filterOptions = (rawValue: string): TypeaheadOption[] => {
-  if (/\s+$/.exec(rawValue)) {
+  if (/\s+$/.test(rawValue)) {
     return [];
   }
 
@@ -67,50 +67,51 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
   } = useCombobox({
     defaultInputValue: query,
     items: inputItems,
-    stateReducer: (state, actionAndChanges) => {
+    stateReducer(state, actionAndChanges) {
       const { type, changes } = actionAndChanges;
 
       switch (type) {
-        case useCombobox.stateChangeTypes.FunctionReset: {
-          updateQuery('');
+      case useCombobox.stateChangeTypes.FunctionReset: {
+        updateQuery('');
+        return changes;
+      }
+
+      case useCombobox.stateChangeTypes.InputBlur:
+      case useCombobox.stateChangeTypes.InputKeyDownEnter:
+      case useCombobox.stateChangeTypes.ItemClick: {
+        if (state.highlightedIndex === -1) {
+          // in the case we aren't actually on an item, do nothing
           return changes;
         }
 
-        case useCombobox.stateChangeTypes.InputBlur:
-        case useCombobox.stateChangeTypes.InputKeyDownEnter:
-        case useCombobox.stateChangeTypes.ItemClick: {
-          if (state.highlightedIndex === -1) {
-            // in the case we aren't actually on an item, do nothing
-            return changes;
-          }
-
-          const updatedQuery = state.inputValue.replace(/\s*[^\s]+$/g, '');
-          const newInputValue =
+        const updatedQuery = state.inputValue.replace(/\s*\S+$/g, '');
+        const newInputValue =
             updatedQuery + (updatedQuery.length > 0 ? ' ' + changes.inputValue : changes.inputValue);
 
-          // fix cursor
-          if (/[\)"]/.test(last(newInputValue))) {
-            setTimeout(() => {
-              input.current.setSelectionRange(newInputValue.length - 1, newInputValue.length - 1);
-            }, 0);
-          }
-
-          return {
-            ...changes,
-            inputValue: newInputValue,
-          };
+        // fix cursor
+        if (/[)"]/.test(last(newInputValue))) {
+          setTimeout(() => {
+            input.current.setSelectionRange(newInputValue.length - 1, newInputValue.length - 1);
+          }, 0);
         }
 
-        default:
-          return changes;
+        return {
+          ...changes,
+          inputValue: newInputValue,
+        };
+      }
+
+      default:
+        return changes;
       }
     },
-    onInputValueChange: ({ inputValue }) => {
+    onInputValueChange({ inputValue }) {
       updateQuery(inputValue);
 
       // only suggest if we're at the end of the input
       if (input.current.selectionStart < inputValue.length || inputValue.length === 0) {
-        return setInputItems([]);
+        setInputItems([]);
+        return;
       }
 
       setInputItems(filterOptions(inputValue));
@@ -151,12 +152,12 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
             type="text"
             name="q"
             {...getInputProps({
-              ref: (el: HTMLInputElement) => {
+              ref(el: HTMLInputElement) {
                 referenceRef(el);
                 input.current = el;
                 return el;
               },
-              onKeyDown: (e) => {
+              onKeyDown(e) {
                 // by default, downshift captures home/end, prevent that here
                 if (e.key === 'Home' || e.key === 'End') {
                   (
@@ -189,7 +190,7 @@ export const SearchBar = forwardRef<Partial<HTMLInputElement>, ISearchBarProps>(
           zIndex="1000"
           data-testid="primary-search-menu"
           {...getMenuProps({
-            ref: (el: HTMLUListElement) => {
+            ref(el: HTMLUListElement) {
               popperRef(el);
               return el;
             },

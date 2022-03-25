@@ -20,6 +20,6 @@ export default meta;
 
 const Template: Story = (args) => <LandingTabs {...args} />;
 
-export const Default = Template.bind({}) ;
+export const Default = Template.bind({});
 
 Default.args = {};

@@ -90,7 +90,7 @@ export const navigation = [
   },
 ];
 
-export const abstractPageNavDefaultQueryFields: Partial<keyof IDocsEntity>[] = [
+export const abstractPageNavDefaultQueryFields: Array<Partial<keyof IDocsEntity>> = [
   'citation_count',
   '[citations]',
   'read_count',

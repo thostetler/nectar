@@ -55,8 +55,8 @@ export const getServerSideProps: GetServerSideProps<IExportCitationPageProps> = 
   const queryClient = new QueryClient();
   if (!originalDoc.notFound && !originalDoc.error) {
     const { bibcode } = originalDoc.doc;
-    void (await queryClient.prefetchQuery(['hasGraphics', bibcode], () => fetchHasGraphics(adsapi, bibcode)));
-    void (await queryClient.prefetchQuery(['hasMetrics', bibcode], () => fetchHasMetrics(adsapi, bibcode)));
+    await queryClient.prefetchQuery(['hasGraphics', bibcode], async () => fetchHasGraphics(adsapi, bibcode));
+    await queryClient.prefetchQuery(['hasMetrics', bibcode], async () => fetchHasMetrics(adsapi, bibcode));
   }
 
   return originalDoc.notFound || originalDoc.error

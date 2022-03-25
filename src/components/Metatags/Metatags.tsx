@@ -7,7 +7,7 @@ import { ReactElement } from 'react';
 const getBaseUrl = () => {
   try {
     return getConfig().serverRuntimeConfig?.baseCanonicalUrl ?? '';
-  } catch (e) {
+  } catch {
     return '';
   }
 };
@@ -18,7 +18,7 @@ interface IMetatagsProps {
   doc: IDocsEntity;
 }
 
-export const metatagsQueryFields: Partial<keyof IDocsEntity>[] = [
+export const metatagsQueryFields: Array<Partial<keyof IDocsEntity>> = [
   'abstract',
   'aff',
   'author',

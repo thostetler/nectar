@@ -24,7 +24,7 @@ const retryFn = (count: number, error: unknown) => {
 /**
  * Fetches metrics and checks if citations and reads exist
  */
-export const useHasMetrics: ADSQuery<IDocsEntity['bibcode'], IADSApiMetricsResponse, null, boolean> = (
+export const useHasMetrics: ADSQuery<IDocsEntity['bibcode'], IADSApiMetricsResponse, undefined, boolean> = (
   bibcode,
   options,
 ) => {
@@ -49,7 +49,7 @@ export const useHasMetrics: ADSQuery<IDocsEntity['bibcode'], IADSApiMetricsRespo
     const hasReads = metrics[MetricsResponseKey.BS][BasicStatsKey.TNR] > 0;
 
     return hasCitations || hasReads;
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -86,5 +86,6 @@ export const fetchMetrics: QueryFunction<IADSApiMetricsResponse> = async ({ meta
   if (metrics[MetricsResponseKey.E]) {
     throw new Error(metrics[MetricsResponseKey.EI] ? metrics[MetricsResponseKey.EI] : 'No Metrics');
   }
+
   return metrics;
 };

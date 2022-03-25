@@ -5,6 +5,7 @@ import { ReactElement, useEffect, useMemo } from 'react';
 import { usePopper } from 'react-popper';
 import { chainFrom } from 'transducist';
 import { bibstems, ITEM_DELIMITER } from './models';
+
 export interface IBibstemMenuProps {
   onItemsChange: (items: string[]) => void;
   inputValue: string;

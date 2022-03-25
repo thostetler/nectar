@@ -6,7 +6,7 @@ import { PaperFormParams } from './types';
 export const stringify = (params: Record<string, string>) => qs.stringify(params, { indices: false });
 const escape = (val?: string): string => (typeof val === 'string' ? DOMPurify.sanitize(val) : '');
 const listSanitizer = (v: string): string[] =>
-  v.length > 0 ? (Array.from(v.matchAll(/[^\r\n]+/g), head) as string[]) : [];
+  v.length > 0 ? ([...v.matchAll(/[^\r\n]+/g)].map(head) as string[]) : [];
 
 export const checks = {
   listCheck: pipe(escape, listSanitizer),

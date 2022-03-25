@@ -21,7 +21,7 @@ export default async (req: PaperFormRequest, res: NextApiResponse): Promise<void
     const controller = new PaperFormController(id, body, adsapi);
     const query = await controller.getQuery();
     res.writeHead(302, { Location: `/search?${query}` });
-  } catch (e) {
+  } catch {
     res.writeHead(500, { Location: '/error/server' });
   } finally {
     res.end();

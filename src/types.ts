@@ -22,7 +22,7 @@ export interface AppError {
   code: AppErrorCode;
   message: string;
   target?: string;
-  details?: Pick<AppError, 'code' | 'message' | 'target'>[];
+  details?: Array<Pick<AppError, 'code' | 'message' | 'target'>>;
   innererror?: {
     code: AppErrorCode;
     innererror?: InnerError;

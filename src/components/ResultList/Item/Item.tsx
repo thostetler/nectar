@@ -12,7 +12,7 @@ import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
 
 const AbstractPreview = dynamic<IAbstractPreviewProps>(
-  () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
+  async () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
   { ssr: false },
 );
 export interface IItemProps {

@@ -27,8 +27,8 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
   const subPage = last(basePath.split('/'));
   const hasGraphics = useHasGraphics(doc.bibcode);
   const hasMetrics = useHasMetrics(doc.bibcode);
-  const hasToc = doc.property ? doc.property.indexOf('TOC') > -1 : false;
-  const useCount = [Routes.CITATIONS, Routes.REFERENCES];
+  const hasToc = doc.property ? doc.property.includes('TOC') : false;
+  const useCount = new Set([Routes.CITATIONS, Routes.REFERENCES]);
   const isClient = useIsClient();
 
   const items = navigation.map((item) => {
@@ -42,7 +42,7 @@ export const AbstractSideNav = ({ doc }: IAbstractSideNavProps): ReactElement =>
         ? 1
         : getCount(item.href, doc);
     const disabled = count === 0 && item.href !== Routes.ABSTRACT;
-    const showCount = count > 0 && useCount.includes(item.href);
+    const showCount = count > 0 && useCount.has(item.href);
     const href = { pathname: disabled ? Routes.ABSTRACT : item.href, query: { id: router.query.id } };
 
     const label = (

@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
-  () => import('@components/SearchExamples').then((m) => m.SearchExamples),
+  async () => import('@components/SearchExamples').then((m) => m.SearchExamples),
   { ssr: false, loading: () => <SearchExamplesPlaceholder /> },
 );
 

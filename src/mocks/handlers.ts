@@ -25,23 +25,23 @@ export const handlers = [
     // default search
     let limitAuthors = -1;
     if (Array.isArray(params.fl)) {
-      params.fl.forEach((v) => {
-        const mat = /\[fields author=(\d+)\]/.exec(v as string);
+      for (const v of params.fl) {
+        const mat = /\[fields author=(\d+)]/.exec(v as string);
         if (mat !== null) {
-          limitAuthors = parseInt(mat[1], 10);
+          limitAuthors = Number.parseInt(mat[1], 10);
         }
-      });
+      }
     }
 
-    const rows = parseInt(params.rows as string, 10) ?? 10;
-    const numFound = faker.datatype.number({ min: 1, max: 10000 });
+    const rows = Number.parseInt(params.rows as string, 10) ?? 10;
+    const numFound = faker.datatype.number({ min: 1, max: 10_000 });
     const body: IADSApiSearchResponse = {
       response: {
         numFound,
         docs: map(() => {
           const authorCount = ranRange(limitAuthors > 0 ? limitAuthors + 1 : 0, 1000);
-          const citationCount = faker.datatype.number({ min: 0, max: 10000 });
-          const referenceCount = faker.datatype.number({ min: 0, max: 10000 });
+          const citationCount = faker.datatype.number({ min: 0, max: 10_000 });
+          const referenceCount = faker.datatype.number({ min: 0, max: 10_000 });
           return {
             bibcode: api.bibcode(),
             author: map(api.author)(limitAuthors > 0 ? range(0, limitAuthors) : authorCount),
@@ -74,12 +74,12 @@ const api = {
   bibcode: () => faker.random.alphaNumeric(18),
   author: () => `${faker.name.lastName()}, ${faker.name.lastName()}`,
   bibstem: () => faker.random.alphaNumeric(6),
-  pubdate: () => {
+  pubdate() {
     const date = faker.date.between('2000', '2020');
     return `${date.getFullYear()}-${date.getMonth()}-00`;
   },
   title: () => faker.lorem.sentence(10, 40),
-  esources: (): Esources[] => {
+  esources(): Esources[] {
     const keys = Object.keys(Esources);
     const max = faker.datatype.number(keys.length);
     return slice(faker.datatype.number({ min: 0, max }), max, keys as Esources[]);

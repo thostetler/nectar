@@ -59,7 +59,7 @@ export const getOpenUrl = (options: IGetOpenUrlOptions): string => {
     ...STATIC_FIELDS,
     'rft.spage': isArray(page) ? page[0].split('-')[0] : undefined,
     id: isArray(doi) ? 'doi:' + doi[0] : undefined,
-    genre: genre,
+    genre,
     rft_id: [
       isArray(doi) ? 'info:doi/' + doi[0] : undefined,
       isString(bibcode) ? 'info:bibcode/' + bibcode : undefined,
@@ -118,6 +118,7 @@ export const getOpenUrl = (options: IGetOpenUrlOptions): string => {
           .map((v) => `${k}=${v}`)
           .join('&');
       }
+
       return `${k}=${val}`;
     });
 

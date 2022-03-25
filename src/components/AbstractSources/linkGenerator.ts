@@ -14,6 +14,7 @@ export const createGatewayUrl = (bibcode: string, target: string): string => {
   if (is(String, bibcode) && is(String, target)) {
     return GATEWAY_BASE_URL + enc(bibcode) + '/' + target;
   }
+
   return '';
 };
 
@@ -116,7 +117,7 @@ export const processLinkData = (doc: IDocsEntity, linkServer: string) => {
   // if no arxiv link is present, check links_data as well to make sure
   const hasEprint = fullTextSources.some(({ name }) => name === LINK_TYPES.EPRINT_PDF.name);
   if (!hasEprint && Array.isArray(doc.links_data)) {
-    doc.links_data.forEach((linkData) => {
+    for (const linkData of doc.links_data) {
       const link = JSON.parse(linkData) as IEprintLink;
       if (/preprint/i.test(link.type)) {
         const info = LINK_TYPES.EPRINT_PDF;
@@ -129,7 +130,7 @@ export const processLinkData = (doc: IDocsEntity, linkServer: string) => {
           description: info && info.description ? info.description : undefined,
         });
       }
-    });
+    }
   }
 
   const mapOverDataProducts = map((product: string): IDataProductSource => {
@@ -165,6 +166,7 @@ export const createUrlByType = function (bibcode: string, type: string, identifi
   if (typeof bibcode === 'string' && typeof type === 'string' && typeof id === 'string') {
     return GATEWAY_BASE_URL + bibcode + '/' + type + ':' + id;
   }
+
   return '';
 };
 

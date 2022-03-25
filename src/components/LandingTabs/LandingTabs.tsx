@@ -66,6 +66,7 @@ const Tabs = ({ show }: { show: boolean }) => {
   if (!show) {
     return null;
   }
+
   return (
     <HStack justifyContent="center" spacing={2} zIndex={5} color="white" fontSize={{ base: 'md', sm: 'xl' }}>
       <Tab href="/classic-form" label="Classic Form" active={asPath === '/classic-form'} />

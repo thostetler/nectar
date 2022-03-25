@@ -11,7 +11,7 @@ export class MetricsService extends Service {
       url: `${ApiTargets.SERVICE_METRICS}/${params.bibcode}`,
     };
 
-    return await new Promise((resolve) => {
+    return new Promise((resolve) => {
       this.request<IADSApiMetricsResponse>(config).then(
         (result) => {
           result.match(
@@ -25,7 +25,7 @@ export class MetricsService extends Service {
             (e: Error | AxiosError) => resolve(err(e)),
           );
         },
-        (e: Error | AxiosError) => resolve(err(e)),
+        (error: Error | AxiosError) => resolve(err(error)),
       );
     });
   }

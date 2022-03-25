@@ -2,7 +2,7 @@ import { AxiosRequestConfig } from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import getConfig from 'next/config';
 import { isNil } from 'ramda';
-import Adsapi, { IUserData } from '../';
+import Adsapi, { IUserData } from '..';
 
 /**
  * Figure out which config to pick, based on the current environment
@@ -39,7 +39,7 @@ export const checkUserData = (userData?: IUserData): boolean => {
 export const safeParse = <T>(value: string, defaultValue: T): T => {
   try {
     return JSON.parse(value) as T;
-  } catch (e) {
+  } catch {
     return defaultValue;
   }
 };
@@ -64,7 +64,7 @@ export const injectAuth = async (request: AxiosRequestConfig, invalidate?: boole
 
     if (checkUserData(userData)) {
       // add authorization header to request
-      (request.headers as { authorization: string })['authorization'] = `Bearer:${userData.access_token}`;
+      (request.headers as { authorization: string }).authorization = `Bearer:${userData.access_token}`;
 
       return request;
     }
@@ -84,7 +84,7 @@ export const injectAuth = async (request: AxiosRequestConfig, invalidate?: boole
     }
 
     // add authorization header to request
-    (request.headers as { authorization: string })['authorization'] = `Bearer:${access_token}`;
+    (request.headers as { authorization: string }).authorization = `Bearer:${access_token}`;
   }
 
   return request;

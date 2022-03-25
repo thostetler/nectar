@@ -5,12 +5,12 @@ const Login: NextPage = () => {
 };
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  return Promise.resolve({
+  return {
     redirect: {
       destination: '/not-implemented',
       permanent: false,
     },
-  });
+  };
 };
 
 export default Login;

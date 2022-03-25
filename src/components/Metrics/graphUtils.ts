@@ -41,7 +41,7 @@ export interface IReadTableInput {
  * @returns
  */
 export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHistogramType): BarGraph => {
-  let data: { [year: string]: number }[];
+  let data: Array<Record<string, number>>;
 
   if (!normalize) {
     data = [
@@ -59,28 +59,29 @@ export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHi
     ];
   }
 
-  const transformed: { [key: string]: Record<string, number> } = {};
+  const transformed: Record<string, Record<string, number>> = {};
 
-  [
+  for (const [i, x] of [
     'Ref. citations to ref. papers',
     'Ref. citations to non ref. papers',
     'Non ref. citations to ref. papers',
     'Non ref. citations to non ref. papers',
-  ].forEach((x, i) => {
-    if (Object.values(data[i]).filter((v) => v > 0).length > 0) {
+  ].entries()) {
+    if (Object.values(data[i]).some((v) => v > 0)) {
       // skip if all values are 0
       transformed[x] = data[i];
     }
-  });
+  }
 
   const keys = Object.keys(transformed);
   const out = Object.keys(data[0]).map((year) => {
     const obj: Record<string, string | number> = {
-      year: year,
+      year,
     };
     for (const key of keys) {
       obj[key] = transformed[key][year];
     }
+
     return obj;
   });
 
@@ -99,7 +100,7 @@ export const plotCitationsHist = (normalize: boolean, citationsHist: CitationsHi
  * @returns
  */
 export const plotReadsHist = (normalize: boolean, readsHist: ReadsHistogramType): BarGraph => {
-  let data: Record<string, number>[];
+  let data: Array<Record<string, number>>;
 
   if (!normalize) {
     data = [
@@ -115,21 +116,22 @@ export const plotReadsHist = (normalize: boolean, readsHist: ReadsHistogramType)
 
   const transformed: Record<string, Record<string, number>> = {};
 
-  ['Refereed', 'Non-refereed'].forEach((x, i) => {
-    if (Object.values(data[i]).filter((v) => v > 0).length > 0) {
+  for (const [i, x] of ['Refereed', 'Non-refereed'].entries()) {
+    if (Object.values(data[i]).some((v) => v > 0)) {
       // skip if all values are 0
       transformed[x] = data[i];
     }
-  });
+  }
 
   const keys = Object.keys(transformed);
   const out = Object.keys(data[0]).map((year) => {
     const obj: Record<string, string | number> = {
-      year: year,
+      year,
     };
     for (const key of keys) {
       obj[key] = transformed[key][year];
     }
+
     return obj;
   });
 
@@ -159,9 +161,9 @@ export const getCitationTableData = (citationData: ICitationTableInput): ICitati
     ],
   };
 
-  Object.entries(data).forEach(([name, arr]) => {
+  for (const [name, arr] of Object.entries(data)) {
     data[name as keyof typeof data] = [limitPlaces(arr[0]), limitPlaces(arr[1])];
-  });
+  }
 
   return data;
 };
@@ -176,22 +178,23 @@ export const getReadsTableData = (generalData: IReadTableInput): IReadsTableData
     medianNumberOfDownloads: [generalData.total[BasicStatsKey.MND], generalData.total[BasicStatsKey.MND]],
   };
 
-  Object.entries(data).forEach(([name, arr]) => {
+  for (const [name, arr] of Object.entries(data)) {
     data[name as keyof typeof data] = [limitPlaces(arr[0]), limitPlaces(arr[1])];
-  });
+  }
 
   return data;
 };
 
-const getNonRef = (ref: { [key: string]: number }, all: { [key: string]: number }) => {
+const getNonRef = (ref: Record<string, number>, all: Record<string, number>) => {
   const nonRef: Record<string, number> = {};
-  Object.entries(all).forEach(([k, v]) => {
+  for (const [k, v] of Object.entries(all)) {
     if (ref[k]) {
       nonRef[k] = v - ref[k];
     } else {
       nonRef[k] = v;
     }
-  });
+  }
+
   return nonRef;
 };
 
@@ -199,9 +202,11 @@ function limitPlaces(n: number): number {
   if (!n) {
     return n;
   }
+
   const stringNum = n.toString();
-  if (stringNum.indexOf('.') > -1 && stringNum.split('.')[1]) {
+  if (stringNum.includes('.') && stringNum.split('.')[1]) {
     return Number(n.toFixed(1));
   }
+
   return n;
 }

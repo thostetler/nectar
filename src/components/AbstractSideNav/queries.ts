@@ -6,17 +6,21 @@ import { useQuery } from 'react-query';
 export const useHasGraphics = (doc: IDocsEntity): boolean => {
   const { api } = useAPI();
 
-  const { data: hasGraphics } = useQuery(['hasGraphics', doc?.bibcode], () => fetchHasGraphics(api, doc.bibcode), {
-    enabled: !!doc,
-  });
+  const { data: hasGraphics } = useQuery(
+    ['hasGraphics', doc?.bibcode],
+    async () => fetchHasGraphics(api, doc.bibcode),
+    {
+      enabled: Boolean(doc),
+    },
+  );
 
   return hasGraphics;
 };
 
 export const useHasMetrics = (doc: IDocsEntity): boolean => {
   const { api } = useAPI();
-  const { data: hasMetrics } = useQuery(['hasMetrics', doc?.bibcode], () => fetchHasMetrics(api, doc.bibcode), {
-    enabled: !!doc,
+  const { data: hasMetrics } = useQuery(['hasMetrics', doc?.bibcode], async () => fetchHasMetrics(api, doc.bibcode), {
+    enabled: Boolean(doc),
   });
 
   return hasMetrics;

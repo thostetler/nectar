@@ -6,7 +6,7 @@ import { IADSApiReferenceParams, IADSApiReferenceResponse } from './types';
 
 export class ReferenceService extends Service {
   async query({ reference }: IADSApiReferenceParams): Promise<Result<IADSApiReferenceResponse, Error | AxiosError>> {
-    return await new Promise((resolve) => {
+    return new Promise((resolve) => {
       if (typeof reference === 'string' && reference.length > 0) {
         const config: AxiosRequestConfig = {
           method: 'get',
@@ -20,7 +20,7 @@ export class ReferenceService extends Service {
               (e: Error | AxiosError) => resolve(err(e)),
             );
           },
-          (e: Error | AxiosError) => resolve(err(e)),
+          (error: Error | AxiosError) => resolve(err(error)),
         );
       } else {
         resolve(err(new Error('No reference string')));

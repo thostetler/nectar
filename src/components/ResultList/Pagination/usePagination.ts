@@ -10,7 +10,7 @@ const getTotalPages = (totalResults: number, numPerPage: number): number => {
   try {
     const pages = Math.ceil(totalResults / numPerPage);
     return pages <= 0 ? 1 : pages;
-  } catch (e) {
+  } catch {
     return 1;
   }
 };
@@ -22,11 +22,14 @@ const cleanClamp = (value: unknown, min = 0, max: number = Number.MAX_SAFE_INTEG
   try {
     if (typeof value === 'number' && value >= min) {
       return clamp(min, max, value);
-    } else if (typeof value === 'string') {
-      return clamp(min, max, Math.abs(parseInt(value, 10)));
     }
+
+    if (typeof value === 'string') {
+      return clamp(min, max, Math.abs(Number.parseInt(value, 10)));
+    }
+
     return min;
-  } catch (e) {
+  } catch {
     return min;
   }
 };
@@ -75,11 +78,7 @@ export const calculatePagination = ({
     endIndex = numPerPage;
   } else if (page >= totalPages) {
     // for the final page, we can calculate directly from results
-    if (results % numPerPage === 0) {
-      startIndex = results - numPerPage + 1;
-    } else {
-      startIndex = results - (results % numPerPage) + 1;
-    }
+    startIndex = results % numPerPage === 0 ? results - numPerPage + 1 : results - (results % numPerPage) + 1;
     endIndex = results;
   } else {
     startIndex = cleanClamp((page - 1) * numPerPage + 1, 1, results - numPerPage + 1);

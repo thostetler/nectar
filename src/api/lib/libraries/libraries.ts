@@ -33,7 +33,7 @@ export class LibrariesService extends Service {
       url: `${ApiTargets.LIBRARIES}/${id}`,
     };
 
-    return await new Promise((resolve) => {
+    return new Promise((resolve) => {
       this.request<ILibraryApiEntityResponse>(config).then(
         (result) => {
           result.match(
@@ -41,7 +41,7 @@ export class LibrariesService extends Service {
             (e: Error | AxiosError) => resolve(err(e)),
           );
         },
-        (e: Error | AxiosError) => resolve(err(e)),
+        (error: Error | AxiosError) => resolve(err(error)),
       );
     });
   }
@@ -52,7 +52,7 @@ export class LibrariesService extends Service {
       url: ApiTargets.LIBRARIES,
     };
 
-    return await new Promise((resolve) => {
+    return new Promise((resolve) => {
       this.request<ILibraryApiResponse>(config).then(
         (result) => {
           result.match(
@@ -60,7 +60,7 @@ export class LibrariesService extends Service {
             (e: Error | AxiosError) => resolve(err(e)),
           );
         },
-        (e: Error | AxiosError) => resolve(err(e)),
+        (error: Error | AxiosError) => resolve(err(error)),
       );
     });
   }

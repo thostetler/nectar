@@ -1,8 +1,8 @@
-import { ListType } from './types';
 import { MouseEvent, ReactElement } from 'react';
-import { MenuDropdown } from './MenuDropdown';
 import { OrcidInactiveLogo } from '@components';
 import { HStack } from '@chakra-ui/layout';
+import { MenuDropdown } from './MenuDropdown';
+import { ListType } from './types';
 
 const items = [
   {
@@ -20,10 +20,11 @@ export const OrcidDropdown = (props: IOrcidDropdownProps): ReactElement => {
   const { type, onFinished } = props;
 
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
-    const id = (e.target as HTMLElement).dataset['id'];
+    const id = (e.target as HTMLElement).dataset.id;
     if (id === 'login') {
       handleOrcidSignIn();
     }
+
     if (onFinished) {
       onFinished();
     }

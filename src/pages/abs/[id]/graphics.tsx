@@ -110,28 +110,29 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetail
       },
     } = queryClient.getQueryData<IADSApiSearchResponse>(searchKeys.abstract(query.id));
 
-    void (await queryClient.prefetchQuery({
+    await queryClient.prefetchQuery({
       queryKey: graphicsKeys.primary(bibcode),
       queryFn: fetchGraphics,
       meta: { params: { bibcode } },
-    }));
+    });
 
     return {
       props: {
         dehydratedState: dehydrate(queryClient),
       },
     };
-  } catch (e) {
-    if (axios.isAxiosError(e) && e.response) {
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
       return {
         props: {
           error: {
-            status: e.response.status,
-            message: e.message,
+            status: error.response.status,
+            message: error.message,
           },
         },
       };
     }
+
     return {
       props: {
         error: {
