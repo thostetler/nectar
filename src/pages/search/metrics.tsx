@@ -33,7 +33,6 @@ const MetricsPage: NextPage<IMetricsProps> = (props) => {
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const BATCH_SIZE = 1000;
   setupApiSSR(ctx);
-  const { fetchSearch } = await import('@api');
   const { qid: _qid, ...originalQuery } = ctx.query;
   const { qid = null, p, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.query, { sortPostfix: 'id asc' });
 
