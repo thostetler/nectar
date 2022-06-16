@@ -14,51 +14,6 @@ const BATCHES = 7;
 
 // This layer fetches the bibcodes
 export const MetricsPageContainer = ({ query }: IMetricsPageProps): ReactElement => {
-  // ----------- fetch bibcodes using useQueries (with prefetching) ----------------
-
-  // const starts = useMemo(() => {
-  //   let remainsToFetch = recordsToGet;
-  //   const arr = [];
-  //   let start = 0;
-  //   while (remainsToFetch > 0) {
-  //     arr.push(start);
-  //     start += batchSize;
-  //     remainsToFetch -= batchSize;
-  //   }
-  //   return arr;
-  // }, [recordsToGet]);
-
-  // parallel queries to get bibcodes
-  // const fetchBibsQueries = useQueries(
-  //   starts.map((start) => {
-  //     const params: IADSApiSearchParams = qid
-  //       ? { q: `docs(${qid})`, start: start, rows: batchSize, fl: ['bibcode'] }
-  //       : { ...parseQueryFromUrlNoPage(query), start: start, rows: batchSize, fl: ['bibcode'] };
-  //     return {
-  //       queryKey: searchKeys.primary(params),
-  //       queryFn: fetchSearch,
-  //       meta: { params },
-  //       select: (data: IADSApiSearchResponse) => data.response,
-  //     };
-  //   }),
-  // );
-
-  // const bibcodes = useMemo(() => {
-  //   // update bibcodes only when all queries have finished
-  //   if (
-  //     fetchBibsQueries.length > 0 &&
-  //     fetchBibsQueries.filter((query) => query.isLoading === false).length === fetchBibsQueries.length
-  //   ) {
-  //     const bibs: string[] = [];
-  //     fetchBibsQueries.map(({ data }) => {
-  //       data?.docs?.forEach((doc) => bibs.push(doc.bibcode));
-  //     });
-  //     return bibs;
-  //   }
-  // }, [fetchBibsQueries]);
-
-  // -------------------------------------------
-
   const { data, progress } = useBatchedSearch<string>(
     { rows: BATCH_SIZE, fl: ['bibcode'], ...query },
     { batches: BATCHES, transformResponses: (res) => res.response.docs.map((d) => d.bibcode) },
@@ -88,16 +43,39 @@ const MetricsComponent = ({ bibcodes }: { bibcodes: Bibcode[] }): ReactElement =
     <Box my={5}>
       {bibcodes && bibcodes.length > 0 ? (
         <>
-          {isErrorMetrics ? (
-            <Alert status="error" my={5}>
-              <AlertIcon />
-              <AlertTitle mr={2}>Error fetching metrics!</AlertTitle>
-              <AlertDescription>{axios.isAxiosError(errorMetrics) && errorMetrics.message}</AlertDescription>
-            </Alert>
-          ) : (
+          {/* No metrics warning or Fetching error */}
+          {isErrorMetrics && (
+            <>
+              {errorMetrics instanceof Error && errorMetrics.message.startsWith('No data available') ? (
+                <Alert
+                  status="info"
+                  my={5}
+                  variant="subtle"
+                  flexDirection="column"
+                  justifyContent="center"
+                  height="200px"
+                  backgroundColor="transparent"
+                >
+                  <AlertIcon boxSize="40px" />
+                  <AlertTitle mt={4} mb={1} fontSize="lg">
+                    Metrics not available
+                  </AlertTitle>
+                  <AlertDescription>{errorMetrics.message}</AlertDescription>
+                </Alert>
+              ) : (
+                <Alert status="error" my={5}>
+                  <AlertIcon />
+                  <AlertTitle mr={2}>Error fetching metrics!</AlertTitle>
+                  <AlertDescription>{axios.isAxiosError(errorMetrics) && errorMetrics.message}</AlertDescription>
+                </Alert>
+              )}
+            </>
+          )}
+          {/* Successfully fetched metrics */}
+          {!isErrorMetrics && (
             <>
               <Text my={5}>
-                {isLoading ? 'Loading' : 'Showing'} metrics for <b>{bibcodes.length}</b> records
+                {isLoading ? 'Loading' : 'Showing'} metrics for <b>{bibcodes.length.toLocaleString()}</b> records
               </Text>
               {isLoading && <CircularProgress isIndeterminate />}
               {metricsData && <Metrics metrics={metricsData} isAbstract={false} bibcodes={bibcodes} />}

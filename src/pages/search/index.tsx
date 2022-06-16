@@ -8,7 +8,6 @@ import {
   searchKeys,
   SEARCH_API_KEYS,
   SolrSort,
-  useGetHighlights,
   useSearch,
 } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
@@ -26,7 +25,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
-import { FormEventHandler, useEffect, useMemo, useState } from 'react';
+import { FormEventHandler, useEffect, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
 
 const updateQuerySelector = (state: AppState) => state.updateQuery;
@@ -70,7 +69,12 @@ const SearchPage: NextPage = () => {
   }, [highlightsIsLoading, highlightsIsError]);
 
   const handleSortChange = (sort: SolrSort[]) => {
-    const search = makeSearchParams({ ...params, ...store.getState().query, sort, p: 1 });
+    const query = store.getState().query;
+    if (query.q.length === 0) {
+      // if query is empty, do not submit search
+      return;
+    }
+    const search = makeSearchParams({ ...params, ...query, sort, p: 1 });
     updateQuery({ sort });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
@@ -85,7 +89,12 @@ const SearchPage: NextPage = () => {
 
   const handleOnSubmit: FormEventHandler = (e) => {
     e.preventDefault();
-    const search = makeSearchParams({ ...params, ...store.getState().query, p: 1 });
+    const query = store.getState().query;
+    if (query.q.length === 0) {
+      // if query is empty, do not submit search
+      return;
+    }
+    const search = makeSearchParams({ ...params, ...query, p: 1 });
     void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
   };
 
@@ -126,7 +135,7 @@ const SearchPage: NextPage = () => {
       <VisuallyHidden as="h2" id="search-form-title">
         Search Results
       </VisuallyHidden>
-      {!isLoading && data.numFound === 0 && (
+      {!isLoading && data?.numFound === 0 && (
         <Alert
           status="info"
           variant="subtle"
