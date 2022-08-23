@@ -52,7 +52,7 @@ export const joinQueries = curry((queryB: string, queryA: string) => {
         return stringify({
           left: {
             ...rightAST,
-            parenthesized: true,
+            parenthesized: !rightAST.parenthesized,
           },
         });
       }
@@ -63,11 +63,12 @@ export const joinQueries = curry((queryB: string, queryA: string) => {
       return stringify({
         left: {
           ...leftAST,
+          parenthesized: !isBinaryAST(leftAST) && !leftAST.parenthesized,
         },
         operator: DEFAULT_OPERATOR,
         right: {
           ...rightAST,
-          parenthesized: true,
+          parenthesized: !isBinaryAST(rightAST) && !rightAST.parenthesized,
         },
       });
     }

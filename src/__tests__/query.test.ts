@@ -5,29 +5,18 @@ describe('Query Utilities', () => {
     expect(Q.joinConditions('AND', ['foo', 'bar', 'baz'])).toEqual('foo AND bar AND baz');
   });
 
-  // it.concurrent.each<[string, Parameters<typeof Q.joinQueries>, ReturnType<typeof Q.joinQueries>]>([
-  //   ['', ['AND', 'baz', 'foo'], 'foo AND baz'],
-  //   ['', ['AND', 'baz', 'foo AND bar'], '(foo AND bar) AND baz'],
-  //   ['', ['AND', 'baz OR biz', 'foo AND bar'], '(foo AND bar) AND (baz OR biz)'],
-  //   ['', ['AND', 'baz OR biz', '(foo AND bar) AND test'], '((foo AND bar) AND test) AND (baz OR biz)'],
-  //   ['', ['AND', 'baz OR biz', '(foo AND bar) AND test'], '((foo AND bar) AND test) AND (baz OR biz)'],
-  //   ['', ['NOT', 'baz OR biz', '(foo AND bar) AND test'], '((foo AND bar) AND test) NOT (baz OR biz)'],
-  //   [
-  //     'transforms operators',
-  //     ['AND', 'baz or biz or buz', 'foo and bar and baz'],
-  //     '(foo AND bar AND baz) AND (baz OR biz OR buz)',
-  //   ],
-  // ])('%s', (_, args, expected) => {
-  //   expect(Q.joinQueries(...args)).toEqual(expected);
-  //   return Promise.resolve();
-  // });
-  //
-  // it.concurrent.each<[string, Parameters<typeof Q.removeCondition>, ReturnType<typeof Q.removeCondition>]>([
-  //   ['', ['AND', 'foo AND bar OR TEST', 'BAR OR TEST'], 'foo'],
-  // ])('%s', (_, args, expected) => {
-  //   expect(Q.removeCondition(...args)).toEqual(expected);
-  //   return Promise.resolve();
-  // });
+  it.concurrent.each<[string, Parameters<typeof Q.joinQueries>, ReturnType<typeof Q.joinQueries>]>([
+    ['', ['1 or 2', undefined], '(1 OR 2)'],
+    ['', ['1 or 2', '3 and 4'], '(1 OR 2) AND (3 AND 4)'],
+    [
+      '',
+      ['(1 or 2) AND (3 OR 4) AND (*:* NOT 5 NOT 6)', '(3 and 4)'],
+      '(3 AND 4) AND (1 OR 2) AND (3 OR 4) AND (*:* NOT 5 NOT 6)',
+    ],
+  ])('%s', (_, args, expected) => {
+    expect(Q.joinQueries(...args)).toEqual(expected);
+    return Promise.resolve();
+  });
 
   /**
    * Escaping
