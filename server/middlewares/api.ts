@@ -9,6 +9,8 @@ import { IBootstrapPayload, IUserData } from '../../src/api/accounts/types';
 import { ApiTargets } from '../../src/api/models';
 import { AppRuntimeConfig } from '../../src/types';
 
+const isAuthorized = (user: IUserData) => !user.anonymous || user.username !== 'anonymous@ads';
+
 const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
     !isNil(userData) &&
@@ -84,6 +86,7 @@ export const api: Middleware = (req, res, next) => {
       const { data, headers } = response;
 
       session.userData = data;
+      session.isAuthorized = isAuthorized(data);
       res.setHeader('set-cookie', headers['set-cookie']);
     })
     .catch((e) => {

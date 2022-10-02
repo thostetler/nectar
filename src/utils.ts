@@ -1,6 +1,16 @@
-import api, { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
+import api, {
+  ApiTargets,
+  IADSApiSearchParams,
+  IADSApiSearchResponse,
+  ICSRFResponse,
+  IDocsEntity,
+  IUserData,
+  SolrSort,
+} from '@api';
+import { defaultRequestConfig } from '@api/config';
 import { APP_DEFAULTS } from '@config';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
+import axios from 'axios';
 import DOMPurify from 'isomorphic-dompurify';
 import { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
@@ -364,4 +374,17 @@ export const kFormatNumber = (value: number): string | number => {
 
 export const isEmptyObject = (value: unknown) => {
   return is(Object) && keys(value).length === 0;
+};
+
+export const getCSRF = async (req: GetServerSidePropsContext['req']) => {
+  const { data, config } = await axios.get<ICSRFResponse>(ApiTargets.CSRF, {
+    ...defaultRequestConfig,
+    headers: {
+      Authorization: `Bearer ${req.session.userData.access_token}`,
+      // pass-thru the ads session value (this is the one coming from the client)
+      Cookie: `session=${req.cookies.session}`,
+    },
+  });
+  console.log(config);
+  return data.csrf;
 };

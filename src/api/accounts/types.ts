@@ -24,6 +24,11 @@ export interface IRegisterErrorResponse {
   error: string;
 }
 
+export interface ILogoutResponse {
+  message?: 'success';
+  error?: string;
+}
+
 export interface ICSRFResponse {
   csrf: string;
 }
@@ -51,3 +56,8 @@ export interface IADSApiBootstrapResponse extends AxiosResponse<IBootstrapPayloa
 }
 
 export type IUserData = Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expire_in'>;
+
+export interface IUserLoginResponse {
+  message?: 'success' | string;
+  error?: string;
+}
