@@ -11,6 +11,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
 import { FC, memo, ReactElement, useEffect } from 'react';
+import { CookiesProvider } from 'react-cookie';
 import { Hydrate, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import 'tailwindcss/tailwind.css';
@@ -52,10 +53,12 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
     <MathJaxProvider>
       <ChakraProvider theme={theme}>
         <StoreProvider createStore={createStore}>
+          <CookiesProvider>
           <QCProvider>
             <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
             <ReactQueryDevtools />
           </QCProvider>
+          </CookiesProvider>
         </StoreProvider>
       </ChakraProvider>
     </MathJaxProvider>

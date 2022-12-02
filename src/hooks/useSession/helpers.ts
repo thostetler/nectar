@@ -7,14 +7,17 @@ import api, {
   IUserData,
 } from '@api';
 import { defaultRequestConfig } from '@api/config';
+import { APP_DEFAULTS } from '@config';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import cookie from 'cookie';
 import { NextApiResponse } from 'next';
 import { pick } from 'ramda';
 import { IUserCredentials, IUserRegistrationCredentials } from './types';
+import { addDays, toDate } from 'date-fns';
 
 interface ResponseWithCookie<T> extends AxiosResponse<T> {
   headers: {
-    'set-cookie': string;
+    'set-cookie': string[];
   };
 }
 
@@ -47,11 +50,38 @@ export const authenticateUser = async (creds: IUserCredentials, res?: NextApiRes
     );
 
     if (data.message === 'success') {
-      // forward the set-cookie so that subsequent bootstraps will work client-side
-      res.setHeader('set-cookie', headers['set-cookie']);
+      res.setHeader('Set-Cookie', headers['set-cookie']);
+
+      if (creds.remember) {
+        // expire both in 48 hours
+        const expires = toDate(addDays(new Date(), 2));
+        const maxAge = 60 * 60 * 24 * 2;
+
+        res.append(
+          'Set-Cookie',
+          cookie.serialize(APP_DEFAULTS.USER_EMAIL_COOKIE, String(creds.email), {
+            httpOnly: true,
+            expires,
+            maxAge,
+            path: '/',
+            secure: true,
+            sameSite: 'none',
+          }),
+        );
+
+        res.append(
+          'Set-Cookie',
+          cookie.serialize(APP_DEFAULTS.USER_MASKED_EMAIL_COOKIE, String(creds.email).slice(0, 3).padEnd(8, '*'), {
+            maxAge,
+            expires,
+            sameSite: 'none',
+            path: '/',
+          }),
+        );
+      }
 
       try {
-        const userData = await bootstrap({ session: headers['set-cookie'] }, res);
+        const userData = await bootstrap({ session: headers['set-cookie'][0] }, res);
 
         return userData;
       } catch (e) {
@@ -113,10 +143,10 @@ export const logoutUser = async (res?: NextApiResponse) => {
 
     if (data.message === 'success') {
       // forward the set-cookie so that subsequent bootstraps will work client-side
-      res.setHeader('set-cookie', headers['set-cookie']);
+      res.setHeader('Set-Cookie', headers['set-cookie']);
 
       try {
-        const userData = await bootstrap({ session: headers['set-cookie'] }, res);
+        const userData = await bootstrap({ session: headers['set-cookie'][0] }, res);
 
         return userData;
       } catch (e) {
@@ -157,7 +187,7 @@ export const bootstrap = async ({ session }: { session: string }, res?: NextApiR
 
   // server-side this should forward the incoming set-cookie value
   if (res) {
-    res.setHeader('set-cookie', headers['set-cookie']);
+    res.setHeader('Set-Cookie', headers['set-cookie']);
   }
 
   return pick(['access_token', 'username', 'anonymous', 'expire_in'], data) as IUserData;

@@ -8,4 +8,6 @@ export const APP_DEFAULTS = {
   SORT: ['date desc', 'bibcode desc'] as SolrSort[],
   QUERY_SORT_POSTFIX: 'bibcode desc' as SolrSort,
   EXPORT_PAGE_SIZE: 500,
+  USER_EMAIL_COOKIE: 'user',
+  USER_MASKED_EMAIL_COOKIE: 'user_masked' 
 } as const;

@@ -1,6 +1,7 @@
 export interface IUserCredentials {
   email: string;
   password: string;
+  remember: boolean;
 }
 
 export interface IUserRegistrationCredentials {

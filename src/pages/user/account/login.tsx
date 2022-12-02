@@ -25,16 +25,17 @@ const Login: NextPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string>(null);
+  const [remember, setRemember] = useState(() => typeof cookies[cookieName] === 'string');
 
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      const result = await login({ email, password });
+      const result = await login({ email, password, remember });
       if (result.error) {
         setError(result.error);
       }
     },
-    [login, email, password],
+    [login, email, password, remember],
   );
 
   // if already authenticated, redirect immediately
@@ -78,7 +79,16 @@ const Login: NextPage = () => {
               />
               <FormErrorMessage>Error message</FormErrorMessage>
             </FormControl>
-            <Button type="submit">Login with email</Button>
+            <FormControl>
+              <Checkbox
+                name="rememberemail"
+                id="rememberemail"
+                isChecked={remember}
+                onChange={(e) => setRemember(e.currentTarget.checked)}
+              >
+                Remember Email?
+              </Checkbox>
+            </FormControl>
             <SimpleLink alignSelf="center" href="/user/account/register">
               Register
             </SimpleLink>
