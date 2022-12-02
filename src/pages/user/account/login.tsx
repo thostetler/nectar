@@ -2,7 +2,9 @@ import {
   Alert,
   AlertDescription,
   AlertTitle,
+  Box,
   Button,
+  Checkbox,
   Container,
   FormControl,
   FormErrorMessage,
@@ -16,15 +18,30 @@ import { useSession } from '@hooks/useSession';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { FormEvent, useCallback, useState } from 'react';
+import { useCookies } from 'react-cookie';
+import { FormEvent, useCallback, useMemo, useState } from 'react';
+import { APP_DEFAULTS } from '@config';
+import { ZodError } from 'zod';
+import { IUserCredentials } from '@hooks/useSession/types';
 export { userGSSP as getServerSideProps } from '@utils';
+
+// get remember-email cookie name from config
+const cookieName = APP_DEFAULTS.USER_MASKED_EMAIL_COOKIE;
+
+// get hold of actual error object from validation error list
+const getError = (name: string, error: string | ZodError<IUserCredentials>) => {
+    if (error && typeof error !== 'string' && error.issues) {
+      return error.issues.find(i => i.path.includes(name));
+    }
+  };
 
 const Login: NextPage = () => {
   const router = useRouter();
-  const { login, isAuthenticated } = useSession();
-  const [email, setEmail] = useState('');
+  const { login, isAuthenticated, isLoggingIn } = useSession();
+  const [cookies] = useCookies([cookieName]);
+  const [email, setEmail] = useState(cookies[cookieName] as string ?? '');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string>(null);
+  const [error, setError] = useState<string | ZodError<IUserCredentials>>(null);
   const [remember, setRemember] = useState(() => typeof cookies[cookieName] === 'string');
 
   const handleSubmit = useCallback(
@@ -37,6 +54,9 @@ const Login: NextPage = () => {
     },
     [login, email, password, remember],
   );
+
+  const emailError = useMemo(() => getError('email', error), [error]);  
+  const passwordError = useMemo(() => getError('password', error), [error]);  
 
   // if already authenticated, redirect immediately
   if (isAuthenticated) {
@@ -54,7 +74,7 @@ const Login: NextPage = () => {
         <Heading alignSelf="center">Welcome!</Heading>
         <form onSubmit={(e) => void handleSubmit(e)}>
           <Stack direction="column" spacing={4}>
-            <FormControl>
+            <FormControl isInvalid={!!emailError}>
               <FormLabel>Email</FormLabel>
               <Input
                 type="text"
@@ -65,9 +85,9 @@ const Login: NextPage = () => {
                 value={email}
                 autoFocus
               />
-              <FormErrorMessage>Error message</FormErrorMessage>
+              <FormErrorMessage>{emailError?.message}</FormErrorMessage>
             </FormControl>
-            <FormControl>
+            <FormControl isInvalid={!!passwordError}>
               <FormLabel>Password</FormLabel>
               <Input
                 type="password"
@@ -77,7 +97,7 @@ const Login: NextPage = () => {
                 onChange={(e) => setPassword(e.currentTarget.value)}
                 value={password}
               />
-              <FormErrorMessage>Error message</FormErrorMessage>
+              <FormErrorMessage>{passwordError?.message}</FormErrorMessage>
             </FormControl>
             <FormControl>
               <Checkbox
@@ -89,11 +109,25 @@ const Login: NextPage = () => {
                 Remember Email?
               </Checkbox>
             </FormControl>
+              
+            <Button type="submit" isLoading={isLoggingIn} disabled={isLoggingIn}>Login with email</Button>
             <SimpleLink alignSelf="center" href="/user/account/register">
               Register
             </SimpleLink>
-            {error && (
-              <Alert status="error">
+
+            <Box alignSelf="center">
+              Forgot{' '}
+              <SimpleLink display="inline" href="/user/account/recover-username">
+                username
+              </SimpleLink>{' '}
+              or{' '}
+              <SimpleLink display="inline" href="/user/account/reset-password">
+                password
+              </SimpleLink>
+              ?
+            </Box>
+            {error && typeof error === 'string' && (
+              <Alert status="error" flexDir="column">
                 <AlertTitle>Unable to login user</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
