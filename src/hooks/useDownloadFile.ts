@@ -26,7 +26,7 @@ export const useDownloadFile = (value: string | (() => string), options: IUseDow
   useEffect(() => {
     if (value && type) {
       const blob = new Blob(typeof value === 'function' ? [value()] : [value], { type });
-      setHref(window.URL.createObjectURL(blob));
+      setHref(global.URL.createObjectURL(blob));
     }
   }, [value, type]);
 
@@ -40,11 +40,11 @@ export const useDownloadFile = (value: string | (() => string), options: IUseDow
       link.setAttribute('download', file);
 
       // open the link in a new tab
-      window.open(link.href, '_blank');
+      global.open(link.href, '_blank');
       link.remove();
     } else {
       // save the file
-      saveAs(href, file, { autoBom: false });
+      saveAs(href, file);
     }
 
     // let subscribers know we finished

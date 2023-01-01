@@ -11,7 +11,7 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-test('Normal case', () => {
+test('Default works', () => {
   const { result } = renderHook((props: Parameters<typeof useDownloadFile>) => useDownloadFile(...props), {
     initialProps: [''],
   });
@@ -25,6 +25,13 @@ test('Normal case', () => {
   });
 
   result.current.onDownload();
+  expect(saveAs).toHaveBeenCalledWith('', 'download.txt');
+});
 
-  console.log(result, saveAs);
+test('Browser type creates a link', () => {
+  const { result } = renderHook((props: Parameters<typeof useDownloadFile>) => useDownloadFile(...props), {
+    initialProps: ['test', { type: 'BROWSER' }],
+  });
+  console.log(result.current);
+  expect(result.current).toMatchObject({});
 });
