@@ -1,6 +1,6 @@
 import { Box, Text } from '@chakra-ui/react';
-import { SimpleLink } from '@components';
 import { ReactElement } from 'react';
+import { SimpleLink } from '@components/SimpleLink';
 
 export const NotEnoughData = (): ReactElement => {
   return (

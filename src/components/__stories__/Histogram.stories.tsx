@@ -1,6 +1,6 @@
-import { IHistogramProps, Histogram } from '@components';
 import { yearPaperCountData } from '@components/__mocks__/yearPaperCountData';
 import { Meta, Story } from '@storybook/react';
+import { Histogram, IHistogramProps } from '@components/Visualizations';
 
 const meta: Meta = {
   title: 'Visualizations/graphs/Histogram',

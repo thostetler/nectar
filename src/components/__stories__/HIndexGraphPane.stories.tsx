@@ -1,6 +1,6 @@
-import { IHIndexGraphPaneProps, HIndexGraphPane } from '@components';
 import { buckets, sum } from '@components/__mocks__/hIndexGraphData';
 import { Meta, Story } from '@storybook/react';
+import { HIndexGraphPane, IHIndexGraphPaneProps } from '@components/Visualizations';
 
 const meta: Meta = {
   title: 'Visualizations/HIndexGraphPane',

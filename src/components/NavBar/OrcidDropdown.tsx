@@ -1,8 +1,8 @@
 import { HStack } from '@chakra-ui/layout';
-import { OrcidInactiveLogo } from '@components';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { ListType } from './types';
+import { OrcidInactiveLogo } from '@components/images';
 
 const items = [
   {

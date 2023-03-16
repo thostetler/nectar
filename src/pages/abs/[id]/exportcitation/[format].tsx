@@ -1,7 +1,6 @@
 import { ExportApiFormatKey, exportCitationKeys, IADSApiSearchResponse, isExportApiFormat, searchKeys } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { Box } from '@chakra-ui/react';
-import { CitationExporter } from '@components';
 import { getExportCitationDefaultContext } from '@components/CitationExporter/CitationExporter.machine';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
@@ -11,6 +10,7 @@ import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue, us
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+import { CitationExporter } from '@components/CitationExporter';
 
 interface IExportCitationPageProps {
   id: string;

@@ -5,25 +5,14 @@ import {
   getSearchStatsParams,
   IADSApiSearchParams,
   IADSApiSearchResponse,
-  searchKeys,
   SEARCH_API_KEYS,
+  searchKeys,
   SolrSort,
   useSearch,
 } from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Box, Flex, List, ListIcon, ListItem, Stack } from '@chakra-ui/layout';
 import { Alert, AlertIcon, Button, Code, Heading, Portal, useMediaQuery, VisuallyHidden } from '@chakra-ui/react';
-import {
-  CustomInfoMessage,
-  ISearchFacetsProps,
-  ItemsSkeleton,
-  ListActions,
-  NumFound,
-  Pagination,
-  SearchBar,
-  SimpleLink,
-  SimpleResultList,
-} from '@components';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { FacetFilters } from '@components/SearchFacet/FacetFilters';
 import { YearHistogramSlider } from '@components/SearchFacet/YearHistogramSlider';
@@ -47,6 +36,12 @@ import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
 import { FormEventHandler, useEffect, useRef, useState } from 'react';
 import { dehydrate, QueryClient, useQueryClient } from 'react-query';
+import { ItemsSkeleton, ListActions, Pagination, SimpleResultList } from '@components/ResultList';
+import { SearchBar } from '@components/SearchBar';
+import { SimpleLink } from '@components/SimpleLink';
+import { CustomInfoMessage } from '@components/Feedbacks';
+import { ISearchFacetsProps } from '@components/SearchFacet';
+import { NumFound } from '@components/NumFound';
 
 const SearchFacets = dynamic<ISearchFacetsProps>(
   () => import('@components/SearchFacet').then((mod) => mod.SearchFacets),

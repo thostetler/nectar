@@ -3,11 +3,11 @@ import { Button } from '@chakra-ui/button';
 import { ChevronDownIcon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { HStack, VStack } from '@chakra-ui/layout';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
-import { SimpleLinkList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { useIsClient } from '@hooks/useIsClient';
 import { HTMLAttributes, MouseEvent, MouseEventHandler, ReactElement, useMemo } from 'react';
 import { IDataProductSource, IFullTextSource, IRelatedWorks, processLinkData } from './linkGenerator';
+import { SimpleLinkList } from '@components/Dropdown';
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;

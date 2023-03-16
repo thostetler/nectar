@@ -22,7 +22,6 @@ import {
   IADSApiWordCloudResponse,
   IBibcodeDict,
 } from '@api/vis/types';
-import { IAuthorNetworkNodeDetails, IPaperNetworkLinkDetails, IPaperNetworkNodeDetails } from '@components';
 import { Datum, Serie } from '@nivo/line';
 import * as d3 from 'd3';
 import { decode } from 'he';
@@ -37,14 +36,16 @@ import {
   range,
   reduce,
   reverse,
-  values,
   sort,
   sortBy,
   toPairs,
   uniq,
+  values,
 } from 'ramda';
 import {
   IBarGraph,
+  IBubblePlot,
+  IBubblePlotNodeData,
   ICitationsTableData,
   ICitationTableInput,
   IIndicesTableData,
@@ -54,11 +55,14 @@ import {
   IPaperTableInput,
   IReadsTableData,
   IReadTableInput,
-  YearDatum,
   ISliderRange,
-  IBubblePlotNodeData,
-  IBubblePlot,
+  YearDatum,
 } from '../types';
+import {
+  IAuthorNetworkNodeDetails,
+  IPaperNetworkLinkDetails,
+  IPaperNetworkNodeDetails,
+} from '@components/Visualizations';
 
 /************ metrics helpers ************/
 

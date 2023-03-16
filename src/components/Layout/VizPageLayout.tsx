@@ -1,10 +1,11 @@
 import { Flex, Heading, HStack, Link } from '@chakra-ui/react';
-import { VisualizationsTabs, VizSection } from '@components';
 import NextLink from 'next/link';
 import Head from 'next/head';
 import { FC } from 'react';
 import { UrlObject } from 'url';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
+import { VisualizationsTabs, VizSection } from '@components/Visualizations';
+
 interface IVizPageLayoutProps {
   vizPage: VizSection;
   from?: UrlObject;

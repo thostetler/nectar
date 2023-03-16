@@ -1,8 +1,9 @@
 import { Box, Flex, HStack, Link, Text } from '@chakra-ui/layout';
 import VisuallyHidden from '@chakra-ui/visually-hidden';
-import { CFALogo, NasaLogo, SimpleLink, SmithsonianLogo } from '@components';
 import NextLink from 'next/link';
 import { FC } from 'react';
+import { CFALogo, NasaLogo, SmithsonianLogo } from '@components/images';
+import { SimpleLink } from '@components/SimpleLink';
 
 export const Footer: FC = () => {
   // TODO: darkmode will invert logo colors, need to swap out for high contrast instead

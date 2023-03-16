@@ -2,19 +2,6 @@ import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
 import { IADSApiPaperNetworkFullGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api/vis/types';
 import { useGetPaperNetwork } from '@api/vis/vis';
 import { Box, SimpleGrid, useBreakpointValue, useToast } from '@chakra-ui/react';
-import {
-  CustomInfoMessage,
-  DataDownloader,
-  Expandable,
-  IPaperNetworkLinkDetails,
-  IPaperNetworkNodeDetails,
-  ITagItem,
-  LoadingMessage,
-  PaperNetworkDetailsPane,
-  PaperNetworkGraphPane,
-  SimpleLink,
-  StandardAlertMessage,
-} from '@components';
 import { setFQ } from '@query-utils';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
@@ -25,6 +12,17 @@ import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getPaperNetworkLinkDetails, getPaperNetworkNodeDetails, getPaperNetworkSummaryGraph } from '../utils';
 import { FilterSearchBar, IFilterSearchBarProps, NotEnoughData } from '../Widgets';
+import { ITagItem } from '@components/Tags';
+import {
+  IPaperNetworkLinkDetails,
+  IPaperNetworkNodeDetails,
+  PaperNetworkDetailsPane,
+  PaperNetworkGraphPane,
+} from '@components/Visualizations';
+import { SimpleLink } from '@components/SimpleLink';
+import { Expandable } from '@components/Expandable';
+import { CustomInfoMessage, LoadingMessage, StandardAlertMessage } from '@components/Feedbacks';
+import { DataDownloader } from '@components/DataDownloader';
 
 interface IPaperNetworkPageContainerProps {
   query: IADSApiSearchParams;

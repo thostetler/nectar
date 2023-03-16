@@ -11,12 +11,13 @@ import {
   Input,
   Stack,
 } from '@chakra-ui/react';
-import { SimpleLink } from '@components';
 import { useSession } from '@hooks/useSession';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { FormEvent, useCallback, useState } from 'react';
+import { SimpleLink } from '@components/SimpleLink';
+
 export { userGSSP as getServerSideProps } from '@utils';
 
 const Login: NextPage = () => {

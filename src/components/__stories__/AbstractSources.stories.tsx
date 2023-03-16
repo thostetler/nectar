@@ -1,6 +1,6 @@
-import { AbstractSources, IAbstractSourcesProps } from '@components';
 import { doc } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
+import { AbstractSources, IAbstractSourcesProps } from '@components/AbstractSources';
 
 const meta: Meta = {
   title: 'AbstractSources',

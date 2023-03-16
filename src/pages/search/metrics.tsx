@@ -1,9 +1,10 @@
 import { IADSApiSearchParams } from '@api';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
-import { MetricsPageContainer, VizPageLayout } from '@components';
 import { composeNextGSSP, makeSearchParams, parseQueryFromUrl, setupApiSSR, userGSSP } from '@utils';
 import axios from 'axios';
 import { GetServerSideProps, NextPage } from 'next';
+import { MetricsPageContainer } from '@components/Visualizations';
+import { VizPageLayout } from '@components/Layout';
 
 interface IMetricsProps {
   originalQuery: IADSApiSearchParams;

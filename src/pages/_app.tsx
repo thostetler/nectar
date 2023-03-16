@@ -1,5 +1,4 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { Layout } from '@components';
 import { useIsClient } from '@hooks';
 import { useCreateQueryClient } from '@hooks/useCreateQueryClient';
 import { MathJaxProvider } from '@mathjax';
@@ -15,6 +14,7 @@ import { Hydrate, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import 'tailwindcss/tailwind.css';
 import '../styles/styles.css';
+import { Layout } from '@components/Layout';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');

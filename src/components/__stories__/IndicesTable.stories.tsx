@@ -1,6 +1,6 @@
-import { IndicesTable, IIndicesTableProps } from '@components';
 import { indicesTableData } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
+import { IIndicesTableProps, IndicesTable } from '@components/Visualizations';
 
 const meta: Meta = {
   title: 'Visualizations/tables/IndicesTable',

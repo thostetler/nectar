@@ -11,7 +11,6 @@ import {
 import { Alert, AlertIcon } from '@chakra-ui/alert';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Box, Flex, Heading, HStack, Link } from '@chakra-ui/react';
-import { CitationExporter } from '@components';
 import { getExportCitationDefaultContext } from '@components/CitationExporter/CitationExporter.machine';
 import { APP_DEFAULTS } from '@config';
 import { useIsClient } from '@hooks/useIsClient';
@@ -23,6 +22,8 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { last, omit } from 'ramda';
 import { dehydrate, DehydratedState, QueryClient } from 'react-query';
+import { CitationExporter } from '@components/CitationExporter';
+
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;
   query: IADSApiSearchParams;

@@ -4,13 +4,13 @@ import { getAuthorAffiliationSearchParams } from '@api/author-affiliation/model'
 import { IAuthorAffiliationPayload } from '@api/author-affiliation/types';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { Button, Container as Box, Link } from '@chakra-ui/react';
-import { AuthorAffiliations, AuthorAffiliationsErrorMessage } from '@components';
 import { APP_DEFAULTS } from '@config';
 import { useBackToSearchResults } from '@hooks/useBackToSearchResults';
 import { composeNextGSSP, parseAPIError, parseQueryFromUrl, setupApiSSR, userGSSP } from '@utils';
 import { NextPage } from 'next';
 import NextLink from 'next/link';
 import { dehydrate, DehydratedState, QueryClient } from 'react-query';
+import { AuthorAffiliations, AuthorAffiliationsErrorMessage } from '@components/AuthorAffiliations';
 
 interface IAuthorAffilationsPageProps {
   error?: string;

@@ -1,5 +1,5 @@
-import { ISortProps, Sort } from '@components';
 import { Meta, Story } from '@storybook/react';
+import { ISortProps, Sort } from '@components/Sort';
 
 const meta: Meta = {
   title: 'Sort',

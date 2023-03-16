@@ -14,9 +14,11 @@ import {
 } from '@chakra-ui/react';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { DataDownloader, LineGraph, Slider } from '@components';
-import { Y_Axis, ILineGraph } from '../types';
+import { ILineGraph, Y_Axis } from '../types';
 import { getHIndexGraphData, getLineGraphXTicks } from '../utils';
+import { LineGraph } from '@components/Visualizations';
+import { DataDownloader } from '@components/DataDownloader';
+import { Slider } from '@components/Slider';
 
 export interface IHIndexGraphPaneProps {
   buckets: IBucket[];
@@ -24,6 +26,7 @@ export interface IHIndexGraphPaneProps {
   type: 'citations' | 'reads';
   onApplyCondition: (cond: string) => void;
 }
+
 const maxDataPoints = 2000;
 
 export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHIndexGraphPaneProps): ReactElement => {

@@ -1,14 +1,5 @@
 import { IADSApiSearchParams, useGetWordCloud } from '@api';
 import { Box, Flex, Text, useBreakpointValue } from '@chakra-ui/react';
-import {
-  Expandable,
-  ITagItem,
-  IWordCloudPaneProps,
-  LoadingMessage,
-  SimpleLink,
-  StandardAlertMessage,
-  WordCloudPane,
-} from '@components';
 import { makeSearchParams } from '@utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -16,6 +7,11 @@ import { ReactElement, Reducer, useMemo, useReducer } from 'react';
 import { ISliderRange } from '../types';
 import { buildWCDict } from '../utils';
 import { FilterSearchBar, IFilterSearchBarProps } from '../Widgets';
+import { ITagItem } from '@components/Tags';
+import { IWordCloudPaneProps, WordCloudPane } from '@components/Visualizations';
+import { SimpleLink } from '@components/SimpleLink';
+import { Expandable } from '@components/Expandable';
+import { LoadingMessage, StandardAlertMessage } from '@components/Feedbacks';
 
 const MAX_ROWS_TO_FETCH = 100;
 

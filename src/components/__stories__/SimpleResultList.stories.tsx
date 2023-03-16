@@ -1,5 +1,5 @@
-import { ISimpleResultListProps, SimpleResultList } from '@components';
 import { Meta, Story } from '@storybook/react';
+import { ISimpleResultListProps, SimpleResultList } from '@components/ResultList';
 
 const meta: Meta = {
   title: 'ResultList/SimpleResultList',

@@ -1,6 +1,6 @@
-import { ISelectProps, Select } from '@components';
 import { states } from '@components/__mocks__/data';
 import { Meta, Story } from '@storybook/react';
+import { ISelectProps, Select } from '@components/Select';
 
 const meta: Meta = {
   title: 'Select',

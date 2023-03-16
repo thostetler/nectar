@@ -10,7 +10,6 @@ import {
   useGetMetrics,
 } from '@api';
 import { Box } from '@chakra-ui/react';
-import { MetricsPane } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
@@ -18,6 +17,8 @@ import { composeNextGSSP, normalizeURLParams, setupApiSSR, unwrapStringValue, us
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+import { MetricsPane } from '@components/Visualizations';
+
 interface IMetricsPageProps {
   id: string;
   error?: {

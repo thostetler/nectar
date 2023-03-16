@@ -6,7 +6,6 @@ import { FormControl, FormErrorMessage, FormHelperText, FormLabel } from '@chakr
 import { WarningTwoIcon } from '@chakra-ui/icons';
 import { Box, Divider, Grid, GridItem, Heading, Stack, Text, VStack } from '@chakra-ui/layout';
 import { Alert, Input, Link, Textarea } from '@chakra-ui/react';
-import { BibstemPicker } from '@components';
 import { useErrorMessage } from '@hooks/useErrorMessage';
 import { useIsClient } from '@hooks/useIsClient';
 import { composeNextGSSP, setupApiSSR, stringifySearchParams, userGSSP } from '@utils';
@@ -18,6 +17,7 @@ import { any, head, isEmpty, join, map, not, omit, pipe, reject, toPairs, values
 import { FormEventHandler, useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { QueryClient, useQueryClient } from 'react-query';
+import { BibstemPicker } from '@components/BibstemPicker';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',

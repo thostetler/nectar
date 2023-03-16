@@ -2,7 +2,6 @@ import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { IconButton } from '@chakra-ui/button';
 import { Input } from '@chakra-ui/input';
 import { Box, HStack, Link } from '@chakra-ui/layout';
-import { SimpleLinkDropdown } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import { ISelectProps, Select } from '@components/Select';
 import { SortAscendingIcon, SortDescendingIcon } from '@heroicons/react/outline';
@@ -12,6 +11,7 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
 import { sortValues } from './model';
+import { SimpleLinkDropdown } from '@components/Dropdown';
 
 /**
  *

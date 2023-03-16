@@ -1,6 +1,5 @@
 import { getSearchFacetYearsParams, IADSApiSearchParams, useGetSearchFacetCounts } from '@api';
 import { Box, CircularProgress, IconButton } from '@chakra-ui/react';
-import { HistogramSlider, ISearchFacetProps } from '@components';
 import { ArrowsInIcon } from '@components/icons/ArrowsIn';
 import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
 import { getYearsGraph } from '@components/Visualizations/utils';
@@ -8,6 +7,8 @@ import { fqNameYearRange } from '@query';
 import { getFQValue, removeFQ, setFQ } from '@query-utils';
 import { useStore } from '@store';
 import { useMemo } from 'react';
+import { HistogramSlider } from '@components/HistogramSlider';
+import { ISearchFacetProps } from '@components/SearchFacet/SearchFacet';
 
 export interface IYearHistogramSliderProps {
   onQueryUpdate: ISearchFacetProps['onQueryUpdate'];

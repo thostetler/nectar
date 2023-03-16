@@ -16,7 +16,6 @@ import {
   PopoverTrigger,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { Select, SelectOption } from '@components';
 import { APP_DEFAULTS } from '@config';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import { makeSearchParams, stringifySearchParams } from '@utils';
@@ -26,6 +25,7 @@ import { curryN } from 'ramda';
 import { Dispatch, KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
 import { MenuPlacement } from 'react-select';
 import { calculatePagination, PaginationAction } from './usePagination';
+import { Select, SelectOption } from '@components/Select';
 
 type NumPerPageProp =
   | {

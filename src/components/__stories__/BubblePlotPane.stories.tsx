@@ -1,6 +1,6 @@
-import { BubblePlotPane, IBubblePlotPaneProps } from '@components';
 import { graph } from '@components/__mocks__/bubblePlotData';
 import { Meta, Story } from '@storybook/react';
+import { BubblePlotPane, IBubblePlotPaneProps } from '@components/Visualizations';
 
 const meta: Meta = {
   title: 'Visualizations/GraphPanes/BubblePlotPane',

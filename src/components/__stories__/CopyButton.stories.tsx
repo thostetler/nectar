@@ -1,5 +1,5 @@
 import { Meta, Story } from '@storybook/react';
-import { CopyButton, ICopyButtonProps } from '@components';
+import { CopyButton, ICopyButtonProps } from '@components/CopyButton';
 
 const meta: Meta = {
   title: 'CopyButton',

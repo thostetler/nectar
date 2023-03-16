@@ -1,6 +1,5 @@
 import { getSimilarParams, IADSApiSearchResponse, searchKeys, useGetSimilar } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/react';
-import { AbstractRefList } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractDoc } from '@hooks/useGetAbstractDoc';
@@ -10,6 +9,8 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
+import { AbstractRefList } from '@components/AbstractRefList';
+
 export interface ISimilarPageProps {
   id: string;
   error?: {

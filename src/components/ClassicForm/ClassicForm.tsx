@@ -8,7 +8,6 @@ import { Radio, RadioGroup } from '@chakra-ui/radio';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { Textarea } from '@chakra-ui/textarea';
 import VisuallyHidden from '@chakra-ui/visually-hidden';
-import { BibstemPicker, Sort } from '@components';
 import { APP_DEFAULTS } from '@config';
 import { useErrorMessage } from '@hooks/useErrorMessage';
 import { useIsClient } from '@hooks/useIsClient';
@@ -18,6 +17,8 @@ import { FormEventHandler } from 'react';
 import { Controller, useForm, UseFormRegisterReturn } from 'react-hook-form';
 import { getSearchQuery } from './helpers';
 import { IClassicFormState } from './types';
+import { Sort } from '@components/Sort';
+import { BibstemPicker } from '@components/BibstemPicker';
 
 const propTypes = {
   ssrError: PT.string,

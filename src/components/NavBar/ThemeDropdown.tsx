@@ -1,10 +1,10 @@
 import { Box } from '@chakra-ui/layout';
-import { Select, SelectOption } from '@components';
 import { useStore } from '@store';
 import { Theme } from '@types';
 import { ReactElement, useMemo } from 'react';
 import shallow from 'zustand/shallow';
 import { themes } from './models';
+import { Select, SelectOption } from '@components/Select';
 
 const options = Object.values(themes);
 

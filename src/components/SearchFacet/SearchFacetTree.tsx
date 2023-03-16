@@ -27,7 +27,6 @@ import {
   Tooltip,
   useDisclosure,
 } from '@chakra-ui/react';
-import { ISearchFacetProps, TextInput } from '@components';
 import { ExclamationCircleIcon } from '@heroicons/react/solid';
 import { kFormatNumber, noop } from '@utils';
 import { head, map, path } from 'ramda';
@@ -46,6 +45,8 @@ import { parseTitleFromKey } from './helpers';
 import { FacetTreeStoreProvider, useFacetTreeStore } from './store';
 import { FacetCountTuple, FacetLogic, IFacetParams } from './types';
 import { FACET_DEFAULT_LIMIT, useGetFacetTreeData } from './useGetFacetTreeData';
+import { TextInput } from '@components/TextInput';
+import { ISearchFacetProps } from '@components/SearchFacet/SearchFacet';
 
 export type OnFilterArgs = {
   logic: FacetLogic;

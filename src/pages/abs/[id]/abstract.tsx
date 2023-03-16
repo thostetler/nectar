@@ -4,7 +4,6 @@ import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { Box, Link, Stack, Text } from '@chakra-ui/layout';
 import { Flex, Tag } from '@chakra-ui/react';
 import { Table, Tbody, Td, Tr } from '@chakra-ui/table';
-import { AbstractSources, SearchQueryLink } from '@components';
 import { createUrlByType } from '@components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';
 import { useGetAuthors } from '@components/AllAuthorsModal/useGetAuthors';
@@ -21,6 +20,8 @@ import Head from 'next/head';
 import NextLink from 'next/link';
 import { isNil } from 'ramda';
 import { ReactElement } from 'react';
+import { AbstractSources } from '@components/AbstractSources';
+import { SearchQueryLink } from '@components/SearchQueryLink';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@components/AllAuthorsModal').then((m) => m.AllAuthorsModal),

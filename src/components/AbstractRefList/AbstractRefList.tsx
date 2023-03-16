@@ -1,6 +1,5 @@
 import { IADSApiSearchParams, IDocsEntity } from '@api';
 import { Stack } from '@chakra-ui/layout';
-import { SimpleResultList } from '@components';
 import { Pagination, PaginationProps } from '@components/ResultList/Pagination';
 import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
 import { SearchQueryLink } from '@components/SearchQueryLink';
@@ -8,6 +7,8 @@ import { APP_DEFAULTS } from '@config';
 import { noop, parseQueryFromUrl, stringifySearchParams } from '@utils';
 import { useRouter } from 'next/router';
 import { ReactElement } from 'react';
+import { SimpleResultList } from '@components/ResultList';
+
 export interface IAbstractRefListProps {
   doc: IDocsEntity;
   docs: IDocsEntity[];

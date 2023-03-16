@@ -14,13 +14,14 @@ import {
   UnorderedList,
   useBoolean,
 } from '@chakra-ui/react';
-import { SimpleLink } from '@components';
 import { useSession } from '@hooks/useSession';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { ChangeEvent, FormEvent, useCallback, useRef, useState } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
+import { SimpleLink } from '@components/SimpleLink';
+
 export { userGSSP as getServerSideProps } from '@utils';
 
 const GOOGLE_RECAPTCHA_KEY = '6Lex_aQUAAAAAMwJFbdGFeigshN7mRQdbXoGQ7-N';

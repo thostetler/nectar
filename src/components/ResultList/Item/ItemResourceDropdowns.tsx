@@ -2,13 +2,13 @@ import { IDocsEntity } from '@api';
 import { IconButton } from '@chakra-ui/button';
 import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
-import { SimpleLinkDropdown } from '@components';
 import { processLinkData } from '@components/AbstractSources/linkGenerator';
 import { DatabaseIcon, DocumentTextIcon, ViewListIcon } from '@heroicons/react/outline';
 import { useIsClient } from '@hooks/useIsClient';
 import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
 import { MouseEventHandler, ReactElement } from 'react';
+import { SimpleLinkDropdown } from '@components/Dropdown';
 
 export interface IItemResourceDropdownsProps {
   doc: IDocsEntity;

@@ -1,6 +1,5 @@
 import { getCoreadsParams, IADSApiSearchResponse, searchKeys, useGetAbstract, useGetCoreads } from '@api';
 import { Alert, AlertIcon } from '@chakra-ui/alert';
-import { AbstractRefList } from '@components';
 import { AbsLayout } from '@components/Layout/AbsLayout';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
@@ -9,6 +8,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
 import { normalizeURLParams } from 'src/utils';
+import { AbstractRefList } from '@components/AbstractRefList';
 
 export interface ICoreadsPageProps {
   id: string;

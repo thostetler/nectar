@@ -13,15 +13,6 @@ import {
   Tabs,
   Text,
 } from '@chakra-ui/react';
-import {
-  BarGraph,
-  CitationsTable,
-  DataDownloader,
-  IndicesTable,
-  LineGraph,
-  PapersTable,
-  ReadsTable,
-} from '@components';
 import { useIsClient } from '@hooks/useIsClient';
 import { useMetrics } from '@hooks/useMetrics';
 import { BarDatum } from '@nivo/bar';
@@ -38,6 +29,9 @@ import {
   IReadsTableData,
 } from '../types';
 import { getIndicesTableData, getLineGraphXTicks, plotTimeSeriesGraph } from '../utils';
+import { BarGraph, CitationsTable, IndicesTable, LineGraph, PapersTable, ReadsTable } from '@components/Visualizations';
+import { DataDownloader } from '@components/DataDownloader';
+
 export interface IMetricsProps {
   metrics: IADSApiMetricsResponse;
   isAbstract: boolean;

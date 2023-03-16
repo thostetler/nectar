@@ -2,7 +2,6 @@ import { IDocsEntity, useHasGraphics, useHasMetrics } from '@api';
 import { Button } from '@chakra-ui/button';
 import { Badge, Box, Flex, Stack, Text } from '@chakra-ui/layout';
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
-import { SimpleLinkList } from '@components';
 import { ItemType } from '@components/Dropdown/types';
 import {
   ChartPieIcon,
@@ -23,6 +22,7 @@ import NextLink, { LinkProps } from 'next/link';
 import { useRouter } from 'next/router';
 import { cloneElement, HTMLAttributes, ReactElement } from 'react';
 import { Routes } from './types';
+import { SimpleLinkList } from '@components/Dropdown';
 
 const useGetItems = ({
   doc,

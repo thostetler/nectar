@@ -1,5 +1,5 @@
-import { IAllSearchTermsDropdown, AllSearchTermsDropdown } from '@components';
 import { Meta, Story } from '@storybook/react';
+import { AllSearchTermsDropdown, IAllSearchTermsDropdown } from '@components/SearchBar';
 
 const meta: Meta = {
   title: 'SearchBar/AllSearchTermsDropdown',

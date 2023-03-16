@@ -1,5 +1,5 @@
-import { IQuickFieldsProps, QuickFields } from '@components';
 import { Meta, Story } from '@storybook/react';
+import { IQuickFieldsProps, QuickFields } from '@components/SearchBar';
 
 const meta: Meta = {
   title: 'SearchBar/QuickFields',

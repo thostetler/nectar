@@ -1,12 +1,12 @@
 import { Container, Flex } from '@chakra-ui/layout';
 import { SkipNavLink } from '@chakra-ui/skip-nav';
 import { useMediaQuery } from '@chakra-ui/react';
-import { LandingTabs } from '@components';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { FC } from 'react';
 import { Footer } from '../Footer';
 import { NavBar } from '../NavBar';
+import { LandingTabs } from '@components/LandingTabs';
 
 export const Layout: FC = ({ children }) => {
   const router = useRouter();

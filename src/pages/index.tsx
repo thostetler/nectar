@@ -1,11 +1,13 @@
 import { Box, Flex, Text } from '@chakra-ui/layout';
-import { ISearchExamplesProps, SearchBar, SearchExamplesPlaceholder } from '@components';
 import { useStore, useStoreApi } from '@store';
 import { makeSearchParams } from '@utils';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
+import { SearchBar } from '@components/SearchBar';
+import { ISearchExamplesProps, SearchExamplesPlaceholder } from '@components/SearchExamples';
+
 export { userGSSP as getServerSideProps } from '@utils';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(

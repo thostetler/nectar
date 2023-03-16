@@ -1,7 +1,9 @@
-import { VizPageLayout, ResultsGraphPageContainer } from '@components';
 import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { ResultsGraphPageContainer } from '@components/Visualizations';
+import { VizPageLayout } from '@components/Layout';
+
 export { userGSSP as getServerSideProps } from '@utils';
 
 const ResultsGraphPage: NextPage = () => {

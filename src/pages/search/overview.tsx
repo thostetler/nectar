@@ -1,10 +1,12 @@
 import { IADSApiSearchParams } from '@api';
-import { OverviewPageContainer, VizPageLayout } from '@components';
 import { FacetField } from '@components/Visualizations/types';
 import { getQueryWithCondition } from '@components/Visualizations/utils';
 import { makeSearchParams, parseQueryFromUrl } from '@utils';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
+import { OverviewPageContainer } from '@components/Visualizations';
+import { VizPageLayout } from '@components/Layout';
+
 export { userGSSP as getServerSideProps } from '@utils';
 
 const OverviewPage: NextPage = () => {
