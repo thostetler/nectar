@@ -1,20 +1,20 @@
 import {
-  Text,
-  Stack,
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Button,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Input,
-  FormErrorMessage,
-  Button,
-  Alert,
-  AlertTitle,
-  AlertDescription,
+  Stack,
+  Text,
 } from '@chakra-ui/react';
 import { SettingsLayout } from '@components';
 import { useStore } from '@store';
 import { composeNextGSSP, userGSSP } from '@utils';
 import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
-import { useState, FormEvent } from 'react';
+import { FormEvent, useState } from 'react';
 
 const UpdateEmailPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   // TODO

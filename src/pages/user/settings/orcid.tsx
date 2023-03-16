@@ -6,7 +6,7 @@ import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsT
 import { useState } from 'react';
 
 const OrcidPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn] = useState(false);
 
   const handleSubmit = noop;
   if (!isLoggedIn) {
@@ -36,7 +36,7 @@ const OrcidPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) =
             </Button>
           </Text>
           <FormControl>
-            <FormLabel>Your Current Academy Affliation</FormLabel>
+            <FormLabel>Your Current Academy Affiliation</FormLabel>
             <Input type="text" size="md" />
           </FormControl>
           <FormControl>
@@ -53,7 +53,7 @@ const OrcidPage = ({}: InferGetServerSidePropsType<typeof getServerSideProps>) =
             <FormLabel>Permission for ADS to Record and Publish Claims</FormLabel>
             <Checkbox alignItems="start">
               {' '}
-              I allow the ADS to record my claims and to make them available publically for auditing and indexing. This
+              I allow the ADS to record my claims and to make them available publicly for auditing and indexing. This
               makes me an "ADS Verified User" and allows ADS to validate my name(s) against author lists in papers.
             </Checkbox>
           </FormControl>

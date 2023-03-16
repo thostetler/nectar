@@ -1,14 +1,14 @@
 import {
-  Text,
-  Stack,
+  Alert,
+  AlertDescription,
+  AlertTitle,
+  Button,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Input,
-  FormErrorMessage,
-  Button,
-  Alert,
-  AlertTitle,
-  AlertDescription,
+  Stack,
+  Text,
 } from '@chakra-ui/react';
 import { SettingsLayout } from '@components';
 import { composeNextGSSP, userGSSP } from '@utils';
@@ -52,7 +52,7 @@ const ChangePasswordPage = ({}: InferGetServerSidePropsType<typeof getServerSide
               name="password"
               id="password"
               onChange={(e) => setNewPassword(e.currentTarget.value)}
-              value={password}
+              value={newPassword}
               size="md"
             />
             <FormErrorMessage>Error message</FormErrorMessage>
@@ -65,7 +65,7 @@ const ChangePasswordPage = ({}: InferGetServerSidePropsType<typeof getServerSide
               name="password"
               id="password"
               onChange={(e) => setNewPassword(e.currentTarget.value)}
-              value={password}
+              value={newPassword}
               size="md"
             />
             <FormErrorMessage>Error message</FormErrorMessage>

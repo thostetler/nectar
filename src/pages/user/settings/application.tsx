@@ -1,6 +1,6 @@
-import { ExternalLinkAction, IADSApiUserDataParams, IADSApiUserDataResponse, UserDataKeys } from '@api';
-import { getVaultData } from '@auth-utils';
-import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Stack, useToast } from '@chakra-ui/react';
+import { ExternalLinkAction, IADSApiUserDataParams, IADSApiUserDataResponse, UserDataKeys } from "@api";
+import { getVaultData } from "@auth-utils";
+import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Stack, useToast } from "@chakra-ui/react";
 import {
   authorsPerResultsDescription,
   defaultActionExternalLinksDescription,
@@ -9,14 +9,14 @@ import {
   NumberSlider,
   Select,
   SelectOption,
-  SettingsLayout,
-} from '@components';
-import { useSettings } from '@hooks/useSettings';
-import { createStore } from '@store';
-import { DEFAULT_USER_DATA } from '@components/Settings/model';
-import { composeNextGSSP, userGSSP } from '@utils';
-import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
-import { useEffect, useMemo, useState } from 'react';
+  SettingsLayout
+} from "@components";
+import { useSettings } from "@hooks/useSettings";
+import { createStore } from "@store";
+import { DEFAULT_USER_DATA } from "@components/Settings/model";
+import { composeNextGSSP, userGSSP } from "@utils";
+import { GetServerSideProps, GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
+import { useEffect, useMemo, useState } from "react";
 
 // generate options for select component
 const useGetOptions = () => {
@@ -46,7 +46,7 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
     onError: (error) => toast({ status: 'error', description: error }),
   });
 
-  // prevent an unnecessary set param initally when slider is updated to the fetched value
+  // prevent an unnecessary set param initially when slider is updated to the fetched value
   useEffect(() => setParams({}), []);
 
   const selectedValues = useMemo(() => {
@@ -79,11 +79,7 @@ const AppSettingsPage = ({}: InferGetServerSidePropsType<typeof getServerSidePro
       JSON.stringify(userData.defaultDatabase),
     ) as IADSApiUserDataResponse[UserDataKeys.DEFAULT_DATABASE];
     newValue.forEach((v) => {
-      if (names.findIndex((n) => n === v.name) === -1) {
-        v.value = false;
-      } else {
-        v.value = true;
-      }
+      v.value = names.findIndex((n) => n === v.name) !== -1;
     });
 
     setParams({ [UserDataKeys.DEFAULT_DATABASE]: newValue });

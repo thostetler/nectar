@@ -1,4 +1,4 @@
-import {getVaultData} from '@auth-utils';
+import { getVaultData } from "@auth-utils";
 import {
   CustomFormat,
   fetchSearch,
@@ -8,18 +8,18 @@ import {
   JournalFormatName,
   searchKeys,
   UserDataKeys,
-  useSearch,
-} from '@api';
-import {Tab, TabList, TabPanel, TabPanels, Tabs, useToast} from '@chakra-ui/react';
-import {BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout} from '@components';
-import {useSettings} from '@hooks/useSettings';
-import {useStore} from '@store';
-import {composeNextGSSP, userGSSP} from '@utils';
-import {GetServerSideProps, GetServerSidePropsContext, NextPage} from 'next';
-import {Reducer, useEffect, useMemo, useReducer} from 'react';
-import {v4 as uuidv4} from 'uuid';
-import {dehydrate, QueryClient} from 'react-query';
-import {omit, pathOr, values} from 'ramda';
+  useSearch
+} from "@api";
+import { Tab, TabList, TabPanel, TabPanels, Tabs, useToast } from "@chakra-ui/react";
+import { BibtexTabPanel, CustomFormatsTabPanel, exportFormats, GeneralTabPanel, SettingsLayout } from "@components";
+import { useSettings } from "@hooks/useSettings";
+import { useStore } from "@store";
+import { composeNextGSSP, userGSSP } from "@utils";
+import { GetServerSideProps, GetServerSidePropsContext, NextPage } from "next";
+import { Reducer, useEffect, useMemo, useReducer } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { dehydrate, QueryClient } from "react-query";
+import { omit, pathOr, values } from "ramda";
 
 // partial user data params
 // used to update user data

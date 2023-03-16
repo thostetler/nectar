@@ -1,24 +1,23 @@
-import { CopyIcon } from '@chakra-ui/icons';
-import { IconButton, Text, useClipboard, UseClipboardOptions } from '@chakra-ui/react';
-import { HTMLAttributes, ReactElement } from 'react';
+import { CheckIcon, CopyIcon } from '@chakra-ui/icons';
+import { IconButton, IconButtonProps, useClipboard, UseClipboardOptions } from '@chakra-ui/react';
+import { ReactElement, useEffect } from 'react';
 
-export interface ICopyButtonProps extends HTMLAttributes<HTMLButtonElement> {
+export interface ICopyButtonProps extends Omit<IconButtonProps, 'aria-label'> {
   text: string;
   options?: UseClipboardOptions;
 }
 
 export const CopyButton = (props: ICopyButtonProps): ReactElement => {
   const { text, options, ...rest } = props;
-  const { hasCopied, onCopy } = useClipboard(text, options);
+  const { hasCopied, onCopy, setValue } = useClipboard(text, options);
 
-  return (
-    <>
-      <IconButton icon={<CopyIcon />} variant="link" aria-label="copy" onClick={onCopy} {...rest} />
-      {hasCopied && (
-        <Text display={'inline'} color={'blue.500'}>
-          Copied!
-        </Text>
-      )}
-    </>
+  useEffect(() => {
+    setValue(text);
+  }, [setValue, text]);
+
+  return hasCopied ? (
+    <IconButton variant="link" icon={<CheckIcon />} aria-label="copied" color="green.400" {...rest} />
+  ) : (
+    <IconButton icon={<CopyIcon />} variant="link" aria-label="copy" onClick={onCopy} {...rest} />
   );
 };

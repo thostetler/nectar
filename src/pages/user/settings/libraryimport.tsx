@@ -3,13 +3,11 @@ import {
   AlertDescription,
   AlertTitle,
   Button,
-  Container,
   FormControl,
   FormErrorMessage,
   FormLabel,
   Input,
   Stack,
-  VStack,
 } from '@chakra-ui/react';
 import { Select, SelectOption, SettingsLayout } from '@components';
 import { composeNextGSSP, userGSSP } from '@utils';
