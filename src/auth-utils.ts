@@ -1,21 +1,22 @@
 import api, {
   ApiTargets,
-  IADSApiTokenResponse,
   IADSApiUserDataResponse,
   IBasicAccountsErrorResponse,
   IBasicAccountsResponse,
   IBootstrapPayload,
   ICSRFResponse,
+  isUserData,
   IUserChangeEmailCredentials,
   IUserChangePasswordCredentials,
   IUserData,
 } from '@api';
 import { defaultRequestConfig } from '@api/config';
 import { IUserCredentials, IUserForgotPasswordCredentials, IUserRegistrationCredentials } from '@api/user';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { GetServerSidePropsContext, NextApiResponse } from 'next';
-import { ServerResponse } from 'node:http';
+import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
 import { pick } from 'ramda';
+import { parseAPIError } from '@utils';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { ServerResponse } from 'node:http';
 
 export const authenticateUser = async (creds: IUserCredentials, res?: NextApiResponse) => {
   const csrfRes = await getCSRF();
@@ -254,9 +255,8 @@ export const verifyAccount = async (token: string, res?: ServerResponse) => {
   }
 };
 
-export const generateNewApiToken = async () => {
-  const csrfRes = await getCSRF();
-
+export const changeAPIToken = async (req: NextApiRequest, res: NextApiResponse) => {
+  const csrfRes = await getCSRF(req);
   const config: AxiosRequestConfig = {
     ...defaultRequestConfig,
     method: 'PUT',
@@ -266,14 +266,16 @@ export const generateNewApiToken = async () => {
       Cookie: csrfRes.headers['set-cookie'],
     },
   };
+
   try {
-    const { data } = await axios.request<IADSApiTokenResponse>(config);
-    return data;
-  } catch (e) {
-    if (axios.isAxiosError(e)) {
-      return (e.response.data as IBasicAccountsErrorResponse).error;
+    const { data, headers } = await axios.request<IBootstrapPayload>(config);
+    res.setHeader('set-cookie', headers['set-cookie']);
+    if (isUserData(data)) {
+      return pick(['access_token', 'username', 'anonymous', 'expire_in'], data) as IUserData;
     }
-    return 'Unknown server error';
+    return null;
+  } catch (e) {
+    return parseAPIError(e);
   }
 };
 
@@ -307,5 +309,12 @@ export const bootstrap = async ({ session }: { session: string }, res?: NextApiR
   return pick(['access_token', 'username', 'anonymous', 'expire_in'], data) as IUserData;
 };
 
-export const getCSRF = async () =>
-  await axios.get<ICSRFResponse, AxiosResponse<ICSRFResponse>>(ApiTargets.CSRF, defaultRequestConfig);
+export const getCSRF = async (req?: NextApiRequest) => {
+  const config: AxiosRequestConfig = {
+    ...defaultRequestConfig,
+
+    // if passed in, use the cookies from the current request
+    ...(req?.headers?.cookie ? { headers: { Cookie: req.headers.cookie } } : {}),
+  };
+  return await axios.get<ICSRFResponse, AxiosResponse<ICSRFResponse>>(ApiTargets.CSRF, config);
+};
