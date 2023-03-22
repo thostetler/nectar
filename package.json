@@ -178,5 +178,6 @@
   },
   "msw": {
     "workerDirectory": "public"
-  }
+  },
+  "sideEffects": false
 }
