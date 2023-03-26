@@ -10,7 +10,7 @@
     "dev:mocks": "NEXT_PUBLIC_API_MOCKING=enabled nodemon",
     "build": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ next build && tsc --project tsconfig.server.json --outDir ./dist/ && yarn build-data",
     "start": "NODE_ENV=production DIST_DIR=./dist/ node dist/server/index.js",
-    "analyze": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dev/ ANALYZE=true next build",
+    "analyze": "ANALYZE=true yarn build",
     "test": "NODE_ENV=test vitest",
     "test:coverage": "NODE_ENV=test vitest --run --coverage",
     "cypress:open": "cypress open",
@@ -167,7 +167,7 @@
     "webpack": "^5.69.1"
   },
   "volta": {
-    "node": "14.18.0",
+    "node": "17.9.1",
     "yarn": "1.22.19"
   },
   "lint-staged": {
