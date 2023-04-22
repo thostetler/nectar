@@ -1,8 +1,8 @@
 import { Box, Flex, Heading, HStack, Link } from '@chakra-ui/layout';
 import { AdsSmallLogo } from '@components/images';
-import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { FC } from 'react';
+import dynamic from 'next/dynamic';
 
 const ThemeDropdown = dynamic<Record<string, never>>(() => import('./ThemeDropdown').then((mod) => mod.ThemeDropdown), {
   ssr: false,

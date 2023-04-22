@@ -1,6 +1,7 @@
 import { Box, Flex, HStack, Link, Text } from '@chakra-ui/layout';
 import VisuallyHidden from '@chakra-ui/visually-hidden';
-import { CFALogo, NasaLogo, SimpleLink, SmithsonianLogo } from '@components';
+import { CFALogo, NasaLogo, SmithsonianLogo } from '@components/images';
+import { SimpleLink } from '@components/SimpleLink';
 import NextLink from 'next/link';
 import { FC } from 'react';
 
@@ -9,7 +10,7 @@ export const Footer: FC = () => {
 
   return (
     <Box
-      as="footer"
+      as='footer'
       mt={3}
       py={6}
       display="flex"

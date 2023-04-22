@@ -2,9 +2,8 @@ import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, Sol
 import { APP_DEFAULTS } from '@config';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import axios, { AxiosError } from 'axios';
-import DOMPurify from 'isomorphic-dompurify';
 import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
 import { clamp, filter, find, head, is, keys, last, omit, paths, pipe, propIs, uniq, when } from 'ramda';
@@ -288,39 +287,6 @@ export const stringifySearchParams = (params: Record<string, unknown>, options?:
 export const parseSearchParams = (params: string, options?: qs.IParseOptions) =>
   qs.parse(params, { parseArrays: true, ...options });
 
-export const purifyString = (value: string): string => {
-  try {
-    return DOMPurify.sanitize(value);
-  } catch (e) {
-    return value;
-  }
-};
-
-export const purify = <T extends Record<string, unknown>>(value: T): T | string | string[] => {
-  if (is(String, value)) {
-    return purifyString(value as string);
-  }
-
-  if (Array.isArray(value)) {
-    return value.map(purifyString);
-  }
-
-  if (is(Object, value)) {
-    return Object.keys(value).reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: Array.isArray(value[key])
-          ? (value[key] as string[]).map(purifyString)
-          : is(String, value[key])
-          ? purifyString(value[key] as string)
-          : value[key],
-      }),
-      value,
-    );
-  }
-
-  return value;
-};
 
 /**
  * @see https://stackoverflow.com/a/9461657

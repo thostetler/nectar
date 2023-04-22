@@ -27,7 +27,14 @@ export async function middleware(req: NextRequest) {
   const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
 
   // bootstrap a new token, passing in the current session cookie value
-  const { token, headers } = await bootstrap(adsSessionCookie);
+  const bootstrapResponse = await bootstrap(adsSessionCookie);
+
+  if (bootstrapResponse === null) {
+    // if bootstrap fails, dump back to login page
+    return NextResponse.redirect(new URL(`/user/account/login?redirectUri=${encodeURIComponent(req.url)}`, req.url));
+  }
+
+  const { token, headers } = bootstrapResponse;
 
   // validate token, update session, forward cookies
   if (isValidToken(token)) {
@@ -42,7 +49,6 @@ export async function middleware(req: NextRequest) {
       : NextResponse.redirect(new URL(`/user/account/login?redirectUri=${encodeURIComponent(req.url)}`, req.url));
   }
 
-  // TODO: what happens if bootstrap fails?
 }
 
 export const config = {
