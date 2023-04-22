@@ -9,7 +9,10 @@ const config = {
   distDir: process.env.DIST_DIR || 'dist',
   poweredByHeader: false,
   reactStrictMode: true,
-  experimental: { newNextLinkBehavior: false },
+  experimental: {
+    appDir: true,
+    newNextLinkBehavior: false,
+  },
   async rewrites() {
     if (process.env.NODE_ENV !== 'production') {
       return {
