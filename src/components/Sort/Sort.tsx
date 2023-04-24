@@ -2,7 +2,7 @@ import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { IconButton } from '@chakra-ui/button';
 import { Input } from '@chakra-ui/input';
 import { Box, HStack, Link } from '@chakra-ui/layout';
-import { SimpleLinkDropdown } from '@components';
+import { SimpleLinkDropdown } from '@components/Dropdown';
 import { ItemType } from '@components/Dropdown/types';
 import { ISelectProps, Select } from '@components/Select';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';

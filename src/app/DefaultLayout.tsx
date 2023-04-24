@@ -2,7 +2,6 @@
 import { ChakraProvider, Flex } from '@chakra-ui/react';
 import { theme } from '@theme';
 import { SkipNavLink } from '@chakra-ui/skip-nav';
-import { Container } from '@chakra-ui/layout';
 import { NavBar } from '@components/NavBar';
 import { Footer } from '@components/Footer';
 import { FC, ReactNode } from 'react';
@@ -14,16 +13,14 @@ import { useCreateQueryClient } from '@hooks/useCreateQueryClient';
 import { TopProgressBar } from '@components/TopProgressBar';
 import { CacheProvider } from '@chakra-ui/next-js';
 
-export const Root = ({ children }: { children: ReactNode }) => {
+export const DefaultLayout = ({ children }: { children: ReactNode }) => {
   return (
     <Providers>
       <SkipNavLink id="main-content">Skip to content</SkipNavLink>
       <Flex direction="column">
         <NavBar />
         <TopProgressBar />
-        <Container maxW="container.xl" id="main-content">
-          {children}
-        </Container>
+        {children}
         <Footer />
       </Flex>
     </Providers>

@@ -27,6 +27,7 @@ export default ClassicFormPage;
 
 type ReqWithBody = GetServerSidePropsContext['req'] & { body: IClassicFormState };
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+  console.log('sdlkjf' w)
   if (ctx.req.method == 'POST') {
     const body = (ctx.req as ReqWithBody).body;
     try {

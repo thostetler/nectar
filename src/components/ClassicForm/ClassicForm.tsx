@@ -8,16 +8,17 @@ import { Radio, RadioGroup } from '@chakra-ui/radio';
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { Textarea } from '@chakra-ui/textarea';
 import VisuallyHidden from '@chakra-ui/visually-hidden';
-import { BibstemPicker, Sort } from '@components';
+import { Sort } from '@components/Sort';
+import { BibstemPicker } from '@components/BibstemPicker';
 import { APP_DEFAULTS } from '@config';
 import { useErrorMessage } from '@hooks/useErrorMessage';
 import { useIsClient } from '@hooks/useIsClient';
-import { useRouter } from 'next/router';
 import PT from 'prop-types';
 import { FormEventHandler } from 'react';
 import { Controller, useForm, UseFormRegisterReturn } from 'react-hook-form';
 import { getSearchQuery } from './helpers';
 import { IClassicFormState } from './types';
+import { usePathname, useRouter } from 'next/navigation';
 
 const propTypes = {
   ssrError: PT.string,
@@ -47,6 +48,7 @@ export interface IClassicFormProps {
 export const ClassicForm = (props: IClassicFormProps) => {
   const isClient = useIsClient();
   const router = useRouter();
+  const pathname = usePathname();
   const [queryError, setQueryError] = useErrorMessage<string>(props.ssrError);
 
   const { register, control, handleSubmit } = useForm<IClassicFormState>({
@@ -58,15 +60,14 @@ export const ClassicForm = (props: IClassicFormProps) => {
 
     void handleSubmit((params) => {
       try {
-        void router.push({ pathname: '/search', search: getSearchQuery(params) });
+        void router.push(`/search?${getSearchQuery(params)}`);
       } catch (e) {
         setQueryError((e as Error)?.message);
       }
     })(e);
   };
-
   return (
-    <form method="post" action={router.route} onSubmit={formSubmit} aria-describedby="form-title">
+    <form method="post" action={pathname} onSubmit={formSubmit} aria-describedby="form-title">
       <Stack direction="column" spacing={5}>
         <VisuallyHidden as="h2" id="form-title">
           Classic Form

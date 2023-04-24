@@ -4,7 +4,7 @@ import { useStore } from '@store';
 import { Theme } from '@types';
 import Image, { StaticImageData } from 'next/image';
 import NextLink from 'next/link';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 import starBg from 'public/images/bg-astro.jpg';
 import bioBg from 'public/images/bg-bio.jpg';
 import earthBg from 'public/images/bg-earth.jpg';
@@ -62,7 +62,7 @@ export const LandingTabs = (): ReactElement => {
 };
 
 const Tabs = ({ show }: { show: boolean }) => {
-  const { asPath } = useRouter();
+  const asPath = usePathname();
   if (!show) {
     return null;
   }

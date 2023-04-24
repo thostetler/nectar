@@ -72,6 +72,10 @@ const config = {
     reactRemoveProperties: false,
   },
   output: 'standalone',
+  webpack: (config) => {
+    config.externals = [...config.externals, 'canvas', 'jsdom'];
+    return config;
+  },
 };
 
 module.exports = withBundleAnalyzer(config);

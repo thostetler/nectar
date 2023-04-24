@@ -3,7 +3,6 @@ import { APP_DEFAULTS } from '@config';
 import { NumPerPageType, SafeSearchUrlParams } from '@types';
 import axios, { AxiosError } from 'axios';
 import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
-import { useRouter } from 'next/navigation';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
 import { clamp, filter, find, head, is, keys, last, omit, paths, pipe, propIs, uniq, when } from 'ramda';
@@ -82,18 +81,6 @@ export const safeParse = <T>(value: string, defaultValue: T): T => {
     return JSON.parse(value) as T;
   } catch (e) {
     return defaultValue;
-  }
-};
-
-/**
- * Simple hook for parsing
- */
-export const useBaseRouterPath = (): { basePath: string } => {
-  const { asPath } = useRouter();
-  try {
-    return { basePath: asPath.split('?')[0] };
-  } catch (e) {
-    return { basePath: '/' };
   }
 };
 
@@ -360,3 +347,5 @@ export const parseAPIError = (
  */
 export const capitalizeString = (str: string) =>
   isNonEmptyString(str) ? `${str.slice(0, 1).toUpperCase()}${str.slice(1)}` : str;
+
+export const classNames = (...classes: unknown[]) => classes.filter(Boolean).join(' ');
