@@ -15,11 +15,15 @@ export interface IAuthHooksOptions<T extends BasicMsg> {
   redirectUri?: string;
 }
 
-export interface IAuthForm<T> {
+export type AuthForm<T> = {
+  params: T;
+  status: 'submitting' | 'idle';
+  error: never;
+} & {
   params: T;
   error: string;
-  status: 'submitting' | 'idle' | 'error';
-}
+  status: 'error';
+};
 
 export type IAuthFormEvent<T> =
   | {

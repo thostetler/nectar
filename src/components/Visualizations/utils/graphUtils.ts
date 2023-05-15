@@ -328,18 +328,32 @@ export const getIndicesTableData = (indicesData: IIndicesTableInput): IIndicesTa
   };
 
   Object.entries(data).forEach(([name, arr]) => {
-    data[name as keyof typeof data] = [limitPlaces(arr[0]), limitPlaces(arr[1])];
+    const firstValue = arr?.[0];
+    const secondValue = arr?.[1];
+
+    data[name as keyof typeof data] = [
+      firstValue !== undefined ? limitPlaces(firstValue) : undefined,
+      secondValue !== undefined ? limitPlaces(secondValue) : undefined,
+    ];
   });
+
 
   return data;
 };
 
-export const getYearsGraph = (data: IFacetCountsFields): IBarGraph<YearDatum> => {
-  const facetData = data.facet_pivot['property,year'];
-
-  const yearMap = new Map<number, { refereed: number; notrefereed: number }>(); // year => {refereed: number, nonefereed: number}
-
+export const getYearsGraph = (data?: IFacetCountsFields): IBarGraph<YearDatum> => {
   const keys = ['refereed', 'notrefereed'];
+
+  if (typeof data === 'undefined') {
+    return {
+      data: [],
+      keys,
+      indexBy: 'year',
+    };
+  }
+
+  const facetData = data.facet_pivot['property,year'];
+  const yearMap = new Map<number, { refereed: number; notrefereed: number }>(); // year => {refereed: number, nonefereed: number}
 
   facetData.forEach(({ value, pivot }) => {
     if (keys.includes(value)) {

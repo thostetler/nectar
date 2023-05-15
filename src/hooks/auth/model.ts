@@ -1,7 +1,7 @@
-import { IAuthForm, IAuthFormEvent } from '@hooks/auth/types';
+import { AuthForm, IAuthFormEvent } from '@hooks/auth/types';
 import { Reducer } from 'react';
 
-export const getDefaultReducer = <T>(initialState: IAuthForm<T>): Reducer<IAuthForm<T>, IAuthFormEvent<T>> => {
+export const getDefaultReducer = <T>(initialState: AuthForm<T>): Reducer<AuthForm<T>, IAuthFormEvent<T>> => {
   return (state, action) => {
     switch (action.type) {
       case 'setEmail':

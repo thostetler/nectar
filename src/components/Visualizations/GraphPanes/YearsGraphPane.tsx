@@ -12,9 +12,9 @@ export interface IYearsGraphPaneProps {
 }
 
 export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps): ReactElement => {
-  const [range, setRange] = useState<{ min: number; max: number }>(null);
+  const [range, setRange] = useState<{ min: number; max: number } | null>(null);
 
-  const baseGraph: IBarGraph<YearDatum> = useMemo(() => {
+  const baseGraph: IBarGraph<YearDatum> | undefined = useMemo(() => {
     if (data) {
       return getYearsGraph(data);
     }

@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { useSession } from '@hooks/auth';
 import { getDefaultReducer } from '@hooks/auth/model';
-import { IAuthForm } from '@hooks/auth/types';
+import { AuthForm } from '@hooks/auth/types';
 import { useForgotPassword } from '@hooks/auth/useForgotPassword';
 import { useRecaptcha } from '@hooks/useRecaptcha';
 import { NextPage } from 'next';
@@ -26,7 +26,7 @@ import ReCAPTCHA from 'react-google-recaptcha';
 export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 export { useQuery } from '@tanstack/react-query';
 
-const initialState: IAuthForm<IUserForgotPasswordCredentials> = {
+const initialState: AuthForm<IUserForgotPasswordCredentials> = {
   params: { email: '', recaptcha: null },
   status: 'idle',
   error: null,

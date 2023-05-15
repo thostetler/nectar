@@ -18,7 +18,7 @@ import {
 import { SimpleLink } from '@components';
 import { useSession } from '@hooks/auth';
 import { getDefaultReducer } from '@hooks/auth/model';
-import { IAuthForm } from '@hooks/auth/types';
+import { AuthForm } from '@hooks/auth/types';
 import { useLogin } from '@hooks/auth/useLogin';
 import { NextPage } from 'next';
 import Head from 'next/head';
@@ -27,7 +27,7 @@ import { FormEventHandler, useReducer } from 'react';
 
 export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
-const initialState: IAuthForm<IUserCredentials> = {
+const initialState: AuthForm<IUserCredentials> = {
   error: null,
   params: { email: '', password: '' },
   status: 'idle',

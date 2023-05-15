@@ -16,14 +16,14 @@ import {
   useBoolean,
 } from '@chakra-ui/react';
 import { getDefaultReducer } from '@hooks/auth/model';
-import { IAuthForm } from '@hooks/auth/types';
+import { AuthForm } from '@hooks/auth/types';
 import { useChangePassword } from '@hooks/auth/useChangePassword';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import { FormEventHandler, useCallback, useReducer, useRef, useState } from 'react';
 import { composeNextGSSP } from '@ssrUtils';
 
-const initialState: IAuthForm<IUserChangePasswordCredentials> = {
+const initialState: AuthForm<IUserChangePasswordCredentials> = {
   params: { currentPassword: '', password: '', confirmPassword: '' },
   status: 'idle',
   error: null,
