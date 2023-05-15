@@ -1,7 +1,6 @@
 import { ChakraProvider } from '@chakra-ui/react';
 import { Layout } from '@components';
 import { useIsClient } from '@hooks';
-import { useCreateQueryClient } from '@hooks/useCreateQueryClient';
 import { MathJaxProvider } from '@mathjax';
 import { AppState, StoreProvider, useCreateStore, useStore } from '@store';
 import { theme } from '@theme';
@@ -11,10 +10,11 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
 import { FC, memo, ReactElement, useEffect } from 'react';
-import { Hydrate, QueryClientProvider } from 'react-query';
+import { Hydrate } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import 'tailwindcss/tailwind.css';
 import '../styles/styles.css';
+import { trpc } from '@trpc-utils';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -52,10 +52,10 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
     <MathJaxProvider>
       <ChakraProvider theme={theme}>
         <StoreProvider createStore={createStore}>
-          <QCProvider>
-            <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
-            <ReactQueryDevtools />
-          </QCProvider>
+          {/*<QCProvider>*/}
+          <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
+          <ReactQueryDevtools />
+          {/*</QCProvider>*/}
         </StoreProvider>
       </ChakraProvider>
     </MathJaxProvider>
@@ -63,11 +63,11 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
 };
 
 const QCProvider: FC = ({ children }) => {
-  const queryClient = useCreateQueryClient();
+  // const queryClient = useCreateQueryClient();
   return (
-    <QueryClientProvider client={queryClient} contextSharing>
-      {children}
-    </QueryClientProvider>
+    // <QueryClientProvider client={queryClient} contextSharing>
+    <>{children}</>
+    // </QueryClientProvider>
   );
 };
 
@@ -88,4 +88,4 @@ const ThemeRouter = (): ReactElement => {
   return <></>;
 };
 
-export default NectarApp;
+export default trpc.withTRPC(NectarApp);

@@ -62,6 +62,10 @@ const config = {
     reactRemoveProperties: false,
   },
   output: 'standalone',
+  eslint: {
+    // eslint run on CI in separate step
+    ignoreDuringBuilds: process.env.CI,
+  },
 };
 
 module.exports = withBundleAnalyzer(config);

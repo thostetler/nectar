@@ -6,6 +6,7 @@ import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
+import { trpc } from '@trpc-utils';
 
 export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
@@ -22,6 +23,9 @@ const HomePage: NextPage = () => {
   const input = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const hello = trpc.greeting.useQuery();
+
+  console.log(hello);
   // clear search on mount
   useEffect(() => resetQuery(), []);
 
