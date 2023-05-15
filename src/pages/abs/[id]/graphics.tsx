@@ -9,7 +9,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import NextImage from 'next/legacy/image';
 import NextLink from 'next/link';
-import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+import { dehydrate, DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
 
 interface IGraphicsPageProps {
   id: string;

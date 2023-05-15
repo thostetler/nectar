@@ -7,7 +7,7 @@ import { useGetAbstractParams } from '@hooks/useGetAbstractParams';
 import { unwrapStringValue } from '@utils';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { dehydrate, DehydratedState, hydrate, QueryClient } from 'react-query';
+import { dehydrate, DehydratedState, hydrate, QueryClient } from '@tanstack/react-query';
 import { normalizeURLParams } from 'src/utils';
 import { composeNextGSSP } from '@ssrUtils';
 

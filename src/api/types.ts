@@ -1,5 +1,10 @@
 import { AxiosError } from 'axios';
-import { UseInfiniteQueryOptions, UseInfiniteQueryResult, UseQueryOptions, UseQueryResult } from 'react-query';
+import {
+  UseInfiniteQueryOptions,
+  UseInfiniteQueryResult,
+  UseQueryOptions,
+  UseQueryResult,
+} from '@tanstack/react-query';
 
 export type ADSQuery<P, T, R = T, A = UseQueryResult<R>> = (
   props: P,
