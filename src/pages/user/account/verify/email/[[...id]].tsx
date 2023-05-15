@@ -28,14 +28,16 @@ export default VerifyEmail;
 
 const goHome = { redirect: { destination: '/', permanent: false }, props: {} };
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  const { id } = ctx.params;
+  const { id } = ctx.params as { id: string[] };
 
-  if (isEmptyString(id?.[0])) {
+  const slug = id.at(0);
+
+  if (isEmptyString(slug) || typeof slug === 'undefined') {
     return goHome;
   }
 
   try {
-    const result = await verifyAccount(id[0], ctx.res);
+    const result = await verifyAccount(slug, ctx.res);
 
     // TODO: Redirect to an error page if verify fails? right now we're going home
     if (isPlainObject(result)) {

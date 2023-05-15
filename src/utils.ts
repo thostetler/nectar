@@ -66,7 +66,7 @@ export const getFomattedNumericPubdate = (pubdate: string): string | null => {
   if (match === null) {
     return null;
   }
-  const { year, month } = match.groups;
+  const { year, month } = match.groups ?? { year: '9999', month: '01' };
   return `${year}/${month}`;
 };
 
@@ -92,7 +92,7 @@ export const safeParse = <T>(value: string, defaultValue: T): T => {
 export const useBaseRouterPath = (): { basePath: string } => {
   const { asPath } = useRouter();
   try {
-    return { basePath: asPath.split('?')[0] };
+    return { basePath: asPath.split('?')[0] as string };
   } catch (e) {
     return { basePath: '/' };
   }
@@ -103,7 +103,7 @@ export const useBaseRouterPath = (): { basePath: string } => {
  */
 export const truncateDecimal = (num: number, d: number): number => {
   const regex = new RegExp(`^-?\\d+(\\.\\d{0,${d}})?`);
-  return parseFloat(regex.exec(num.toString())[0]);
+  return parseFloat(regex.exec(num.toString())?.[0] ?? '0');
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -121,7 +121,7 @@ export const parseNumberAndClamp = (
 ): number => {
   try {
     const val = Array.isArray(value) ? value[0] : value;
-    const num = typeof val === 'number' ? val : parseInt(val, 10);
+    const num = typeof val === 'number' ? val : parseInt(val ?? '0', 10);
     return clamp(min, max, Number.isNaN(num) ? min : num);
   } catch (e) {
     return min;
@@ -139,13 +139,13 @@ export const parseQueryFromUrl = <TExtra extends Record<string, string | string[
   url: string,
   { sortPostfix }: { sortPostfix?: SolrSort } = {},
 ) => {
-  const params = parseSearchParams(url.split('?')[1]) as Record<string, string | string[]>;
+  const params = parseSearchParams(url.split('?')[1] as string) as Record<string, string | string[]>;
   const normalizedParams = normalizeURLParams(params, ['fq']);
   return {
     ...normalizedParams,
     q: normalizedParams?.q ?? '',
     sort: normalizeSolrSort(params.sort, sortPostfix),
-    p: parseNumberAndClamp(normalizedParams?.p, 1),
+    p: parseNumberAndClamp(normalizedParams?.p ?? '', 1),
     ...(params.fq ? { fq: safeSplitString(params.fq) } : {}),
   } as IADSApiSearchParams & { p?: number; n?: number } & TExtra;
 };
@@ -236,20 +236,11 @@ export const safeSplitString = (value: string | string[], delimiter: string | Re
     if (isString(value)) {
       return value.split(delimiter);
     }
+    return [];
   } catch (e) {
     return [];
   }
 };
-
-/**
- * Enumerate enum keys
- *
- * @see https://www.petermorlion.com/iterating-a-typescript-enum/
- */
-export const enumKeys = <O extends object, K extends keyof O = keyof O>(obj: O): K[] => {
-  return Object.keys(obj).filter((k) => Number.isNaN(+k)) as K[];
-};
-
 
 // omit params that should not be included in any urls
 // `id` is typically slug used in abstract pages
@@ -294,32 +285,6 @@ export const purifyString = (value: string): string => {
   } catch (e) {
     return value;
   }
-};
-
-export const purify = <T extends Record<string, unknown>>(value: T): T | string | string[] => {
-  if (is(String, value)) {
-    return purifyString(value as string);
-  }
-
-  if (Array.isArray(value)) {
-    return value.map(purifyString);
-  }
-
-  if (is(Object, value)) {
-    return Object.keys(value).reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: Array.isArray(value[key])
-          ? (value[key] as string[]).map(purifyString)
-          : is(String, value[key])
-          ? purifyString(value[key] as string)
-          : value[key],
-      }),
-      value,
-    );
-  }
-
-  return value;
 };
 
 /**

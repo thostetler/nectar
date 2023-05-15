@@ -28,14 +28,16 @@ export default VerifyPassword;
 
 const goHome = { redirect: { destination: '/', permanent: false }, props: {} };
 export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  const { id } = ctx.params;
+  const { id } = ctx.params as { id: string[] };
 
-  if (isEmptyString(id?.[0])) {
+  const slug = id.at(0);
+
+  if (isEmptyString(slug) || typeof slug === 'undefined') {
     return goHome;
   }
 
   try {
-    const email = await getResetPasswordVerifyEmail(id[0]);
+    const email = await getResetPasswordVerifyEmail(slug);
     return {
       props: {
         email,
