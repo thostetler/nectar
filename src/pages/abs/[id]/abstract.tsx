@@ -93,10 +93,10 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
                     <>{index === MAX - 1 || index === doc.author_count - 1 ? '' : ';'}</>
                   </Box>
                 ))}
-                {doc.author_count > MAX ? (
-                  <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
+                {(doc?.author_count ?? 1) > MAX ? (
+                  <AllAuthorsModal bibcode={doc?.bibcode} label={`and ${doc.author_count - MAX} more`} />
                 ) : (
-                  <AllAuthorsModal bibcode={doc.bibcode} label={'show list'} />
+                  <AllAuthorsModal bibcode={doc?.bibcode} label={'show list'} />
                 )}
               </Flex>
             ) : (
@@ -120,7 +120,9 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
             {isNil(doc.abstract) ? (
               <Text>No Abstract</Text>
             ) : (
-              <Text as={MathJax} dangerouslySetInnerHTML={{ __html: doc.abstract }} />
+              <>
+                <Text as={MathJax} dangerouslySetInnerHTML={{ __html: doc.abstract }} />
+              </>
             )}
             <Details doc={doc} />
           </Stack>

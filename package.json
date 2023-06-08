@@ -47,6 +47,7 @@
     "@dnd-kit/utilities": "^3.2.1",
     "@emotion/react": "11.8.2",
     "@emotion/styled": "^11.6.0",
+    "@google-cloud/text-to-speech": "^4.2.2",
     "@heroicons/react": "^2.0.16",
     "@next/bundle-analyzer": "^10.0.7",
     "@nivo/bar": "^0.80.0",

@@ -8,6 +8,12 @@ import { ItemType } from '@components/Dropdown/types';
 import { useIsClient } from '@hooks/useIsClient';
 import { HTMLAttributes, MouseEvent, MouseEventHandler, ReactElement, useMemo } from 'react';
 import { IDataProductSource, IFullTextSource, IRelatedWorks, processLinkData } from './linkGenerator';
+import dynamic from 'next/dynamic';
+import type { ISpeakProps } from '@components/Speak/Speak';
+
+const Speak = dynamic<ISpeakProps>(() => import('@components/Speak/Speak').then((m) => m.Speak), {
+  ssr: false,
+});
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;
@@ -32,11 +38,13 @@ export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement =>
         <VStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
           <FullTextDropdown sources={sources.fullTextSources} />
           <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
+          <Speak doc={doc} />
         </VStack>
       ) : (
         <HStack as="section" wrap="wrap" spacing={0.5} columnGap={1} rowGap={1} alignItems="start">
           <FullTextDropdown sources={sources.fullTextSources} />
           <DataProductDropdown dataProducts={sources.dataProducts} relatedWorks={[]} />
+          <Speak doc={doc} />
           <Button hidden={true}>Add to library</Button>
         </HStack>
       )}
