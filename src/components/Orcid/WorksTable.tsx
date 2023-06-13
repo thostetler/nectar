@@ -1,13 +1,17 @@
-import { getSearchParams, useSearch } from '@api';
-import { IOrcidProfile, IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
+import { getSearchParams, IDocsEntity, useSearch } from '@api';
+import { IOrcidProfileEntry } from '@api/orcid/types/orcid-profile';
 import { ChevronDownIcon, ChevronUpIcon, UpDownIcon } from '@chakra-ui/icons';
 import { Box, Heading, IconButton, Stack, Table, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components/Select';
 import { SimpleLink } from '@components/SimpleLink';
 import { useOrcid } from '@lib/orcid/useOrcid';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Actions } from './Actions';
 import { isInSciX } from './Utils';
+import { useWork } from '@lib/orcid/useWork';
+import { isOrcidProfileEntry, isValidIOrcidUser } from '@api/orcid/models';
+import { isEmpty } from 'ramda';
+import { reconcileDocIdentifier } from '@utils';
 
 // TODO: pagination
 
@@ -37,40 +41,27 @@ const compareFn = (sortByField: SortField, direction: Direction) => {
 };
 
 export const WorksTable = () => {
-
-  const { user, profile } = useOrcid();
-
-  const allWorks: IOrcidProfile = profile ?? {};
+  const [selectedFilter, setSelectedFilter] = useState(filterOptions[0]);
+  const { user } = useOrcid();
+  const [allWorks, setAllWorks] = useState<IDocsEntity[]>([]);
 
   // All papers with matching orcid
   const { data } = useSearch(
-    getSearchParams({ q: `orcid:${user?.orcid}`, rows: 500, fl: ['title', 'identifier', 'pubdate'] }),
+    getSearchParams({
+      q: `orcid:${user?.orcid}`,
+      rows: 500,
+      fl: ['title', 'identifier', 'pubdate'],
+    }),
     {
-      enabled: typeof user?.orcid === 'string',
+      enabled: isValidIOrcidUser(user),
     },
   );
 
-  const allPapers = data ? data.docs : [];
-
-  if (allWorks) {
-    allPapers.forEach((doc) => {
-      // if none of its identifiers is in claimed, add it to all works
-      if (doc.identifier.filter((identifier) => identifier in allWorks).length === 0) {
-        allWorks[doc.identifier[0]] = {
-          identifier: doc.identifier[0],
-          status: null,
-          title: doc.title[0],
-          pubyear: null,
-          pubmonth: null,
-          updated: null,
-          putcode: null,
-          source: [],
-        };
-      }
-    });
-  }
-
-  const [selectedFilter, setSelectedFilter] = useState(filterOptions[0]);
+  useEffect(() => {
+    if (data?.docs?.length > 0) {
+      setAllWorks(data.docs);
+    }
+  }, [data?.docs]);
 
   // sorting
   const [sortBy, setSortBy] = useState<{ field: SortField; dir: Direction }>({
@@ -113,7 +104,7 @@ export const WorksTable = () => {
         Learn about using ORCiD with NASA SciX
       </SimpleLink>
       <Text>Claims take up to 24 hours to be indexed in SciX</Text>
-      {!user && !allWorks && <>Loading...</>}
+      {!isValidIOrcidUser(user) && isEmpty(allWorks) && <>Loading...</>}
       <Box w="350px">
         <Select
           options={filterOptions}
@@ -124,7 +115,7 @@ export const WorksTable = () => {
           onChange={handleFilterOptionsSelected}
         />
       </Box>
-      {user && allWorks ? (
+      {isValidIOrcidUser(user) && allWorks?.length > 0 ? (
         displayedWorks.length === 0 ? (
           <Text>No papers found</Text>
         ) : (
@@ -191,26 +182,8 @@ export const WorksTable = () => {
                 </Tr>
               </Thead>
               <Tbody>
-                {displayedWorks.map((work) => (
-                  <Tr key={work.identifier}>
-                    <Td>
-                      <>
-                        {isInSciX(work) ? (
-                          <SimpleLink href={`/abs/${encodeURIComponent(work.identifier)}`} newTab>
-                            {work.title}
-                          </SimpleLink>
-                        ) : (
-                          `${work.title}`
-                        )}
-                      </>
-                    </Td>
-                    <Td>{work.source.length > 0 ? work.source.join(',') : 'Provided by publisher'}</Td>
-                    <Td>{new Date(work.updated).toLocaleDateString('en-US')}</Td>
-                    <Td>{work.status ?? 'unclaimed'}</Td>
-                    <Td>
-                      <Actions work={work} />
-                    </Td>
-                  </Tr>
+                {displayedWorks.map((doc) => (
+                  <Entry identifier={reconcileDocIdentifier(doc)} />
                 ))}
               </Tbody>
             </Table>
@@ -219,4 +192,31 @@ export const WorksTable = () => {
       ) : null}
     </Stack>
   );
+};
+
+const Entry = ({ identifier }: { identifier: string }) => {
+  const { work } = useWork({ identifier, full: true });
+  if (isOrcidProfileEntry(work)) {
+    return (
+      <Tr key={work.identifier}>
+        <Td>
+          <>
+            {isInSciX(work) ? (
+              <SimpleLink href={`/abs/${encodeURIComponent(work.identifier)}`} newTab>
+                {work.title}
+              </SimpleLink>
+            ) : (
+              `${work.title}`
+            )}
+          </>
+        </Td>
+        <Td>{work.source.length > 0 ? work.source.join(',') : 'Provided by publisher'}</Td>
+        <Td>{new Date(work.updated).toLocaleDateString('en-US')}</Td>
+        <Td>{work.status ?? 'unclaimed'}</Td>
+        <Td>
+          <Actions work={work} />
+        </Td>
+      </Tr>
+    );
+  }
 };

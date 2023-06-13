@@ -20,7 +20,7 @@ import { useUpdateWork } from '@lib/orcid/useUpdateWork';
 import { useAddWorks } from '@lib/orcid/useAddWorks';
 import { useRemoveWorks } from '@lib/orcid/useRemoveWorks';
 import { AppState, useStore } from '@store';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 
 export interface IActionProps {
   work: IOrcidProfileEntry;
@@ -29,7 +29,6 @@ export interface IActionProps {
 const TOAST_DEFAULTS: UseToastOptions = {
   duration: 2000,
 };
-
 export const Actions = ({ work }: IActionProps) => {
   const claimedBySciX = isClaimedBySciX(work);
   const inSciX = isInSciX(work);
@@ -52,7 +51,7 @@ export const Actions = ({ work }: IActionProps) => {
             </HStack>
           </MenuButton>
           <MenuList>
-            <SyncToOrcidMenuItem identifier={work.identifier} isDisabled />
+            <SyncToOrcidMenuItem work={work} isDisabled={!claimedBySciX} />
             <AddClaimMenuItem identifier={work.identifier} isDisabled={claimedBySciX} />
             <DeleteClaimMenuItem identifier={work.identifier} isDisabled={!claimedBySciX} />
           </MenuList>
@@ -65,7 +64,8 @@ export const Actions = ({ work }: IActionProps) => {
 };
 
 interface IOrcidActionProps extends MenuItemProps {
-  identifier: string;
+  work?: IOrcidProfileEntry;
+  identifier?: string;
 }
 
 interface IOrcidActionBtnProps extends ButtonProps {
@@ -139,11 +139,25 @@ export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>(
 });
 
 const SyncToOrcidMenuItem = (props: IOrcidActionProps) => {
-  const { identifier, ...menuItemProps } = props;
-  const { updateWork } = useUpdateWork();
+  const { work, ...menuItemProps } = props;
+  const toast = useToast(TOAST_DEFAULTS);
+  const { updateWork, error } = useUpdateWork(
+    {},
+    {
+      onSuccess: () => {
+        toast({ status: 'success', title: 'Successfully submitted sync request' });
+      },
+    },
+  );
+
+  useEffect(() => {
+    if (error) {
+      toast({ status: 'error', title: 'Unable to submit request', description: error });
+    }
+  }, [error]);
 
   return (
-    <MenuItem onClick={() => updateWork(identifier)} {...menuItemProps}>
+    <MenuItem onClick={() => updateWork(work)} {...menuItemProps}>
       Sync to ORCiD
     </MenuItem>
   );
