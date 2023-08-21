@@ -7,8 +7,6 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
 
-export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
-
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@components/SearchExamples').then((m) => m.SearchExamples),
   { ssr: false, loading: () => <SearchExamplesPlaceholder /> },
@@ -65,3 +63,4 @@ const HomePage: NextPage = () => {
 };
 
 export default HomePage;
+export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';

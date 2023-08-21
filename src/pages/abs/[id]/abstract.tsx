@@ -1,4 +1,4 @@
-import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@api';
+import { IADSApiSearchParams, IDocsEntity } from '@api';
 import { Alert, AlertIcon, Box, Flex, Link, Stack, Table, Tag, Tbody, Td, Text, Tr } from '@chakra-ui/react';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import { AbstractSources, SearchQueryLink } from '@components';
@@ -10,7 +10,7 @@ import { AbsLayout } from '@components/Layout/AbsLayout';
 import { APP_DEFAULTS } from '@config';
 import { withDetailsPage } from '@hocs/withDetailsPage';
 import { useIsClient } from '@lib/useIsClient';
-import { composeNextGSSP } from '@ssrUtils';
+import { composeNextGSSP } from '@ssr-utils';
 import { unwrapStringValue } from '@utils';
 import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
@@ -19,6 +19,7 @@ import Head from 'next/head';
 import NextLink from 'next/link';
 import { isNil } from 'ramda';
 import { ReactElement } from 'react';
+import { useGetAbstractDoc } from '@lib';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
@@ -44,11 +45,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
 
   const isClient = useIsClient();
 
-  // this *should* only ever fetch from pre-filled cache
-  const { data, isSuccess } = useGetAbstract({ id });
-
-  // should be able to access docs here directly
-  const doc = isSuccess ? data.docs?.[0] : undefined;
+  const doc = useGetAbstractDoc(id);
 
   // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
@@ -57,7 +54,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
 
   return (
     <AbsLayout doc={doc} titleDescription={''}>
-      <Head>{isSuccess && <title>NASA Science Explorer - Abstract - {title}</title>}</Head>
+      <Head>{doc && <title>NASA Science Explorer - Abstract - {title}</title>}</Head>
       <Box as="article" aria-labelledby="title">
         {error && (
           <Alert status="error" mt={2}>
@@ -65,7 +62,7 @@ const AbstractPage: NextPage<IAbstractPageProps> = (props: IAbstractPageProps) =
             {error.status}: {error.message}
           </Alert>
         )}
-        {isSuccess && (
+        {doc && (
           <Stack direction="column" gap={2}>
             {isClient ? (
               <Flex wrap="wrap">

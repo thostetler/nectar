@@ -1,18 +1,18 @@
 import {
+  AlertStatus,
+  Button,
   Flex,
   FormControl,
   FormLabel,
   HStack,
   Input,
-  Text,
   Tab,
-  Tabs,
   TabList,
-  TabPanels,
   TabPanel,
-  Button,
+  TabPanels,
+  Tabs,
+  Text,
   useDisclosure,
-  AlertStatus,
 } from '@chakra-ui/react';
 import { FeedbackLayout } from '@components';
 import {
@@ -30,8 +30,6 @@ import { useStore } from '@store';
 import { Field, FieldProps, Form, Formik, FormikHelpers, FormikState } from 'formik';
 import { NextPage } from 'next';
 import { useState } from 'react';
-
-export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
 const Record: NextPage = () => {
   const username = useStore((state) => state.user.username);
@@ -74,7 +72,6 @@ const Record: NextPage = () => {
   };
 
   const handlePreview = (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
-    console.log(values);
     setPreview(true);
     setSubmitting(false);
   };
@@ -183,3 +180,4 @@ const Record: NextPage = () => {
 };
 
 export default Record;
+export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';

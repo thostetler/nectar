@@ -1,22 +1,20 @@
 import {
+  AlertStatus,
   Button,
   Flex,
   FormControl,
   FormLabel,
-  Input,
-  Textarea,
-  Text,
   HStack,
+  Input,
+  Text,
+  Textarea,
   useDisclosure,
-  AlertStatus,
 } from '@chakra-ui/react';
-import { FeedbackLayout, FeedbackAlert } from '@components';
+import { FeedbackAlert, FeedbackLayout } from '@components';
 import { useStore } from '@store';
 import { Field, FieldProps, Form, Formik, FormikHelpers } from 'formik';
 import { NextPage } from 'next';
 import { useState } from 'react';
-
-export { injectSessionGSSP as getServerSideProps } from '@ssrUtils';
 
 type FormValues = {
   name: string;
@@ -113,3 +111,4 @@ const General: NextPage = () => {
 };
 
 export default General;
+export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
