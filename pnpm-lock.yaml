@@ -56,9 +56,6 @@ importers:
       '@testing-library/jest-dom':
         specifier: ^5.16.5
         version: 5.16.5
-      '@testing-library/react-hooks':
-        specifier: ^7.0.2
-        version: 7.0.2(react-dom@18.2.0)(react@18.2.0)
       '@xstate/fsm':
         specifier: ^2.0.0
         version: 2.0.0
@@ -5915,28 +5912,6 @@ packages:
       redent: 3.0.0
     dev: false
 
-  /@testing-library/react-hooks@7.0.2(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-dYxpz8u9m4q1TuzfcUApqi8iFfR6R0FaMbr2hjZJy1uC8z+bO/K4v8Gs9eogGKYQop7QsrBTFkv/BCF7MzD2Cg==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: '>=16.9.0'
-      react-dom: '>=16.9.0'
-      react-test-renderer: '>=16.9.0'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-test-renderer:
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@types/react': 17.0.52
-      '@types/react-dom': 18.0.8
-      '@types/react-test-renderer': 17.0.1
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-      react-error-boundary: 3.1.4(react@18.2.0)
-    dev: false
-
   /@testing-library/react@13.4.0(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-sXOGON+WNTh3MLE9rve97ftaZukN3oNf2KjDy7YTx6hcTO2uuLHuCGynMDhFwGw/jYf4OJ2Qk0i4i79qMNNkyw==}
     engines: {node: '>=12'}
@@ -6571,6 +6546,7 @@ packages:
     resolution: {integrity: sha512-C3GYO0HLaOkk9dDAz3Dl4sbe4AKUGTCfFIZsz3n/82dPNN8Du533HzKatDxeUYWu24wJgMP1xICqkWk1YOLOIw==}
     dependencies:
       '@types/react': 17.0.52
+    dev: true
 
   /@types/react-google-recaptcha@2.1.5:
     resolution: {integrity: sha512-iWTjmVttlNgp0teyh7eBXqNOQzVq2RWNiFROWjraOptRnb1OcHJehQnji0sjqIRAk9K0z8stjyhU+OLpPb0N6w==}
@@ -6583,12 +6559,6 @@ packages:
     dependencies:
       '@types/react': 17.0.52
     dev: true
-
-  /@types/react-test-renderer@17.0.1:
-    resolution: {integrity: sha512-3Fi2O6Zzq/f3QR9dRnlnHso9bMl7weKCviFmfF6B4LS1Uat6Hkm15k0ZAQuDz+UBq6B3+g+NM6IT2nr5QgPzCw==}
-    dependencies:
-      '@types/react': 17.0.52
-    dev: false
 
   /@types/react-transition-group@4.4.4:
     resolution: {integrity: sha512-7gAPz7anVK5xzbeQW9wFBDg7G++aPLAFY0QaSMOou9rJZpbuI58WAuJrgu+qR92l61grlnCUe7AFX8KGahAgug==}
@@ -13700,16 +13670,6 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
       react-is: 18.1.0
     dev: true
-
-  /react-error-boundary@3.1.4(react@18.2.0):
-    resolution: {integrity: sha512-uM9uPzZJTF6wRQORmSrvOIgt4lJ9MC1sNgEOj2XGsDTRE4kmpWxg7ENK9EWNKJRMAOY9z0MuF4yIfl6gp4sotA==}
-    engines: {node: '>=10', npm: '>=6'}
-    peerDependencies:
-      react: '>=16.13.1'
-    dependencies:
-      '@babel/runtime': 7.22.6
-      react: 18.2.0
-    dev: false
 
   /react-error-boundary@4.0.4(react@18.2.0):
     resolution: {integrity: sha512-AbqMFx8bCsob8rCHZvJYQ42MQijK0/034RUvan9qrqyJCpazr8d9vKHrysbxcr6odoHLZvQEcYomFPoIqH9fow==}
