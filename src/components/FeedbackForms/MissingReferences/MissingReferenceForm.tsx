@@ -1,4 +1,4 @@
-import { Flex, HStack, FormControl, FormLabel, Input, Button, AlertStatus } from '@chakra-ui/react';
+import { AlertStatus, Button, Flex, FormControl, FormLabel, HStack, Input } from '@chakra-ui/react';
 import { useStore } from '@store';
 import { Field, FieldProps, Form, Formik, FormikHelpers } from 'formik';
 import { MissingReferenceTable } from './MissingReferenceTable';
@@ -23,7 +23,6 @@ export const MissingReferenceForm = ({
   };
 
   const handleSubmitForm = (values: FormValues, { setSubmitting, resetForm }: FormikHelpers<FormValues>) => {
-    console.log(values);
     onOpenAlert({
       status: 'success',
       title: 'Feedback successfully submitted',

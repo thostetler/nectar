@@ -1,19 +1,19 @@
-import { DeleteIcon, AddIcon } from '@chakra-ui/icons';
+import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
-  Flex,
-  HStack,
-  FormControl,
-  FormLabel,
-  Input,
-  Button,
-  FormErrorMessage,
-  IconButton,
   AlertStatus,
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  HStack,
+  IconButton,
+  Input,
 } from '@chakra-ui/react';
 import { Select, SelectOption } from '@components';
 import { useStore } from '@store';
-import { Formik, Form, Field, FormikHelpers, useField, FieldArray, FieldProps, FieldArrayRenderProps } from 'formik';
-import { useState, ChangeEvent, useRef } from 'react';
+import { Field, FieldArray, FieldArrayRenderProps, FieldProps, Form, Formik, FormikHelpers, useField } from 'formik';
+import { ChangeEvent, useRef, useState } from 'react';
 
 type FormValues = {
   name: string;
@@ -41,7 +41,6 @@ export const AssociatedArticlesForm = ({
   };
 
   const handleSubmitForm = (values: FormValues, { setSubmitting, resetForm }: FormikHelpers<FormValues>) => {
-    console.log(values);
     onOpenAlert({
       status: 'success',
       title: 'Feedback successfully submitted',
