@@ -44,6 +44,7 @@
     "axios": "^1.2.1",
     "axios-logger": "^2.5.0",
     "better-react-mathjax": "^2.0.1",
+    "broadcast-channel": "^5.3.0",
     "chakra-dayzed-datepicker": "^0.2.9",
     "clsx": "^1.1.1",
     "d3": "^7.6.1",

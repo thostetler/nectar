@@ -20,6 +20,7 @@ import axios from 'axios';
 import api, { checkUserData } from '@api';
 import { isNilOrEmpty, notEqual } from 'ramda-adjunct';
 import { useUser } from '@lib/useUser';
+import { useBroadcast } from '@lib/useBroadcast';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -70,6 +71,9 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
 
 const QCProvider: FC = ({ children }) => {
   const queryClient = useCreateQueryClient();
+
+  useBroadcast(queryClient);
+
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
 

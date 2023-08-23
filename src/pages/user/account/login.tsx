@@ -14,6 +14,14 @@ import { parseAPIError } from '@utils';
 
 const initialParams: IUserCredentials = { email: '', password: '' };
 
+export const loginRequest = async (params: IUserCredentials) => {
+  const { data } = await axios.post<ILoginResponse>('/api/auth/login', params);
+  if (data?.error) {
+    throw new Error(data.error);
+  }
+  return data;
+};
+
 const Login: NextPage = () => {
   const [params, setParams] = useState<IUserCredentials>(initialParams);
   const [mainInputRef, focus] = useFocus<HTMLInputElement>();
@@ -26,20 +34,10 @@ const Login: NextPage = () => {
     isError,
     isLoading,
     error,
-  } = useMutation<ILoginResponse, AxiosError<ILoginResponse> | Error, IUserCredentials>(
-    ['login'],
-    async (params) => {
-      const { data } = await axios.post<ILoginResponse>('/api/auth/login', params);
-      if (data?.error) {
-        throw new Error(data.error);
-      }
-      return data;
-    },
-    {
-      cacheTime: 0,
-      retry: false,
-    },
-  );
+  } = useMutation<ILoginResponse, AxiosError<ILoginResponse> | Error, IUserCredentials>(['login'], loginRequest, {
+    cacheTime: 0,
+    retry: false,
+  });
 
   // redirect on successful login
   useEffect(() => {

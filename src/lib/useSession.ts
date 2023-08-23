@@ -11,6 +11,11 @@ interface IUseSessionProps {
   redirectWithMessage?: NotificationId;
 }
 
+export const logoutRequest = async () => {
+  const { data } = await axios.post<ILogoutResponse>('/api/auth/logout');
+  return data;
+};
+
 /**
  * Provides access to the user session and methods to logout
  * @param props
@@ -20,9 +25,9 @@ export const useSession = (props: IUseSessionProps = { redirectWithMessage: null
   const { user, reset } = useUser();
   const redirectToRoot = useRedirectWithNotification();
 
-  const { mutate: logout, ...result } = useMutation(['logout'], async () => {
-    const { data } = await axios.post<ILogoutResponse>('/api/auth/logout');
-    return data;
+  const { mutate: logout, ...result } = useMutation(['logout'], logoutRequest, {
+    cacheTime: 0,
+    retry: false,
   });
 
   useEffect(() => {
