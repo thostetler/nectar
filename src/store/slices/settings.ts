@@ -1,8 +1,8 @@
 import { IADSApiUserDataResponse } from '@api';
 import { SearchFacetID } from '@components/SearchFacet/types';
 import { StoreSlice } from '@store';
-import { Theme } from '@types';
 import { filter, is, pipe, propEq, uniq, without } from 'ramda';
+import { AppMode } from '@types';
 
 export interface ISettingsState {
   settings: {
@@ -26,7 +26,6 @@ export interface ISettingsAction {
   showSearchFacet: (id: SearchFacetID, index?: number) => void;
   toggleSearchFacetsOpen: (value?: boolean | unknown) => void;
   resetSearchFacets: () => void;
-  updateSearchFacetsByTheme: () => void;
   getHiddenSearchFacets: () => SearchFacetID[];
   setIgnoredSearchFacets: (ignored: SearchFacetID[]) => void;
 
@@ -38,40 +37,40 @@ export interface ISettingsAction {
 type SearchFacetState = {
   hidden: boolean;
   expanded: boolean;
+  hiddenByMode: AppMode[];
 };
+
+export const defaultSearchFacetList: SearchFacetID[] = [
+  'author',
+  'collections',
+  'refereed',
+  'institutions',
+  'keywords',
+  'publications',
+  'bibgroups',
+  'simbad',
+  'ned',
+  'data',
+  'vizier',
+  'pubtype',
+];
 
 export const defaultSettings: ISettingsState['settings'] = {
   searchFacets: {
-    order: [
-      'author',
-      'collections',
-      'refereed',
-      'institutions',
-      'keywords',
-      'publications',
-      'bibgroups',
-      'simbad',
-      'ned',
-      'data',
-      'vizier',
-      'pubtype',
-    ],
+    order: defaultSearchFacetList,
     state: {
-      ['author']: { hidden: false, expanded: true },
-      ['collections']: { hidden: false, expanded: true },
-      ['refereed']: { hidden: false, expanded: true },
-      ['institutions']: { hidden: false, expanded: false },
-      ['keywords']: { hidden: false, expanded: false },
-      ['publications']: { hidden: false, expanded: false },
-      ['bibgroups']: { hidden: false, expanded: false },
-
-      // by default `simbad` and `ned` are hidden, since they are re-shown by theme
-      ['simbad']: { hidden: true, expanded: false },
-      ['ned']: { hidden: true, expanded: false },
-
-      ['data']: { hidden: false, expanded: false },
-      ['vizier']: { hidden: false, expanded: false },
-      ['pubtype']: { hidden: false, expanded: false },
+      ['author']: { hidden: false, expanded: true, hiddenByMode: [AppMode.ASTROPHYSICS] },
+      ['collections']: { hidden: false, expanded: true, hiddenByMode: [] },
+      ['refereed']: { hidden: false, expanded: true, hiddenByMode: [] },
+      ['institutions']: { hidden: false, expanded: false, hiddenByMode: [] },
+      ['keywords']: { hidden: false, expanded: false, hiddenByMode: [] },
+      ['publications']: { hidden: false, expanded: false, hiddenByMode: [] },
+      ['bibgroups']: { hidden: false, expanded: false, hiddenByMode: [] },
+      ['simbad']: { hidden: false, expanded: false, hiddenByMode: [] },
+      ['ned']: { hidden: false, expanded: false, hiddenByMode: [] },
+      ['data']: { hidden: false, expanded: false, hiddenByMode: [] },
+      ['vizier']: { hidden: false, expanded: false, hiddenByMode: [] },
+      ['pubtype']: { hidden: false, expanded: false, hiddenByMode: [] },
     },
     open: true,
     ignored: [],
@@ -171,31 +170,28 @@ export const settingsSlice: StoreSlice<ISettingsState & ISettingsAction> = (set,
       'settings/toggleSearchFacetsOpen',
     ),
   resetSearchFacets: () => {
+    const mode = get().mode;
+
+    const facetStates = {} as ISettingsState['settings']['searchFacets']['state'];
+    for (const key in defaultSettings.searchFacets.state) {
+      const state = defaultSettings.searchFacets.state[key as SearchFacetID];
+      facetStates[key as SearchFacetID] = state.hiddenByMode.includes(mode) ? { ...state, hidden: true } : state;
+    }
+
     set(
-      { settings: { ...get().settings, searchFacets: defaultSettings.searchFacets } },
+      {
+        settings: {
+          ...get().settings,
+          searchFacets: {
+            ...defaultSettings.searchFacets,
+            state: facetStates,
+          },
+        },
+      },
       false,
       'settings/resetSearchFacets',
     );
-
-    // update based on the theme
-    get().updateSearchFacetsByTheme();
   },
-  updateSearchFacetsByTheme: () =>
-    set(
-      (state) => {
-        if (state.theme === Theme.ASTROPHYSICS) {
-          state.showSearchFacet('ned');
-          state.showSearchFacet('simbad');
-          state.setIgnoredSearchFacets([]);
-        } else {
-          state.hideSearchFacet('ned');
-          state.hideSearchFacet('simbad');
-          state.setIgnoredSearchFacets(['ned', 'simbad']);
-        }
-      },
-      false,
-      'settings/updateSearchFacetsByTheme',
-    ),
   getHiddenSearchFacets: () => {
     const state = get();
     return pipe(
