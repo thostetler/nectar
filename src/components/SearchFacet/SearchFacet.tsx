@@ -1,5 +1,5 @@
 import { FacetField, IADSApiSearchParams, IFacetCountsFields } from '@api';
-import { DragHandleIcon } from '@chakra-ui/icons';
+import { ChevronRightIcon, DragHandleIcon } from '@chakra-ui/icons';
 import {
   AccordionItemProps,
   Box,
@@ -27,6 +27,7 @@ import {
   useDroppable,
   useSensor,
 } from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
@@ -109,16 +110,32 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
     onClose();
   };
 
-  const style: CSSProperties = {
-    transform: CSS.Translate.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : undefined,
-    border: isDragging ? 'dashed blue 3px' : undefined,
-    padding: isDragging ? '4px' : undefined,
-  };
+  if (isDragging) {
+    const style: CSSProperties = {
+      transform: CSS.Translate.toString(transform),
+      transition,
+      opacity: 0.5,
+      border: 'dashed blue 3px',
+      padding: '4px',
+    };
+
+    return (
+      <ListItem ref={setNodeRef} style={style} my={0}>
+        <Button w="full" variant="outline" mb="0" px="0.5">
+          <DragHandleIcon mr="1" color="gray.400" fontSize="md" />
+          <Icon as={ChevronRightIcon} fontSize="24px" color="gray.600" />
+          <HStack flex="1" textAlign="left" mx="1">
+            <Text flex="1" fontSize="md" fontWeight="medium" color="gray.600">
+              {label}
+            </Text>
+          </HStack>
+        </Button>
+      </ListItem>
+    );
+  }
 
   return (
-    <ListItem ref={setNodeRef} style={style} my={0} w="64">
+    <ListItem ref={setNodeRef} my={0} w="64">
       <h2>
         <HStack
           spacing={0}
@@ -254,24 +271,16 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
 
   console.count('render');
 
-  const items = {
-    visible: [],
-    hidden: [],
-  };
-
-  [...list].forEach((node) => {
-    getFacetState(node.value).hidden ? items.hidden.push(node.value) : items.visible.push(node.value);
-  });
-
   return (
     <DndContext
       sensors={[mouseSensor]}
+      modifiers={[restrictToVerticalAxis]}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <DroppableContainer id="visible-container" items={list} />
+      <DroppableContainer id="visible-container" items={visible.toArray()} />
 
       <Button
         variant="link"
@@ -282,16 +291,18 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
         fontSize="sm"
         my={2}
       >
-        {showHiddenFacets ? 'Hide hidden filters' : 'Show hidden filters'} {`(${hiddenFacets.length})`}
+        {showHiddenFacets ? 'Hide hidden filters' : 'Show hidden filters'} {`(${hidden.size()})`}
       </Button>
 
       {/* create a droppable area when hidden facets are not open */}
       {!showHiddenFacets && <DroppableContainer id="temp-hidden-container" items={[]} />}
 
-      {showHiddenFacets && <DroppableContainer id="hidden-container" items={list.toArray()} />}
-      {/*{activeItem && (*/}
-      {/*  <DragOverlay>*/}
-      {/*    <List>{activeItem}</List>*/}
+      {showHiddenFacets && <DroppableContainer id="hidden-container" items={hidden.toArray()} />}
+      {/*{draggingFacetId && (*/}
+      {/*  <DragOverlay modifiers={[restrictToVerticalAxis]}>*/}
+      {/*    <List>*/}
+      {/*      <FakeSearchFacet {...facetConfig[draggingFacetId]} />*/}
+      {/*    </List>*/}
       {/*  </DragOverlay>*/}
       {/*)}*/}
     </DndContext>

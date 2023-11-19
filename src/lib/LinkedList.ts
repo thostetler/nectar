@@ -18,26 +18,54 @@ export class LinkedList<T> {
 
   append(node: LinkedListNode<T>) {
     this.tail.next = node;
+    node.prev = this.tail;
     this.tail = node;
   }
 
   prepend(node: LinkedListNode<T>) {
+    this.head.prev = node;
     node.next = this.head;
     this.head = node;
   }
 
   insertAfter(node: LinkedListNode<T>, newNode: LinkedListNode<T>) {
+    if (node === this.tail) {
+      this.append(newNode);
+      return;
+    }
+
+    if (node === this.head) {
+      this.prepend(newNode);
+      return;
+    }
+
+    if (!node.next) {
+      return;
+    }
+
     newNode.next = node.next;
+    node.next.prev = newNode;
     node.next = newNode;
+    newNode.prev = node;
   }
 
-  removeAfter(node: LinkedListNode<T>) {
-    const removedNode = node.next;
-    if (!removedNode) {
-      return null;
+  remove(node: LinkedListNode<T>) {
+    if (node === this.head) {
+      this.removeHead();
+      return;
     }
-    node.next = removedNode.next;
-    return removedNode;
+
+    if (node === this.tail) {
+      this.removeTail();
+      return;
+    }
+
+    if (!node.next || !node.prev) {
+      return;
+    }
+
+    node.prev.next = node.next;
+    node.next.prev = node.prev;
   }
 
   removeHead() {
@@ -47,6 +75,15 @@ export class LinkedList<T> {
     }
     this.head = removedHead.next;
     return removedHead;
+  }
+
+  removeTail() {
+    const removedTail = this.tail;
+    if (!removedTail) {
+      return null;
+    }
+    this.tail = removedTail.prev;
+    return removedTail;
   }
 
   findNode(callback: (node: LinkedListNode<T>) => boolean) {
@@ -121,8 +158,10 @@ export class LinkedList<T> {
 export class LinkedListNode<T = string> {
   public value: T;
   public next: LinkedListNode<T>;
+  public prev: LinkedListNode<T>;
   constructor(value: T) {
     this.value = value;
     this.next = null;
+    this.prev = null;
   }
 }
