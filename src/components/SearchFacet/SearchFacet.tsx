@@ -22,7 +22,6 @@ import {
   DndContext,
   DragEndEvent,
   DragOverEvent,
-  DragStartEvent,
   MouseSensor,
   useDroppable,
   useSensor,
@@ -250,7 +249,6 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
     },
   });
 
-  const handleDragStart = (event: DragStartEvent) => setDraggingFacetId(event.active.id as SearchFacetID);
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
 
@@ -276,7 +274,6 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
       sensors={[mouseSensor]}
       modifiers={[restrictToVerticalAxis]}
       collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
@@ -301,7 +298,7 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
       {/*{draggingFacetId && (*/}
       {/*  <DragOverlay modifiers={[restrictToVerticalAxis]}>*/}
       {/*    <List>*/}
-      {/*      <FakeSearchFacet {...facetConfig[draggingFacetId]} />*/}
+      {/*      <Text>lsdkjfsd</Text>*/}
       {/*    </List>*/}
       {/*  </DragOverlay>*/}
       {/*)}*/}
