@@ -22,24 +22,24 @@ import {
   DndContext,
   DragEndEvent,
   DragOverEvent,
+  DragOverlay,
   MouseSensor,
   useDroppable,
   useSensor,
 } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
 import { ExclamationCircleIcon } from '@heroicons/react/24/solid';
 import { AppState, useStore, useStoreApi } from '@store';
-import { omit } from 'ramda';
-import { CSSProperties, ReactElement, useCallback, useState } from 'react';
+import { equals, omit } from 'ramda';
+import { CSSProperties, memo, useCallback, useEffect, useState } from 'react';
 import { applyFiltersToQuery } from './helpers';
 import { FacetLogic, OnFilterArgs, SearchFacetID } from './types';
 import { useGTMDispatch } from '@elgorditosalsero/react-gtm-hook';
-import { LinkedList, LinkedListNode } from '@lib/LinkedList';
-import { defaultSearchFacetList } from '@store/slices';
 import { facetConfig } from '@components/SearchFacet/config';
+import { noop } from '@utils';
 
 export interface ISearchFacetProps extends AccordionItemProps {
   field: FacetField;
@@ -48,6 +48,8 @@ export interface ISearchFacetProps extends AccordionItemProps {
   facetQuery?: string;
   label: string;
   storeId: SearchFacetID;
+  hidden?: boolean;
+  onChangeVisible?: () => void;
   /** Disallow loading more, regardless of result */
   noLoadMore?: boolean;
   forceUppercaseInitial?: boolean;
@@ -62,14 +64,12 @@ export interface ISearchFacetProps extends AccordionItemProps {
 
 const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.latestQuery) as IADSApiSearchParams;
 
-export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
+export const SearchFacet = memo((props: ISearchFacetProps) => {
   const store = useStoreApi();
   const sendDataToGTM = useGTMDispatch();
   const setFacetState = useStore((state) => state.setSearchFacetState);
-  const hideFacet = useStore((state) => state.hideSearchFacet);
-  const showFacet = useStore((state) => state.showSearchFacet);
   const searchQuery = useStore(querySelector);
-  const { label, field, storeId, onQueryUpdate, noLoadMore } = props;
+  const { label, field, storeId, onQueryUpdate, onChangeVisible, hidden, noLoadMore } = props;
   const { listeners, attributes, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: storeId,
     strategy: verticalListSortingStrategy,
@@ -99,10 +99,6 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
       facet_logic: filterArgs.logic,
     });
   };
-
-  const handleHideClick = useCallback(() => {
-    facetState.hidden ? showFacet(storeId) : hideFacet(storeId);
-  }, [facetState.hidden, storeId]);
 
   const handleOnError = () => {
     setHasError(true);
@@ -176,11 +172,9 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
               )}
             </HStack>
           </Button>
-          <Tooltip
-            label={facetState.hidden ? `Show ${label.toLowerCase()} filter` : `Hide ${label.toLowerCase()} filter`}
-          >
+          <Tooltip label={hidden ? `Show ${label.toLowerCase()} filter` : `Hide ${label.toLowerCase()} filter`}>
             <IconButton
-              onClick={handleHideClick}
+              onClick={onChangeVisible}
               border="solid 1px"
               borderColor="gray.300"
               borderLeft="none"
@@ -191,11 +185,11 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
               size="sm"
               fontSize="sm"
               variant="ghost"
-              aria-label={facetState.hidden ? `Show ${label} filter` : `Hide ${label} filter`}
+              aria-label={hidden ? `Show ${label} filter` : `Hide ${label} filter`}
               m={0}
               height={8}
               backgroundColor="white"
-              icon={<Center>{facetState.hidden ? <Icon as={EyeSlashIcon} /> : <Icon as={EyeIcon} />}</Center>}
+              icon={<Center>{hidden ? <Icon as={EyeSlashIcon} /> : <Icon as={EyeIcon} />}</Center>}
             />
           </Tooltip>
         </HStack>
@@ -219,28 +213,27 @@ export const SearchFacet = (props: ISearchFacetProps): ReactElement => {
       )}
     </ListItem>
   );
-};
+}, equals);
 
 export interface ISearchFacetsProps {
   onQueryUpdate: ISearchFacetProps['onQueryUpdate'];
 }
 
-const visible = new LinkedList<SearchFacetID>(new LinkedListNode(defaultSearchFacetList[0]));
-visible.appendArray(defaultSearchFacetList.slice(1).map((id) => new LinkedListNode(id)));
-const hidden = new LinkedList<SearchFacetID>(null);
-
 export const SearchFacets = (props: ISearchFacetsProps) => {
   const { onQueryUpdate } = props;
-  const getHiddenFacets = useStore((state) => state.getHiddenSearchFacets);
-  const getFacetState = useStore((state) => state.getSearchFacetState);
-  // const setFacets = useStore((state) => state.setSearchFacetOrder);
-  // const resetFacets = useStore((state) => state.resetSearchFacets);
-  // const hideSearchFacet = useStore((state) => state.hideSearchFacet);
-  // const showSearchFacet = useStore((state) => state.showSearchFacet);
-  // const toggleOpenAllFilters = useStore((state) => state.toggleSearchFacetsOpen);
+  const store = useStoreApi();
+  const setStoreHiddenFacets = useStore((state) => state.setHiddenSearchFacets);
+  const setStoreVisibleFacets = useStore((state) => state.setVisibleSearchFacets);
   const [showHiddenFacets, setShowHiddenFacets] = useState(false);
-  const [draggingFacetId, setDraggingFacetId] = useState<SearchFacetID | null>(null);
-  const hiddenFacets = getHiddenFacets();
+  const [active, setActive] = useState<SearchFacetID | null>(null);
+  const [visible, setVisible] = useState<SearchFacetID[]>([]);
+  const [hidden, setHidden] = useState<SearchFacetID[]>([]);
+
+  // on mount, set the initial order and visibility of the facets
+  useEffect(() => {
+    setHidden(store.getState().settings.searchFacets.hidden);
+    setVisible(store.getState().settings.searchFacets.visible);
+  }, []);
 
   const mouseSensor = useSensor(MouseSensor, {
     // Require the mouse to move by 10 pixels before activating
@@ -252,15 +245,12 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
 
-    if (!over) {
-      return;
+    if (over && active?.id !== over?.id) {
+      const activeIndex = visible.indexOf(active.id as SearchFacetID);
+      const overIndex = visible.indexOf(over.id as SearchFacetID);
+      setVisible((prev) => arrayMove(prev, activeIndex, overIndex));
     }
-
-    if (active?.id !== over.id) {
-      console.log('active', active, over);
-    }
-
-    console.log('drag over', event);
+    setActive(null);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -276,8 +266,10 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
       collisionDetection={closestCenter}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragStart={(event) => setActive(event.active.id as SearchFacetID)}
+      onDragCancel={() => setActive(null)}
     >
-      <DroppableContainer id="visible-container" items={visible.toArray()} />
+      <DroppableContainer id="visible-container" items={visible} />
 
       <Button
         variant="link"
@@ -288,20 +280,20 @@ export const SearchFacets = (props: ISearchFacetsProps) => {
         fontSize="sm"
         my={2}
       >
-        {showHiddenFacets ? 'Hide hidden filters' : 'Show hidden filters'} {`(${hidden.size()})`}
+        {showHiddenFacets ? 'Hide hidden filters' : 'Show hidden filters'} {`(${hidden.length})`}
       </Button>
 
       {/* create a droppable area when hidden facets are not open */}
       {!showHiddenFacets && <DroppableContainer id="temp-hidden-container" items={[]} />}
 
-      {showHiddenFacets && <DroppableContainer id="hidden-container" items={hidden.toArray()} />}
-      {/*{draggingFacetId && (*/}
-      {/*  <DragOverlay modifiers={[restrictToVerticalAxis]}>*/}
-      {/*    <List>*/}
-      {/*      <Text>lsdkjfsd</Text>*/}
-      {/*    </List>*/}
-      {/*  </DragOverlay>*/}
-      {/*)}*/}
+      {showHiddenFacets && <DroppableContainer id="hidden-container" items={hidden} />}
+      {active && (
+        <DragOverlay modifiers={[restrictToVerticalAxis]}>
+          <List>
+            <SearchFacet {...facetConfig[active]} key={active} onQueryUpdate={noop} />
+          </List>
+        </DragOverlay>
+      )}
     </DndContext>
   );
 
@@ -586,21 +578,24 @@ const DroppableContainer = ({
   //   [items, onQueryUpdate, hidden],
   // );
 
-  const renderList = useCallback(
-    () =>
-      items.map((id) => {
-        const params = facetConfig[id];
-        return <SearchFacet {...params} hidden={getFacetState(id).hidden} key={id} onQueryUpdate={onQueryUpdate} />;
-      }),
-    [items, onQueryUpdate],
-  );
+  // const facets = useMemo(
+  //   () =>
+  //     items.map((id) => {
+  //       const params = facetConfig[id];
+  //       return <SearchFacet {...params} hidden={getFacetState(id).hidden} key={id} onQueryUpdate={onQueryUpdate} />;
+  //     }),
+  //   [items, onQueryUpdate],
+  // );
 
   return (
     <>
       {items ? (
         <SortableContext id={id} items={items} strategy={verticalListSortingStrategy}>
           <List spacing={1} ref={setNodeRef} minH="10">
-            {renderList()}
+            {items.map((id) => {
+              const params = facetConfig[id];
+              return <SearchFacet {...params} key={id} onQueryUpdate={onQueryUpdate} />;
+            })}
           </List>
         </SortableContext>
       ) : (

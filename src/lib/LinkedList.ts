@@ -153,6 +153,19 @@ export class LinkedList<T> {
   appendArray(arr: LinkedListNode<T>[]) {
     arr.forEach((node) => this.append(node));
   }
+
+  swapAdjacentNodes(node: LinkedListNode<T>, dir: 'prev' | 'next') {
+    if (!node[dir]) {
+      return;
+    }
+    const other = node[dir];
+    const otherOther = other[dir];
+    node[dir] = otherOther;
+    other[dir] = node;
+    node.prev = other;
+    otherOther.prev = other;
+    other.next = node;
+  }
 }
 
 export class LinkedListNode<T = string> {
