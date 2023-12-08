@@ -4,7 +4,6 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 import { isPast, parseISO } from 'date-fns';
 import { identity, isNil } from 'ramda';
 import { defaultRequestConfig } from './config';
-import { IApiUserResponse } from '@pages/api/user';
 
 export const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
@@ -191,7 +190,10 @@ class Api {
   }
 
   async fetchUserData() {
-    const { data } = await axios.get<IApiUserResponse>('/api/user', {
+    const { data } = await axios.get<{
+      isAuthenticated: boolean;
+      user: IUserData;
+    }>('/api/user', {
       headers: {
         'x-RefreshToken': 1,
       },

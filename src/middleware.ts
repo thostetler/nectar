@@ -164,24 +164,40 @@ const hasAccessToRoute = (route: string, isAuthenticated: boolean) => {
 };
 
 const handleResponse = (req: NextRequest, res: NextResponse, session: IronSession) => {
-  const pathname = req.nextUrl.pathname;
+  const url = req.nextUrl.clone();
   const authenticated = isAuthenticated(session.token);
 
-  if (hasAccessToRoute(pathname, authenticated)) {
+  // if it's an api/user request, return the session token
+  if (url.pathname === '/api/user') {
+    return NextResponse.json({
+      isAuthenticated: authenticated,
+      user: session.token,
+    });
+  }
+
+  // if it's a root url, and we have a redirectUri, check if it's accessible, and redirect if so
+  if (!url.pathname.startsWith('/user/account/login') && url.searchParams.has('redirectUri')) {
+    url.pathname = decodeURIComponent(url.searchParams.get('redirectUri') ?? '/');
+    url.searchParams.delete('redirectUri');
+    if (hasAccessToRoute(url.pathname, authenticated)) {
+      return NextResponse.redirect(url, { status: 307, ...res });
+    }
+  }
+
+  if (hasAccessToRoute(req.nextUrl.pathname, authenticated)) {
     return res;
   }
 
-  const url = req.nextUrl.clone();
-
   // if on any of the account pages, redirect to root
-  if (pathname.startsWith('/user/account') || pathname.startsWith('/user/settings')) {
+  if (url.pathname.startsWith('/user/account') || url.pathname.startsWith('/user/settings')) {
     url.pathname = '/';
     return NextResponse.redirect(url, { status: 307, ...res });
   }
 
   // otherwise redirect to login
+  const redirectUri = encodeURIComponent(req.nextUrl.pathname);
   url.pathname = '/user/account/login';
-  url.searchParams.set('redirectUri', encodeURIComponent(pathname));
+  url.searchParams.set('redirectUri', redirectUri);
   return NextResponse.redirect(url, { status: 307, ...res });
 };
 

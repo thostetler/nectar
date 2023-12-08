@@ -9,13 +9,17 @@ export const useReloadWithNotification = () => {
   return async (id: NotificationId) => {
     setNotification(id);
     try {
-      return await router.replace({
-        ...router,
-        query: {
-          ...router.query,
-          notify: id,
+      return await router.replace(
+        {
+          ...router,
+          query: {
+            ...router.query,
+            notify: id,
+          },
         },
-      });
+        null,
+        { shallow: false },
+      );
     } catch {
       // If the router fails to replace, reload the page
       if (typeof window !== 'undefined') {

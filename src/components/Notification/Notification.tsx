@@ -4,12 +4,13 @@ import { useStore } from '@store';
 import { useRouter } from 'next/router';
 import { NotificationId } from '@store/slices';
 
-const TIMEOUT = 5000;
+const TIMEOUT = 2000;
 
 export const Notification = () => {
   const notification = useStore((state) => state.notification);
   const setNotification = useStore((state) => state.setNotification);
   const resetNotification = useStore((state) => state.resetNotification);
+
   const toast = useToast({
     position: 'top',
     duration: TIMEOUT,
@@ -29,18 +30,9 @@ export const Notification = () => {
     const { notify, ...query } = router.query;
     router.replace(router.pathname, { query }, { shallow: true }).finally(() => {
       resetNotification();
+      toast.closeAll();
     });
   };
-
-  // clear notification after timeout
-  useEffect(() => {
-    let id: ReturnType<typeof setTimeout>;
-
-    if (notification !== null) {
-      id = setTimeout(reset, TIMEOUT);
-    }
-    return () => clearTimeout(id);
-  }, [notification]);
 
   useEffect(() => {
     if (notification !== null && !toast.isActive(notification?.id)) {
@@ -50,6 +42,7 @@ export const Notification = () => {
         status: notification?.status,
         onCloseComplete: reset,
       });
+      setTimeout(reset, TIMEOUT);
     }
   }, [notification]);
 

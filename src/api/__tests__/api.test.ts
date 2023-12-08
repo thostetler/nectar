@@ -1,11 +1,10 @@
-import api, { IBootstrapPayload } from '@api';
+import api, { IBootstrapPayload, IUserData } from '@api';
 import { ApiRequestConfig } from '@api/api';
 import { APP_STORAGE_KEY } from '@store';
 import { createServerListenerMocks } from '@test-utils';
 import { rest } from 'msw';
 import { map, path, pipe, repeat } from 'ramda';
 import { beforeEach, expect, Mock, test, TestContext, vi } from 'vitest';
-import { IApiUserResponse } from '@pages/api/user';
 
 global.alert = vi.fn();
 
@@ -62,7 +61,12 @@ test('basic request calls bootstrap and adds auth', async ({ server }: TestConte
   // the refresh header was added to force a new session
   expect(onReq.mock.calls[0][0].headers.get('X-RefreshToken')).toEqual('1');
 
-  const expectedToken = (JSON.parse(onRes.mock.calls[0][0].body) as IApiUserResponse).user.access_token;
+  const expectedToken = (
+    JSON.parse(onRes.mock.calls[0][0].body) as {
+      isAuthenticated: boolean;
+      user: IUserData;
+    }
+  ).user.access_token;
 
   expect(onReq.mock.calls[1][0].headers.get('authorization')).toEqual(`Bearer:${expectedToken}`);
   expect(onReq.mock.calls[1][0].headers.get('cookie')).toEqual('session=test-session');

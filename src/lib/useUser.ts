@@ -23,9 +23,12 @@ export const useUser = () => {
   }, [user]);
 
   const reset = async () => {
+    console.log('RESETTING THE USER');
     resetUserSettings();
     resetUser();
-    await queryClient.invalidateQueries(['user'], { exact: true });
+    if (!queryClient.isFetching(['user'], { exact: true })) {
+      await queryClient.invalidateQueries(['user'], { exact: true });
+    }
   };
 
   return {
