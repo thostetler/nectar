@@ -174,7 +174,7 @@ const handleResponse = (req: NextRequest, res: NextResponse, session: IronSessio
   const url = req.nextUrl.clone();
 
   // if on any of the account pages, redirect to root
-  if (pathname.startsWith('/user/account') || pathname.startsWith('/user/settings')) {
+  if (pathname.startsWith('/user/account')) {
     url.pathname = '/';
     return NextResponse.redirect(url, { status: 307, ...res });
   }
