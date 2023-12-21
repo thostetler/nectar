@@ -29,11 +29,7 @@ export const sessionConfig: IronSessionOptions = {
   },
 };
 
-// Route prefixes that require authentication
-export const PROTECTED_ROUTES = ['/user/libraries', '/user/settings'];
-
-// Route prefixes that are not accessible when authenticated
-export const AUTH_EXCEPTIONS = ['/user/account'];
+export const PROTECTED_PATHS = ['/user/libraries', 'user/settings'] as const;
 
 const search = new URLSearchParams({
   client_id: process.env.NEXT_PUBLIC_ORCID_CLIENT_ID,
