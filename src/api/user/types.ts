@@ -45,7 +45,7 @@ export interface IBootstrapPayload {
   message?: string;
 }
 
-export type IUserData = Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expire_in'>;
+export type IUserData = Pick<IBootstrapPayload, 'username' | 'access_token' | 'expire_in'>;
 
 export interface IUserForgotPasswordCredentials {
   email: string;

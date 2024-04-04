@@ -3,12 +3,14 @@ import { IPagerProps, ISearchExamplesProps, SearchBar, SearchExamplesPlaceholder
 import { useIntermediateQuery } from '@lib/useIntermediateQuery';
 import { YouTubeEmbed } from '@next/third-parties/google';
 import { useStore } from '@store';
-import { makeSearchParams, normalizeSolrSort } from '@utils';
+import { normalizeSolrSort } from '@utils';
 import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
-import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { signOut, useSession } from 'next-auth/react';
+import { logger } from '@logger';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@components/SearchExamples').then((m) => m.SearchExamples),
@@ -33,8 +35,14 @@ const HomePage: NextPage = () => {
   // clear search on mount
   useEffect(() => clearQuery(), []);
 
+  const { data, status } = useSession();
+  logger.debug({ msg: 'SESSION', ...data, status });
+
   return (
     <Box aria-labelledby="form-title" my={8}>
+      <button type="button" onClick={() => signOut()} aria-label="Sign out">
+        Sign out
+      </button>
       <form method="get" action="/search">
         <VisuallyHidden as="h2" id="form-title">
           Modern Search Form

@@ -1,4 +1,4 @@
-import { IUserRegistrationCredentials, useRegisterUser } from '@api';
+import { IUserRegistrationCredentials } from '@api';
 import {
   Button,
   Container,
@@ -10,30 +10,27 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react';
-import {
-  PasswordRequirements,
-  PasswordTextInput,
-  passwordValidators,
-  SimpleLink,
-  StandardAlertMessage,
-} from '@components';
-import { NextPage } from 'next';
+import { PasswordRequirements, PasswordTextInput, passwordValidators, SimpleLink } from '@components';
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import Head from 'next/head';
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 import { useFocus } from '@lib/useFocus';
-import { useCallback, useEffect, useState } from 'react';
-import { useRedirectWithNotification } from '@components/Notification';
-import { parseAPIError } from '@utils';
+import { useCallback, useState } from 'react';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { RecaptchaMessage } from '@components/RecaptchaMessage/RecaptchaMessage';
 import { FormMessage } from '@components/Feedbacks/FormMessage';
+import { parseAPIError } from '@utils';
+import { signIn } from 'next-auth/react';
+import { authOptions } from '@pages/api/auth/[...nextauth]';
+import { getServerSession } from 'next-auth';
+import { logger } from '@logger';
 
 const initialParams: IUserRegistrationCredentials = { email: '', password: '', confirmPassword: '', recaptcha: '' };
 
-const Register: NextPage = () => {
+export default function Register(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { executeRecaptcha } = useGoogleReCaptcha();
-  const redirect = useRedirectWithNotification();
-  const { mutate: submit, data, isError, isLoading, error } = useRegisterUser();
+  // const redirect = useRedirectWithNotification();
+  // const { mutate: submit, data, isError, isLoading, error } = useRegisterUser();
   const {
     register,
     handleSubmit,
@@ -45,12 +42,12 @@ const Register: NextPage = () => {
   });
   const { ref, ...registerProps } = register('email', { required: true });
   const [emailRef] = useFocus();
-  const [formError, setFormError] = useState<Error | string | null>(null);
-  useEffect(() => {
-    if (data) {
-      void redirect('account-register-success', { path: '/user/account/login' });
-    }
-  }, [data, redirect]);
+  const [formError, setFormError] = useState<string | null>(null);
+  // useEffect(() => {
+  //   if (data) {
+  //     void redirect('account-register-success', { path: '/user/account/login' });
+  //   }
+  // }, [data, redirect]);
 
   const onFormSubmit: SubmitHandler<IUserRegistrationCredentials> = useCallback(
     async (params) => {
@@ -60,12 +57,15 @@ const Register: NextPage = () => {
       }
 
       try {
-        submit({
-          ...params,
-          recaptcha: await executeRecaptcha('register'),
+        const result = await signIn('register', {
+          email: params.email,
+          password: params.password,
+          confirmPassword: params.confirmPassword,
+          recaptcha: await executeRecaptcha(),
         });
+        logger.debug({ msg: 'register', result });
       } catch (e) {
-        setFormError(e as Error);
+        setFormError(parseAPIError(e));
       }
     },
     [executeRecaptcha],
@@ -81,7 +81,8 @@ const Register: NextPage = () => {
         <Heading alignSelf="center" my="6" id="form-label" as="h2">
           Register
         </Heading>
-        <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="form-label">
+
+        <form aria-labelledby="form-label" onSubmit={handleSubmit(onFormSubmit)}>
           <Stack direction="column" spacing={4}>
             <FormControl isRequired isInvalid={!!errors.email}>
               <FormLabel>Email</FormLabel>
@@ -125,9 +126,7 @@ const Register: NextPage = () => {
               />
               {!!errors.confirmPassword && <FormErrorMessage>Passwords do not match</FormErrorMessage>}
             </FormControl>
-            <Button type="submit" isLoading={isLoading}>
-              Submit
-            </Button>
+            <Button type="submit">Submit</Button>
             <Text alignSelf="center">
               Already have an account?{' '}
               <SimpleLink href="/user/account/login" display="inline">
@@ -136,24 +135,31 @@ const Register: NextPage = () => {
             </Text>
           </Stack>
         </form>
-        {isError && (
-          <StandardAlertMessage
-            status="error"
-            title="Unable to register, please try again"
-            description={parseAPIError(error)}
-          />
-        )}
         <RecaptchaMessage />
         <FormMessage show={!!formError} title="Unable to submit form" error={formError} />
       </Container>
     </div>
   );
-};
-
-export default Register;
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
+}
 
 const RequirementsController = ({ control }: { control: Control<typeof initialParams> }) => {
   const password = useWatch({ control, name: 'password' });
   return <PasswordRequirements password={password} />;
+};
+
+export const getServerSideProps = async (ctx: GetServerSidePropsContext) => {
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
+
+  if (session?.user?.isLoggedIn) {
+    return {
+      redirect: {
+        destination: '/',
+        permanentRedirect: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
 };

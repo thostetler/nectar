@@ -22,6 +22,8 @@ import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
 import { logger } from '../../logger/logger';
 import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
+import { SessionProvider, signIn, useSession } from 'next-auth/react';
+import { Session } from 'next-auth';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -34,7 +36,12 @@ const TopProgressBar = dynamic<Record<string, never>>(
   },
 );
 
-export type AppPageProps = { dehydratedState: DehydratedState; dehydratedAppState: AppState; [key: string]: unknown };
+export type AppPageProps = {
+  dehydratedState: DehydratedState;
+  dehydratedAppState: AppState;
+  session: Session;
+  [key: string]: unknown;
+};
 
 const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
   logger.debug('App', { props: pageProps as unknown });
@@ -61,19 +68,41 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
 
   return (
-    <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
-      <MathJaxProvider>
-        <ChakraProvider theme={theme}>
-          <StoreProvider createStore={createStore}>
-            <QCProvider>
-              <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
-              <ReactQueryDevtools />
-            </QCProvider>
-          </StoreProvider>
-        </ChakraProvider>
-      </MathJaxProvider>
-    </GoogleReCaptchaProvider>
+    <SessionProvider session={pageProps.session}>
+      <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
+        <MathJaxProvider>
+          <ChakraProvider theme={theme}>
+            <StoreProvider createStore={createStore}>
+              <QCProvider>
+                <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
+                <SessionHelper />
+                <ReactQueryDevtools />
+              </QCProvider>
+            </StoreProvider>
+          </ChakraProvider>
+        </MathJaxProvider>
+      </GoogleReCaptchaProvider>
+    </SessionProvider>
   );
+};
+
+const SessionHelper = () => {
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      signIn('anon', { redirect: false })
+        .then((res) => {
+          if (res.ok) {
+            logger.debug('logged in as anonymous user');
+          }
+        })
+        .catch((error: Error) => {
+          logger.error({ msg: 'Failed to login as anonymous user', error });
+        });
+    }
+  }, [status]);
+  return <></>;
 };
 
 const QCProvider: FC = ({ children }) => {
