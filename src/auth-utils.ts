@@ -80,8 +80,7 @@ export const isValidToken = (userData?: IUserData): boolean => {
  * Checks if the user is authenticated
  * @param user
  */
-export const isAuthenticated = (user: IUserData) =>
-  isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
+export const isAuthenticated = (user: IUserData) => isUserData(user) && user.username !== 'anonymous@ads';
 
 /**
  * Picks the user data from the bootstrap payload
@@ -95,6 +94,5 @@ export const pickUserData = (userData?: IUserData) => {
     access_token: userData.access_token,
     expire_in: userData.expire_in,
     username: userData.username,
-    anonymous: userData.anonymous,
   };
 };

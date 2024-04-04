@@ -3,7 +3,6 @@ import { AppState } from '@store';
 import { withIronSessionSsr } from 'iron-session/next';
 import { sessionConfig } from '@config';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import api from '@api/api';
 import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
 import { getNotification, NotificationId } from '@store/slices';
 import { logger } from '../logger/logger';
@@ -65,7 +64,6 @@ export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
   > => {
     fns.push(injectNonce);
     fns.push(updateUserStateSSR);
-    api.setUserData(ctx.req.session.token);
     let ssrProps = { props: {} };
     for (const fn of fns) {
       let result;

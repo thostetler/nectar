@@ -12,10 +12,11 @@ import { useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { isNotEmpty } from 'ramda-adjunct';
-import { useSession } from '@lib/useSession';
+import { useSession } from 'next-auth/react';
 
 export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) => {
-  const { isAuthenticated } = useSession();
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === 'authenticated' && session?.user.isLoggedIn;
   const toast = useToast({
     position: 'bottom',
     isClosable: true,

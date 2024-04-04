@@ -2,10 +2,10 @@ import { isBrowser } from '@utils';
 import { useRouter } from 'next/router';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
-import { ItemType, ListType, ItemItem } from './types';
-import { useSession } from '@lib/useSession';
+import { ItemItem, ItemType, ListType } from './types';
 import { HStack, Icon, Text } from '@chakra-ui/react';
 import { UserIcon } from '@heroicons/react/24/solid';
+import { signOut, useSession } from 'next-auth/react';
 
 export const items: ItemType[] = [
   {
@@ -34,7 +34,8 @@ interface IAccountDropdown {
 
 export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
   const { type, onFinished } = props;
-  const { isAuthenticated, logout } = useSession();
+  const { data: session, status } = useSession();
+  const isAuthenticated = status === 'authenticated' && session?.user.isLoggedIn;
 
   const router = useRouter();
   const itemsToShow = isAuthenticated ? loggedInItems : items;
@@ -43,7 +44,7 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
     const id = (e.target as HTMLElement).dataset['id'];
     if (isBrowser()) {
       if (id === 'logout') {
-        logout();
+        void signOut();
       } else {
         const item = itemsToShow.find((item) => item !== 'divider' && id === item.id);
         void router.push(item ? (item as ItemItem).path : '/');

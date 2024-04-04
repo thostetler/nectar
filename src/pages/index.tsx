@@ -9,8 +9,7 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { signOut, useSession } from 'next-auth/react';
-import { logger } from '@logger';
+import { signOut } from 'next-auth/react';
 
 const SearchExamples = dynamic<ISearchExamplesProps>(
   () => import('@components/SearchExamples').then((m) => m.SearchExamples),
@@ -34,9 +33,6 @@ const HomePage: NextPage = () => {
 
   // clear search on mount
   useEffect(() => clearQuery(), []);
-
-  const { data, status } = useSession();
-  logger.debug({ msg: 'SESSION', ...data, status });
 
   return (
     <Box aria-labelledby="form-title" my={8}>

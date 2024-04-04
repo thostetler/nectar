@@ -34,9 +34,9 @@ import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } fro
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@components/Orcid';
 import { useOrcid } from '@lib/orcid/useOrcid';
-import { useSession } from '@lib/useSession';
 import { useSettings } from '@lib/useSettings';
 import { useColorModeColors } from '@lib';
+import { useSession } from 'next-auth/react';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];
@@ -50,11 +50,12 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const selected = useStore((state) => state.docs.selected ?? []);
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();
-  const { isAuthenticated } = useSession();
+  const { data: session, status } = useSession();
   const noneSelected = selected.length === 0;
   const [exploreAll, setExploreAll] = useState(true);
   const router = useRouter();
   const toast = useToast();
+  const isAuthenticated = status === 'authenticated' && session?.user.isLoggedIn;
 
   const { settings } = useSettings({ suspense: false });
 

@@ -30,7 +30,7 @@ const isValidToken = (userData?: IUserData): boolean => isUserData(userData) && 
  * Checks if the user is authenticated
  * @param user
  */
-const isAuthenticated = (user: IUserData) => isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
+const isAuthenticated = (user: IUserData) => isUserData(user) && user.username !== 'anonymous@ads';
 
 /**
  * Bootstraps the session (to get a new token)
