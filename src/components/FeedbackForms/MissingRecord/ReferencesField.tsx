@@ -1,8 +1,8 @@
-import { CheckIcon, CloseIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import { FormControl, FormLabel, Tr, Td, Input, IconButton, Table, Thead, Th, Tbody, HStack } from '@chakra-ui/react';
-import { Select, SelectOption } from '@components/Select';
-import { useIsClient } from '@lib';
-import { useState, ChangeEvent, MouseEvent, useRef } from 'react';
+import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
+import { FormControl, FormLabel, HStack, IconButton, Input, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react';
+import { Select, SelectOption } from '@/components/Select';
+import { useIsClient } from '@/lib';
+import { ChangeEvent, MouseEvent, useRef, useState } from 'react';
 import { FormValues, IReference, ReferenceType, referenceTypes } from './types';
 import { SelectInstance } from 'react-select';
 import { useFieldArray } from 'react-hook-form';

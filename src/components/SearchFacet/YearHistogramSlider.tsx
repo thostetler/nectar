@@ -1,14 +1,14 @@
-import { getSearchFacetYearsParams, IADSApiSearchParams, useGetSearchFacetCounts } from '@api';
 import { Box, Center, CircularProgress, Flex, Heading, Icon, IconButton, Text, VisuallyHidden } from '@chakra-ui/react';
-import { HistogramSlider, ISearchFacetProps } from '@components';
-import { getYearsGraph } from '@components/Visualizations/utils';
-import { getFQValue, removeFQ, setFQ } from '@query-utils';
-import { useStore } from '@store';
+import { HistogramSlider, ISearchFacetProps } from '@/components';
+import { getYearsGraph } from '@/components/Visualizations/utils';
+import { getFQValue, removeFQ, setFQ } from '@/query-utils';
+import { useStore } from '@/store';
 import { memo, useMemo } from 'react';
-import { withErrorBoundary } from '@hocs/withErrorBoundary';
-import { ArrowsOutIcon } from '@components/icons/ArrowsOut';
-import { ArrowsInIcon } from '@components/icons/ArrowsIn';
-import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
+import { withErrorBoundary } from '@/hocs/withErrorBoundary';
+import { ArrowsOutIcon } from '@/components/icons/ArrowsOut';
+import { ArrowsInIcon } from '@/components/icons/ArrowsIn';
+import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
+import { getSearchFacetYearsParams, IADSApiSearchParams, useGetSearchFacetCounts } from '@/api/search';
 
 export const fqNameYearRange = 'range';
 export interface IYearHistogramSliderProps {
@@ -25,15 +25,14 @@ const Component = ({ onQueryUpdate, width, height, onExpand, expanded }: IYearHi
   // query without the year range filter, to show all years on the histogram
   const cleanedQuery = useMemo(() => {
     const q = JSON.parse(JSON.stringify(query)) as IADSApiSearchParams;
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    return q.fq ? (removeFQ(fqNameYearRange, q) as IADSApiSearchParams) : q;
+    return q.fq ? removeFQ(fqNameYearRange, q) : q;
   }, [query]);
 
   const fqRange = useMemo(() => {
     return getFQValue(fqNameYearRange, query);
   }, [query]);
 
-  const { data } = useGetSearchFacetCounts(getSearchFacetYearsParams(cleanedQuery), {
+  const { data } = useGetSearchFacetCounts(getSearchFacetYearsParams(cleanedQuery as IADSApiSearchParams), {
     enabled: !!cleanedQuery && cleanedQuery.q.trim().length > 0,
     suspense: true,
   });

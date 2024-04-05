@@ -1,11 +1,11 @@
-import { IExportApiParams } from '@api';
 import { Code, FormLabel } from '@chakra-ui/react';
-import { Slider } from '@components/Slider';
-import { APP_DEFAULTS } from '@config';
+import { Slider } from '@/components/Slider';
+import { APP_DEFAULTS } from '@/config';
 import { Dispatch, ReactElement, useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
+import { IExportApiParams } from '@/api/export';
 
 export const MaxAuthorsSlider = (props: {
   maxauthor: IExportApiParams['maxauthor'];

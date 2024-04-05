@@ -1,5 +1,4 @@
-import { Database, IDocsEntity, useGetSingleRecord } from '@api';
-import { IFeedbackParams } from '@api/feedback';
+import { IFeedbackParams } from '@/api/feedback';
 import {
   AlertStatus,
   Button,
@@ -16,8 +15,8 @@ import {
   Textarea,
   useDisclosure,
 } from '@chakra-ui/react';
-import { PreviewModal, SimpleLink } from '@components';
-import { IResourceUrl, useGetResourceLinks, useGetUserEmail } from '@lib';
+import { PreviewModal, SimpleLink } from '@/components';
+import { IResourceUrl, useGetResourceLinks, useGetUserEmail } from '@/lib';
 import { omit } from 'ramda';
 import { MouseEvent, useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
@@ -33,7 +32,8 @@ import { DiffSectionPanel } from './DiffSectionPanel';
 import { AxiosError } from 'axios';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { parsePublicationDate } from '@utils';
+import { parsePublicationDate } from '@/utils';
+import { Database, IDocsEntity, useGetSingleRecord } from '@/api/search';
 
 const collections: { value: Database; label: string }[] = [
   { value: 'astronomy', label: 'Astronomy and Astrophysics' },

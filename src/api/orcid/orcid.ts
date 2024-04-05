@@ -1,12 +1,14 @@
-import api, { ADSMutation, ADSQuery, ApiRequestConfig, ApiTargets } from '@api';
 import { MutationFunction, QueryFunction, useMutation, useQuery } from '@tanstack/react-query';
-import { IOrcidMutationParams, IOrcidParams, IOrcidResponse, IOrcidUser, IOrcidWork } from '@api/orcid/types';
-import { isValidIOrcidUser } from '@api/orcid/models';
+import { IOrcidMutationParams, IOrcidParams, IOrcidResponse, IOrcidUser, IOrcidWork } from '@/api/orcid/types';
+import { isValidIOrcidUser } from '@/api/orcid/models';
 import { omit } from 'ramda';
-import { ORCID_BULK_DELETE_CHUNK_SIZE, ORCID_BULK_DELETE_DELAY } from '@config';
-import { asyncDelay } from '@utils';
-import { getExIds } from '@lib/orcid/helpers';
-import { OrcidErrorResponse } from '@api/orcid/types/common';
+import { ORCID_BULK_DELETE_CHUNK_SIZE, ORCID_BULK_DELETE_DELAY } from '@/config';
+import { asyncDelay } from '@/utils';
+import { getExIds } from '@/lib/orcid/helpers';
+import { OrcidErrorResponse } from '@/api/orcid/types/common';
+import { ADSMutation, ADSQuery } from '@/api/types';
+import api, { ApiRequestConfig } from '@/api/api';
+import { ApiTargets } from '@/api/models';
 
 export enum OrcidKeys {
   EXCHANGE_TOKEN = 'orcid/exchange-token',

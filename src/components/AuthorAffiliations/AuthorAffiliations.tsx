@@ -1,7 +1,6 @@
-import { IADSApiSearchParams, IDocsEntity, useSearchInfinite } from '@api';
-import { useAuthorAffiliationSearch } from '@api/author-affiliation/author-affiliation';
-import { getAuthorAffiliationSearchParams } from '@api/author-affiliation/model';
-import { IAuthorAffiliationItem, IAuthorAffiliationPayload } from '@api/author-affiliation/types';
+import { useAuthorAffiliationSearch } from '@/api/author-affiliation/author-affiliation';
+import { getAuthorAffiliationSearchParams } from '@/api/author-affiliation/model';
+import { IAuthorAffiliationItem, IAuthorAffiliationPayload } from '@/api/author-affiliation/types';
 import {
   Alert,
   AlertTitle,
@@ -27,7 +26,7 @@ import {
   useBoolean,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { isIADSSearchParams } from '@utils';
+import { isIADSSearchParams } from '@/utils';
 import { assoc, isNil, pathOr } from 'ramda';
 import { isNilOrEmpty, isNotNilOrEmpty } from 'ramda-adjunct';
 import { ChangeEventHandler, Dispatch, ReactElement, SetStateAction, useCallback, useEffect, useState } from 'react';
@@ -37,6 +36,7 @@ import { ExportModal } from './ExportModal';
 import { countOptions, NONESYMBOL } from './models';
 import { AuthorAffStoreProvider, useAuthorAffStore } from './store';
 import { IGroupedAuthorAffilationData } from './types';
+import { IADSApiSearchParams, IDocsEntity, useSearchInfinite } from '@/api/search';
 
 export type AuthorAffiliationsProps =
   | (BoxProps & { params: IAuthorAffiliationPayload; query?: IADSApiSearchParams })

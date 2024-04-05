@@ -1,6 +1,5 @@
-import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
-import { IADSApiAuthorNetworkNode, IBibcodeDict } from '@api/vis/types';
-import { useGetAuthorNetwork } from '@api/vis/vis';
+import { IADSApiAuthorNetworkNode, IBibcodeDict } from '@/api/vis/types';
+import { useGetAuthorNetwork } from '@/api/vis/vis';
 import { Box, Center, SimpleGrid, useBreakpointValue, useToast } from '@chakra-ui/react';
 import {
   AuthorNetworkDetailsPane,
@@ -13,9 +12,9 @@ import {
   LoadingMessage,
   SimpleLink,
   StandardAlertMessage,
-} from '@components';
-import { setFQ } from '@query-utils';
-import { makeSearchParams } from '@utils';
+} from '@/components';
+import { setFQ } from '@/query-utils';
+import { makeSearchParams } from '@/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { uniq } from 'ramda';
@@ -24,6 +23,8 @@ import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getAuthorNetworkNodeDetails, getAuthorNetworkSummaryGraph } from '../utils';
 import { FilterSearchBar, IFilterSearchBarProps, NotEnoughData } from '../Widgets';
+import { IADSApiSearchParams } from '@/api/search';
+import { useVaultBigQuerySearch } from '@/api/vault';
 
 interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;

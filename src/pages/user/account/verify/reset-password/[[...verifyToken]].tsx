@@ -6,14 +6,14 @@ import {
   passwordValidators,
   SimpleLink,
   StandardAlertMessage,
-} from '@components';
+} from '@/components';
 import { useRouter } from 'next/router';
-import { useFocus } from '@lib/useFocus';
+import { useFocus } from '@/lib/useFocus';
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
-import { IUserResetPasswordCredentials, useResetPassword } from '@api';
-import { parseAPIError } from '@utils';
+import { parseAPIError } from '@/utils';
 import { useEffect } from 'react';
-import { useRedirectWithNotification } from '@components/Notification';
+import { useRedirectWithNotification } from '@/components/Notification';
+import { IUserResetPasswordCredentials, useResetPassword } from '@/api/user';
 
 const ResetPasswordPage: NextPage = () => {
   const router = useRouter();
@@ -109,8 +109,6 @@ const ResetPasswordPage: NextPage = () => {
 };
 
 export default ResetPasswordPage;
-
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
 
 const PasswordContainer = ({ control }: { control: Control<IUserResetPasswordCredentials> }) => {
   const password = useWatch({ control, name: 'password' });

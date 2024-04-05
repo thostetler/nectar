@@ -1,14 +1,15 @@
-import { IUserForgotPasswordCredentials, useForgotPassword } from '@api';
 import { Button, Container, FormControl, FormLabel, Heading, Input, Stack } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useFocus } from '@lib/useFocus';
-import { parseAPIError } from '@utils';
-import { RecaptchaMessage, StandardAlertMessage } from '@components';
+import { useFocus } from '@/lib/useFocus';
+import { parseAPIError } from '@/utils';
+import { RecaptchaMessage, StandardAlertMessage } from '@/components';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { useCallback, useState } from 'react';
-import { FormMessage } from '@components/Feedbacks/FormMessage';
+import { FormMessage } from '@/components/Feedbacks/FormMessage';
+import { IUserForgotPasswordCredentials } from '@/api/user/types';
+import { useForgotPassword } from '@/api/user';
 
 export { useQuery } from '@tanstack/react-query';
 
@@ -93,4 +94,3 @@ const ForgotPassword: NextPage = () => {
 };
 
 export default ForgotPassword;
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';

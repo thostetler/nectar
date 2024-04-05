@@ -1,4 +1,3 @@
-import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@api';
 import {
   Box,
   Button,
@@ -26,31 +25,30 @@ import {
   LabeledCopyButton,
   SearchQueryLink,
   SimpleLink,
-} from '@components';
-import { createUrlByType } from '@components/AbstractSources/linkGenerator';
-import { IAllAuthorsModalProps } from '@components/AllAuthorsModal';
-import { useGetAuthors } from '@components/AllAuthorsModal/useGetAuthors';
-import { OrcidActiveIcon } from '@components/icons/Orcid';
-import { AbsLayout } from '@components/Layout/AbsLayout';
-import { APP_DEFAULTS, EXTERNAL_URLS, NASA_SCIX_BRAND_NAME } from '@config';
-import { withDetailsPage } from '@hocs/withDetailsPage';
-import { useIsClient } from '@lib/useIsClient';
-import { composeNextGSSP } from '@ssr-utils';
-import { pluralize, unwrapStringValue } from '@utils';
+} from '@/components';
+import { createUrlByType } from '@/components/AbstractSources/linkGenerator';
+import { IAllAuthorsModalProps } from '@/components/AllAuthorsModal';
+import { useGetAuthors } from '@/components/AllAuthorsModal/useGetAuthors';
+import { OrcidActiveIcon } from '@/components/icons/Orcid';
+import { AbsLayout } from '@/components/Layout/AbsLayout';
+import { APP_DEFAULTS, EXTERNAL_URLS, NASA_SCIX_BRAND_NAME } from '@/config';
+import { useIsClient } from '@/lib/useIsClient';
+import { pluralize, unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
-import { GetServerSideProps, NextPage } from 'next';
+import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { equals, isNil, path } from 'ramda';
 import { memo, ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
-import { useSession } from '@lib/useSession';
+import { useSession } from '@/lib/useSession';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { isNilOrEmpty } from 'ramda-adjunct';
+import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@/api/search';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
-  () => import('@components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
+  () => import('@/components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
   { ssr: false },
 );
 
@@ -360,8 +358,6 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
     </Tr>
   );
 };
-
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);
 
 export const getDetailsPageTitle = (doc: IDocsEntity, name: string): string => {
   const title = unwrapStringValue(doc?.title);

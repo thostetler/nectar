@@ -1,6 +1,5 @@
-import { IADSApiSearchParams, useVaultBigQuerySearch } from '@api';
-import { IADSApiPaperNetworkFullGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api/vis/types';
-import { useGetPaperNetwork } from '@api/vis/vis';
+import { IADSApiPaperNetworkFullGraph, IADSApiPaperNetworkSummaryGraphNode } from '@/api/vis/types';
+import { useGetPaperNetwork } from '@/api/vis/vis';
 import { Box, Center, SimpleGrid, useBreakpointValue, useToast } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
@@ -14,9 +13,9 @@ import {
   PaperNetworkGraphPane,
   SimpleLink,
   StandardAlertMessage,
-} from '@components';
-import { setFQ } from '@query-utils';
-import { makeSearchParams } from '@utils';
+} from '@/components';
+import { setFQ } from '@/query-utils';
+import { makeSearchParams } from '@/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { sort, uniq } from 'ramda';
@@ -25,6 +24,8 @@ import { IView } from '../GraphPanes/types';
 import { ILineGraph } from '../types';
 import { getPaperNetworkLinkDetails, getPaperNetworkNodeDetails, getPaperNetworkSummaryGraph } from '../utils';
 import { FilterSearchBar, IFilterSearchBarProps, NotEnoughData } from '../Widgets';
+import { useVaultBigQuerySearch } from '@/api/vault';
+import { IADSApiSearchParams } from '@/api/search';
 
 interface IPaperNetworkPageContainerProps {
   query: IADSApiSearchParams;
@@ -173,7 +174,7 @@ export const PaperNetworkPageContainer = ({ query }: IPaperNetworkPageContainerP
   useEffect(() => {
     if (bigQueryData && applyingBibcodes.length > 0) {
       const q = setFQ('selection', `docs(${bigQueryData.qid})`, query);
-      const search = makeSearchParams(q as IADSApiSearchParams);
+      const search = makeSearchParams(q);
       void router.push({ pathname: '/search', search });
       setApplyingBibcodes([]);
     }

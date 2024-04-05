@@ -1,4 +1,3 @@
-import { IBucket, ISearchStats } from '@api';
 import {
   Button,
   Flex,
@@ -14,9 +13,10 @@ import {
 } from '@chakra-ui/react';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
-import { DataDownloader, LineGraph, Slider } from '@components';
+import { DataDownloader, LineGraph, Slider } from '@/components';
 import { ILineGraph, Y_Axis } from '../types';
 import { getHIndexGraphData, getLineGraphXTicks } from '../utils';
+import { IBucket, ISearchStats } from '@/api/search';
 
 export interface IHIndexGraphPaneProps {
   buckets: IBucket[];

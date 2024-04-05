@@ -18,14 +18,13 @@ import {
   useDisclosure,
   useToast,
 } from '@chakra-ui/react';
-import { PasswordTextInput, SettingsLayout, SimpleCopyButton, SimpleLink, StandardAlertMessage } from '@components';
+import { PasswordTextInput, SettingsLayout, SimpleCopyButton, SimpleLink, StandardAlertMessage } from '@/components';
 import { Suspense, useRef } from 'react';
-import { dehydrate, QueryClient, QueryErrorResetBoundary, useQueryClient } from '@tanstack/react-query';
-import { fetchUserApiToken, useGenerateNewApiToken, useGetUserApiToken, userKeys } from '@api';
+import { QueryErrorResetBoundary, useQueryClient } from '@tanstack/react-query';
+
 import { ErrorBoundary } from 'react-error-boundary';
-import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
-import { composeNextGSSP } from '@ssr-utils';
-import { logger } from '@logger';
+import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
+import { useGenerateNewApiToken, useGetUserApiToken, userKeys } from '@/api/user';
 
 const ApiTokenPage = () => {
   const qc = useQueryClient();
@@ -175,24 +174,24 @@ const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
 
 export default ApiTokenPage;
 
-export const getServerSideProps = composeNextGSSP(async () => {
-  const qc = new QueryClient();
-
-  try {
-    await qc.prefetchQuery({
-      queryKey: userKeys.userApiToken(),
-      queryFn: fetchUserApiToken,
-    });
-
-    return {
-      props: {
-        dehydratedState: dehydrate(qc),
-      },
-    };
-  } catch (error) {
-    logger.error({ msg: 'GSSP on token settings page', error });
-    return {
-      props: { pageError: error },
-    };
-  }
-});
+// export const getServerSideProps = composeNextGSSP(async () => {
+//   const qc = new QueryClient();
+//
+//   try {
+//     await qc.prefetchQuery({
+//       queryKey: userKeys.userApiToken(),
+//       queryFn: fetchUserApiToken,
+//     });
+//
+//     return {
+//       props: {
+//         dehydratedState: dehydrate(qc),
+//       },
+//     };
+//   } catch (error) {
+//     logger.error({ msg: 'GSSP on token settings page', error });
+//     return {
+//       props: { pageError: error },
+//     };
+//   }
+// });

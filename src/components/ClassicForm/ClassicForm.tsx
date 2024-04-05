@@ -23,10 +23,10 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { CalendarIcon } from '@chakra-ui/icons';
-import { BibstemPicker, Expandable, IRawClassicFormState, SimpleCopyButton, SimpleLink, Sort } from '@components';
-import { APP_DEFAULTS } from '@config';
-import { useErrorMessage } from '@lib/useErrorMessage';
-import { useIsClient } from '@lib/useIsClient';
+import { BibstemPicker, Expandable, IRawClassicFormState, SimpleCopyButton, SimpleLink, Sort } from '@/components';
+import { APP_DEFAULTS } from '@/config';
+import { useErrorMessage } from '@/lib/useErrorMessage';
+import { useIsClient } from '@/lib/useIsClient';
 import { useRouter } from 'next/router';
 import PT from 'prop-types';
 import { FormEventHandler, useMemo } from 'react';

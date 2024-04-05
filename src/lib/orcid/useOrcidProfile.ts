@@ -1,10 +1,11 @@
-import { AppState, useStore } from '@store';
-import { useOrcidGetProfile } from '@api/orcid';
-import { getSearchParams, useSearch } from '@api';
+import { AppState, useStore } from '@/store';
+import { useOrcidGetProfile } from '@/api/orcid';
+
 import { useEffect, useState } from 'react';
-import { IOrcidProfile } from '@api/orcid/types';
-import { isValidIOrcidUser } from '@api/orcid/models';
-import { mergeOrcidMissingRecords } from '@lib/orcid/helpers';
+import { IOrcidProfile } from '@/api/orcid/types';
+import { isValidIOrcidUser } from '@/api/orcid/models';
+import { mergeOrcidMissingRecords } from '@/lib/orcid/helpers';
+import { getSearchParams, useSearch } from '@/api/search';
 
 const isAuthenticatedSelector = (state: AppState) => state.orcid.isAuthenticated;
 const orcidUserSelector = (state: AppState) => state.orcid.user;

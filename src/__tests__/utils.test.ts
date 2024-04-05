@@ -1,8 +1,8 @@
-import api from '@api';
-import { APP_DEFAULTS } from '@config';
-import { normalizeSolrSort, parseAPIError } from '@utils';
+import { APP_DEFAULTS } from '@/config';
+import { normalizeSolrSort, parseAPIError } from '@/utils';
 import { beforeEach, describe, expect, test, TestContext } from 'vitest';
 import { rest } from 'msw';
+import api from '@/api/api';
 
 const defaultSortPostfix = APP_DEFAULTS.QUERY_SORT_POSTFIX;
 

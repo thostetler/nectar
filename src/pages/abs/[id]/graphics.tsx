@@ -1,15 +1,14 @@
-import { IDocsEntity, useGetAbstract, useGetGraphics } from '@api';
 import { Box, Flex } from '@chakra-ui/react';
-import { AbsLayout } from '@components/Layout/AbsLayout';
-import { withDetailsPage } from '@hocs/withDetailsPage';
-import { composeNextGSSP } from '@ssr-utils';
-import { GetServerSideProps, NextPage } from 'next';
+import { AbsLayout } from '@/components/Layout/AbsLayout';
+import { NextPage } from 'next';
 import Head from 'next/head';
 import NextImage from 'next/legacy/image';
-import { LoadingMessage, SimpleLink } from '@components';
+import { LoadingMessage, SimpleLink } from '@/components';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
-import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
+import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
+import { IDocsEntity, useGetAbstract } from '@/api/search';
+import { useGetGraphics } from '@/api/graphics';
 
 const GraphicsPage: NextPage = () => {
   const router = useRouter();
@@ -70,5 +69,3 @@ const GraphicsPage: NextPage = () => {
 };
 
 export default GraphicsPage;
-
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);

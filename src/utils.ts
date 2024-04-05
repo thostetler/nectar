@@ -1,9 +1,8 @@
-import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@api';
-import { APP_DEFAULTS } from '@config';
-import { NumPerPageType, SafeSearchUrlParams } from '@types';
+import { APP_DEFAULTS } from '@/config';
+import { NumPerPageType, SafeSearchUrlParams } from '@/types';
 import axios, { AxiosError } from 'axios';
 import DOMPurify from 'isomorphic-dompurify';
-import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
 import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
@@ -31,6 +30,8 @@ import {
 } from 'ramda';
 import { isArray, isNilOrEmpty, isNonEmptyString, isNotString, isPlainObject } from 'ramda-adjunct';
 import z from 'zod';
+import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@/api/search';
+import { SolrSort } from '@/api/models';
 
 type ParsedQueryParams = ParsedUrlQuery | qs.ParsedQs;
 
@@ -67,12 +68,6 @@ export const initMiddleware =
     new Promise((resolve, reject) =>
       middleware(req, res, (result) => (result instanceof Error ? reject(result) : resolve(result))),
     );
-
-export type ADSServerSideContext = GetServerSidePropsContext & {
-  req: GetServerSidePropsContext['req'] & { session: { userData: IUserData } };
-  parsedQuery: ParsedUrlQuery;
-  userData: IUserData;
-};
 
 export interface IOriginalDoc {
   error?: string;

@@ -1,15 +1,3 @@
-import {
-  defaultParams,
-  fetchSearch,
-  getSearchParams,
-  getSearchStatsParams,
-  IADSApiSearchParams,
-  IADSApiSearchResponse,
-  SEARCH_API_KEYS,
-  searchKeys,
-  SolrSort,
-  useSearch,
-} from '@api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import {
   Alert,
@@ -45,35 +33,35 @@ import {
   SearchBar,
   SimpleLink,
   SimpleResultList,
-} from '@components';
-import { calculateStartIndex } from '@components/ResultList/Pagination/usePagination';
-import { FacetFilters } from '@components/SearchFacet/FacetFilters';
-import { IYearHistogramSliderProps } from '@components/SearchFacet/YearHistogramSlider';
-import { APP_DEFAULTS } from '@config';
+} from '@/components';
+import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
+import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
+import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { useIsClient } from 'src/lib';
-import { composeNextGSSP } from '@ssr-utils';
-import { AppState, createStore, useStore, useStoreApi } from '@store';
-import { NumPerPageType } from '@types';
-import { makeSearchParams, parseAPIError, parseQueryFromUrl } from '@utils';
-import { GetServerSideProps, NextPage } from 'next';
+import { AppState, useStore, useStoreApi } from '@/store';
+import { NumPerPageType } from '@/types';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils';
+import { NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { last, omit, path } from 'ramda';
 import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
-import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
-import { SOLR_ERROR, useSolrError } from '@lib/useSolrError';
+import { useQueryClient } from '@tanstack/react-query';
+import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 import { AxiosError } from 'axios';
-import { logger } from '../../../logger/logger';
+import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
+import { defaultParams, SEARCH_API_KEYS, useSearch } from '@/api/search';
+import { SolrSort } from '@/api/models';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
-  () => import('@components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
+  () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
   { ssr: false },
 );
 
 const SearchFacets = dynamic<ISearchFacetsProps>(
-  () => import('@components/SearchFacet').then((mod) => mod.SearchFacets),
+  () => import('@/components/SearchFacet').then((mod) => mod.SearchFacets),
   { ssr: false },
 );
 
@@ -396,85 +384,85 @@ const NoResultsMsg = () => (
     }
   />
 );
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  try {
-    const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.req.url);
-    const queryClient = new QueryClient();
-
-    // prime the search with a small query to get the current numFound
-    let primer = null;
-    if (page > 1) {
-      const primerParams = getSearchParams({ ...query, start: 0, rows: 1, fl: ['id'] });
-      primer = await queryClient.fetchQuery({
-        queryKey: searchKeys.primary(primerParams),
-        queryFn: fetchSearch,
-        meta: { params: primerParams },
-      });
-    }
-
-    const params: IADSApiSearchParams = getSearchParams({
-      ...query,
-      q: query.q.length === 0 ? '*:*' : query.q,
-      start: calculateStartIndex(page, APP_DEFAULTS.RESULT_PER_PAGE, primer?.response.numFound),
-    });
-
-    // omit fields from queryKey
-    const { fl, ...cleanedParams } = params;
-
-    // prefetch the citation counts for this query
-    if (/^citation_count(_norm)?/.test(params.sort[0])) {
-      await queryClient.prefetchQuery({
-        queryKey: searchKeys.stats(cleanedParams),
-        queryFn: fetchSearch,
-        meta: { params: getSearchStatsParams(params, params.sort[0]) },
-      });
-    }
-    const initialState = createStore().getState();
-
-    try {
-      // primary query prefetch
-      const primaryResult = await queryClient.fetchQuery({
-        queryKey: [SEARCH_API_KEYS.primary],
-        queryFn: fetchSearch,
-        queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams)),
-        meta: { params },
-      });
-
-      return {
-        props: {
-          dehydratedState: dehydrate(queryClient),
-          dehydratedAppState: {
-            query: params,
-            latestQuery: params,
-            docs: {
-              ...initialState.docs,
-              current: primaryResult.response.docs.map((d) => d.bibcode),
-            },
-          } as AppState,
-        },
-      };
-    } catch (error) {
-      logger.error({ msg: 'error fetching search results', error: error });
-      return {
-        props: {
-          dehydratedState: dehydrate(queryClient),
-          dehydratedAppState: {
-            query: params,
-            latestQuery: params,
-          } as AppState,
-          pageError: parseAPIError(error),
-        },
-      };
-    }
-  } catch (e) {
-    logger.error({ msg: 'Search Page Error', error: e });
-    return {
-      props: {
-        pageError: parseAPIError(e),
-      },
-    };
-  }
-});
+// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+//   try {
+//     const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.req.url);
+//     const queryClient = new QueryClient();
+//
+//     // prime the search with a small query to get the current numFound
+//     let primer = null;
+//     if (page > 1) {
+//       const primerParams = getSearchParams({ ...query, start: 0, rows: 1, fl: ['id'] });
+//       primer = await queryClient.fetchQuery({
+//         queryKey: searchKeys.primary(primerParams),
+//         queryFn: fetchSearch,
+//         meta: { params: primerParams },
+//       });
+//     }
+//
+//     const params: IADSApiSearchParams = getSearchParams({
+//       ...query,
+//       q: query.q.length === 0 ? '*:*' : query.q,
+//       start: calculateStartIndex(page, APP_DEFAULTS.RESULT_PER_PAGE, primer?.response.numFound),
+//     });
+//
+//     // omit fields from queryKey
+//     const { fl, ...cleanedParams } = params;
+//
+//     // prefetch the citation counts for this query
+//     if (/^citation_count(_norm)?/.test(params.sort[0])) {
+//       await queryClient.prefetchQuery({
+//         queryKey: searchKeys.stats(cleanedParams),
+//         queryFn: fetchSearch,
+//         meta: { params: getSearchStatsParams(params, params.sort[0]) },
+//       });
+//     }
+//     const initialState = createStore().getState();
+//
+//     try {
+//       // primary query prefetch
+//       const primaryResult = await queryClient.fetchQuery({
+//         queryKey: [SEARCH_API_KEYS.primary],
+//         queryFn: fetchSearch,
+//         queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams)),
+//         meta: { params },
+//       });
+//
+//       return {
+//         props: {
+//           dehydratedState: dehydrate(queryClient),
+//           dehydratedAppState: {
+//             query: params,
+//             latestQuery: params,
+//             docs: {
+//               ...initialState.docs,
+//               current: primaryResult.response.docs.map((d) => d.bibcode),
+//             },
+//           } as AppState,
+//         },
+//       };
+//     } catch (error) {
+//       logger.error({ msg: 'error fetching search results', error: error });
+//       return {
+//         props: {
+//           dehydratedState: dehydrate(queryClient),
+//           dehydratedAppState: {
+//             query: params,
+//             latestQuery: params,
+//           } as AppState,
+//           pageError: parseAPIError(error),
+//         },
+//       };
+//     }
+//   } catch (e) {
+//     logger.error({ msg: 'Search Page Error', error: e });
+//     return {
+//       props: {
+//         pageError: parseAPIError(e),
+//       },
+//     };
+//   }
+// });
 
 export default SearchPage;
 

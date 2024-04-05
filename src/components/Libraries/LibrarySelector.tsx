@@ -1,10 +1,10 @@
-import { LibraryIdentifier, ILibraryMetadata, useGetLibraries } from '@api';
 import { CloseIcon } from '@chakra-ui/icons';
-import { useDisclosure, Stack, InputGroup, InputRightElement, IconButton, Input } from '@chakra-ui/react';
-import { LoadingMessage } from '@components';
-import { NumPerPageType } from '@types';
-import { useState, useMemo } from 'react';
+import { IconButton, Input, InputGroup, InputRightElement, Stack, useDisclosure } from '@chakra-ui/react';
+import { LoadingMessage } from '@/components';
+import { NumPerPageType } from '@/types';
+import { useMemo, useState } from 'react';
 import { ILibraryListTableSort, LibraryListTable } from './LibraryListTable';
+import { ILibraryMetadata, LibraryIdentifier, useGetLibraries } from '@/api/biblib';
 
 export const LibrarySelector = ({
   isMultiple,

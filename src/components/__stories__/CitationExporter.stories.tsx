@@ -1,7 +1,7 @@
-import { ExportApiFormatKey } from '@api';
 import { Meta, StoryObj } from '@storybook/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CitationExporter } from '../CitationExporter';
+import { ExportApiFormatKey } from '@/api/export';
 
 const meta: Meta = {
   title: 'CitationExporter',

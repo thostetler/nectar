@@ -1,11 +1,3 @@
-import {
-  ExportApiFormatKey,
-  ExportApiJournalFormat,
-  IDocsEntity,
-  IExportApiParams,
-  isExportApiFormat,
-  SolrSort,
-} from '@api';
 import { ChevronDownIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -23,8 +15,8 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react';
-import { APP_DEFAULTS } from '@config';
-import { noop } from '@utils';
+import { APP_DEFAULTS } from '@/config';
+import { noop } from '@/utils';
 import { useRouter } from 'next/router';
 import { ChangeEventHandler, Dispatch, HTMLAttributes, ReactElement, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -41,6 +33,9 @@ import { RecordSlider } from './components/RecordSlider';
 import { ResultArea } from './components/ResultArea';
 import { exportFormats } from './models';
 import { useCitationExporter } from './useCitationExporter';
+import { ExportApiFormatKey, ExportApiJournalFormat, IExportApiParams, isExportApiFormat } from '@/api/export';
+import { IDocsEntity } from '@/api/search';
+import { SolrSort } from '@/api/models';
 
 export interface ICitationExporterProps extends HTMLAttributes<HTMLDivElement> {
   singleMode?: boolean;

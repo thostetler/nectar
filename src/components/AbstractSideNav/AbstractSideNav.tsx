@@ -1,6 +1,5 @@
-import { IDocsEntity, useHasGraphics, useHasMetrics } from '@api';
 import { Badge } from '@chakra-ui/react';
-import { exportFormats, IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@components';
+import { exportFormats, IMenuItem, SideNavigationMenu, TopNavigationMenu } from '@/components';
 import {
   ArrowDownIcon as DownloadIcon,
   ChartPieIcon,
@@ -16,7 +15,10 @@ import { useRouter } from 'next/router';
 import { HTMLAttributes, ReactElement } from 'react';
 import { Routes } from './types';
 import { values } from 'ramda';
-import { useSettings } from '@lib/useSettings';
+import { useSettings } from '@/lib/useSettings';
+import { IDocsEntity } from '@/api/search';
+import { useHasGraphics } from '@/api/graphics';
+import { useHasMetrics } from '@/api/metrics';
 
 const abstractPath = '/abs';
 

@@ -1,15 +1,10 @@
-import api, {
-  ADSQuery,
-  ApiRequestConfig,
-  ApiTargets,
-  IADSApiLibraryLinkServersResponse,
-  IADSApiSearchParams,
-  IADSApiSearchResponse,
-  IDocsEntity,
-} from '@api';
 import { QueryFunction, useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { getVaultBigQueryParams } from './models';
-import { IADSApiVaultResponse, IADSVaultExecuteQueryParams } from './types';
+import { IADSApiLibraryLinkServersResponse, IADSApiVaultResponse, IADSVaultExecuteQueryParams } from './types';
+import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@/api/search';
+import { ADSQuery } from '@/api/types';
+import api, { ApiRequestConfig } from '@/api/api';
+import { ApiTargets } from '@/api/models';
 
 export enum VaultKeys {
   VAULT = 'vault',

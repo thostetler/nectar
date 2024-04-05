@@ -1,12 +1,3 @@
-import {
-  DatabaseEnum,
-  DEFAULT_USER_DATA,
-  ExternalLinkAction,
-  fetchUserSettings,
-  IADSApiUserDataParams,
-  UserDataKeys,
-  userKeys,
-} from '@api';
 import { Box, Checkbox, CheckboxGroup, FormControl, FormLabel, Spinner, Stack } from '@chakra-ui/react';
 import {
   authorsPerResultsDescription,
@@ -17,17 +8,14 @@ import {
   Select,
   SelectOption,
   SettingsLayout,
-} from '@components';
-import { composeNextGSSP } from '@ssr-utils';
-import { GetServerSideProps } from 'next';
+} from '@/components';
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import { dehydrate, QueryClient, QueryErrorResetBoundary } from '@tanstack/react-query';
+import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
-import { getFallBackAlert } from '@components/Feedbacks/SuspendedAlert';
-import { useSettings } from '@lib/useSettings';
+import { getFallBackAlert } from '@/components/Feedbacks/SuspendedAlert';
+import { useSettings } from '@/lib/useSettings';
 import { isNotEmpty } from 'ramda-adjunct';
-import { logger } from '@logger';
-import { parseAPIError } from '@utils';
+import { DatabaseEnum, DEFAULT_USER_DATA, ExternalLinkAction, IADSApiUserDataParams, UserDataKeys } from '@/api/user';
 
 // generate options for select component
 const useGetOptions = () => {
@@ -205,26 +193,26 @@ const AppSettingsPage = () => {
 
 export default Page;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async () => {
-  const queryClient = new QueryClient();
-
-  try {
-    await queryClient.prefetchQuery({
-      queryKey: userKeys.getUserSettings(),
-      queryFn: fetchUserSettings,
-    });
-
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-      },
-    };
-  } catch (error) {
-    logger.error({ msg: 'GSSP error in application settings page', error });
-    return {
-      props: {
-        pageError: parseAPIError(error),
-      },
-    };
-  }
-});
+// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async () => {
+//   const queryClient = new QueryClient();
+//
+//   try {
+//     await queryClient.prefetchQuery({
+//       queryKey: userKeys.getUserSettings(),
+//       queryFn: fetchUserSettings,
+//     });
+//
+//     return {
+//       props: {
+//         dehydratedState: dehydrate(queryClient),
+//       },
+//     };
+//   } catch (error) {
+//     logger.error({ msg: 'GSSP error in application settings page', error });
+//     return {
+//       props: {
+//         pageError: parseAPIError(error),
+//       },
+//     };
+//   }
+// });

@@ -1,6 +1,8 @@
 import { rest } from 'msw';
-import { ApiTargets, IADSApiReferenceResponse } from '@api';
-import { apiHandlerRoute } from '@mocks/mockHelpers';
+
+import { apiHandlerRoute } from '@/mocks/mockHelpers';
+import { IADSApiReferenceResponse } from '@/api/reference';
+import { ApiTargets } from '@/api/models';
 
 export const referenceHandlers = [
   rest.get<unknown, { text: string }>(apiHandlerRoute(ApiTargets.REFERENCE), (req, res, ctx) => {

@@ -1,12 +1,4 @@
-import {
-  getSearchParams,
-  IDocsEntity,
-  LibraryIdentifier,
-  SolrSort,
-  useBigQuerySearch,
-  useEditLibraryDocuments,
-  useGetLibraryEntity,
-} from '@api';
+import { LibraryIdentifier } from '@/api/biblib/types';
 import { ChevronLeftIcon, LockIcon, SettingsIcon, UnlockIcon } from '@chakra-ui/icons';
 import {
   Box,
@@ -37,15 +29,18 @@ import {
   SearchQueryLink,
   SimpleLink,
   Sort,
-} from '@components';
+} from '@/components';
 import { BuildingLibraryIcon } from '@heroicons/react/24/solid';
-import { useColorModeColors } from '@lib';
-import { AppState, useStore } from '@store';
-import { NumPerPageType } from '@types';
-import { parseAPIError } from '@utils';
+import { useColorModeColors } from '@/lib';
+import { AppState, useStore } from '@/store';
+import { NumPerPageType } from '@/types';
+import { parseAPIError } from '@/utils';
 import { uniq } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { DocumentList } from './DocumentList/DocumentList';
+import { getSearchParams, IDocsEntity, useBigQuerySearch } from '@/api/search';
+import { SolrSort } from '@/api/models';
+import { useEditLibraryDocuments, useGetLibraryEntity } from '@/api/biblib';
 
 export interface ILibraryEntityPaneProps {
   id: LibraryIdentifier;

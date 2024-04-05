@@ -1,9 +1,9 @@
 import { Button, FormControl, FormErrorMessage, FormLabel, Stack } from '@chakra-ui/react';
-import { PasswordRequirements, PasswordTextInput, SettingsLayout, StandardAlertMessage } from '@components';
+import { PasswordRequirements, PasswordTextInput, SettingsLayout, StandardAlertMessage } from '@/components';
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
-import { useFocus } from '@lib/useFocus';
-import { parseAPIError } from '@utils';
-import { IUserChangePasswordCredentials, useChangeUserPassword } from '@api';
+import { useFocus } from '@/lib/useFocus';
+import { parseAPIError } from '@/utils';
+import { IUserChangePasswordCredentials, useChangeUserPassword } from '@/api/user';
 
 const initialParams: IUserChangePasswordCredentials = { currentPassword: '', password: '', confirmPassword: '' };
 const passwordValidators = {
@@ -90,8 +90,6 @@ const ChangePasswordPage = () => {
 };
 
 export default ChangePasswordPage;
-
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
 
 const RequirementsController = ({ control }: { control: Control<IUserChangePasswordCredentials> }) => {
   const password = useWatch({ control, name: 'password' });

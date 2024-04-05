@@ -1,4 +1,3 @@
-import { IUserData } from '@api';
 import { mergeDeepLeft } from 'ramda';
 import { useEffect } from 'react';
 import create, { GetState, Mutate, SetState, StoreApi } from 'zustand';
@@ -15,7 +14,8 @@ import {
 } from './slices';
 import { AppSerializableState, AppState } from './types';
 import { isPlainObject, isPrimitive } from 'ramda-adjunct';
-import { logger } from '../../logger/logger';
+import { IUserData } from '@/api/user';
+import { logger } from '@/logger';
 
 export const APP_STORAGE_KEY = 'nectar-app-state';
 

@@ -1,10 +1,12 @@
-import api, { ADSQuery, ApiRequestConfig, ApiTargets } from '@api';
-import { IObjectsApiParams, IObjectsApiResult, ObjectService } from '@api/objects/types';
+import { IObjectsApiParams, IObjectsApiResult, ObjectService } from '@/api/objects/types';
 import { useQuery } from '@tanstack/react-query';
-import { isString } from '@utils';
+import { isString } from '@/utils';
 import { isNotEmpty } from 'ramda-adjunct';
-import { hasObjectTerm, replaceObjectTerms } from '@api/objects/helpers';
-import { APP_DEFAULTS } from '@config';
+import { hasObjectTerm, replaceObjectTerms } from '@/api/objects/helpers';
+import { APP_DEFAULTS } from '@/config';
+import { ADSQuery } from '@/api/types';
+import api, { ApiRequestConfig } from '@/api/api';
+import { ApiTargets } from '@/api/models';
 
 export enum OBJECTS_API_KEYS {
   QUERY = 'object/query',

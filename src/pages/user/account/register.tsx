@@ -1,4 +1,3 @@
-import { IUserRegistrationCredentials, useRegisterUser } from '@api';
 import {
   Button,
   Container,
@@ -16,17 +15,18 @@ import {
   passwordValidators,
   SimpleLink,
   StandardAlertMessage,
-} from '@components';
+} from '@/components';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
-import { useFocus } from '@lib/useFocus';
+import { useFocus } from '@/lib/useFocus';
 import { useCallback, useEffect, useState } from 'react';
-import { useRedirectWithNotification } from '@components/Notification';
-import { parseAPIError } from '@utils';
+import { useRedirectWithNotification } from '@/components/Notification';
+import { parseAPIError } from '@/utils';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
-import { RecaptchaMessage } from '@components/RecaptchaMessage/RecaptchaMessage';
-import { FormMessage } from '@components/Feedbacks/FormMessage';
+import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
+import { FormMessage } from '@/components/Feedbacks/FormMessage';
+import { IUserRegistrationCredentials, useRegisterUser } from '@/api/user';
 
 const initialParams: IUserRegistrationCredentials = { email: '', password: '', confirmPassword: '', recaptcha: '' };
 
@@ -151,7 +151,6 @@ const Register: NextPage = () => {
 };
 
 export default Register;
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';
 
 const RequirementsController = ({ control }: { control: Control<typeof initialParams> }) => {
   const password = useWatch({ control, name: 'password' });

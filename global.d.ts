@@ -37,6 +37,7 @@ declare global {
       REDIS_HOST: string;
       REDIS_PORT: string;
       REDIS_PASSWORD: string;
+      REDIS_MAX_AGE: string;
       VERIFIED_BOTS_ACCESS_TOKEN: string;
       UNVERIFIABLE_BOTS_ACCESS_TOKEN: string;
       MALICIOUS_BOTS_ACCESS_TOKEN: string;
@@ -48,6 +49,9 @@ declare global {
       GIT_SHA: string;
       CSP_REPORT_URI: string;
       CSP_REPORT_ONLY: string;
+      MAILSLURP_API_KEY: string;
+      NEXT_PUBLIC_SEARCH_API_TIMEOUT_MS: string;
+      NEXT_PUBLIC_SEARCH_SSR_API_TIMEOUT_MS: string;
     }
   }
 }

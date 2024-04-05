@@ -1,4 +1,4 @@
-import { SolrSortField } from '@api';
+import { SolrSortField } from '@/api/models';
 
 export interface ISortDescriptor {
   id: SolrSortField;

@@ -1,15 +1,13 @@
-import { getTocParams, IDocsEntity, useGetAbstract, useGetToc } from '@api';
-import { AbstractRefList } from '@components/AbstractRefList';
-import { AbsLayout } from '@components/Layout/AbsLayout';
-import { withDetailsPage } from '@hocs/withDetailsPage';
-import { useGetAbstractParams } from '@lib/useGetAbstractParams';
-import { GetServerSideProps, NextPage } from 'next';
+import { AbstractRefList } from '@/components/AbstractRefList';
+import { AbsLayout } from '@/components/Layout/AbsLayout';
+import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
+import { NextPage } from 'next';
 import Head from 'next/head';
-import { composeNextGSSP } from '@ssr-utils';
 import { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
-import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
+import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
+import { getTocParams, IDocsEntity, useGetAbstract, useGetToc } from '@/api/search';
 
 const VolumePage: NextPage = () => {
   const router = useRouter();
@@ -48,5 +46,3 @@ const VolumePage: NextPage = () => {
 };
 
 export default VolumePage;
-
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);

@@ -1,25 +1,21 @@
+import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
+import { fetchLinks, resolverKeys } from '@/api/resolver';
+import { logger } from '@/logger';
+import { parseAPIError } from '@/utils';
 import {
-  fetchGraphics,
-  fetchMetrics,
   fetchSearch,
-  fetchUserSettings,
   getAbstractParams,
   getCitationsParams,
   getCoreadsParams,
-  getMetricsParams,
   getReferencesParams,
   getSimilarParams,
   getTocParams,
-  graphicsKeys,
-  metricsKeys,
   searchKeys,
-  userKeys,
-} from '@api';
-import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import { dehydrate, QueryClient } from '@tanstack/react-query';
-import { fetchLinks, resolverKeys } from '@api/resolver';
-import { logger } from '@logger';
-import { parseAPIError } from '@utils';
+} from '@/api/search';
+import { fetchGraphics, graphicsKeys } from '@/api/graphics';
+import { fetchMetrics, getMetricsParams, metricsKeys } from '@/api/metrics';
+import { fetchUserSettings, userKeys } from '@/api/user';
 
 export const withDetailsPage = async (
   ctx: GetServerSidePropsContext,

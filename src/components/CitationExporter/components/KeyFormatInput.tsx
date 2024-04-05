@@ -1,8 +1,8 @@
-import { IExportApiParams } from '@api';
 import { Box, Code, FormControl, FormLabel, Input } from '@chakra-ui/react';
 import { ChangeEventHandler, Dispatch, ReactElement, useCallback } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { DescriptionCollapse } from './DescriptionCollapse';
+import { IExportApiParams } from '@/api/export';
 
 interface IKeyFormatInputProps {
   keyformat: IExportApiParams['keyformat'];
@@ -49,7 +49,7 @@ const description = (
         display="block"
         whiteSpace="pre"
         children={`@INPROCEEDINGS{2019AAS...23338108A,
-author = {{Accomazzi}, Alberto and {Kurtz}, 
+author = {{Accomazzi}, Alberto and {Kurtz},
 Michael J. and ...`}
       />
     </p>

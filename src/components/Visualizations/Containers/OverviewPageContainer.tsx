@@ -1,12 +1,4 @@
 import {
-  getSearchFacetCitationsParams,
-  getSearchFacetReadsParams,
-  getSearchFacetYearsParams,
-  IADSApiSearchParams,
-  useGetSearchFacet,
-  useGetSearchFacetCounts,
-} from '@api';
-import {
   Alert,
   AlertDescription,
   AlertIcon,
@@ -19,14 +11,22 @@ import {
   TabPanels,
   Tabs,
 } from '@chakra-ui/react';
-import { HIndexGraphPane, YearsGraphPane } from '@components';
-import { removeFQ, setFQ } from '@query-utils';
-import { makeSearchParams } from '@utils';
+import { HIndexGraphPane, YearsGraphPane } from '@/components';
+import { removeFQ, setFQ } from '@/query-utils';
+import { makeSearchParams } from '@/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { ReactElement } from 'react';
 import { FacetField } from '../types';
-import { fqNameYearRange } from '@components/SearchFacet/YearHistogramSlider';
+import { fqNameYearRange } from '@/components/SearchFacet/YearHistogramSlider';
+import {
+  getSearchFacetCitationsParams,
+  getSearchFacetReadsParams,
+  getSearchFacetYearsParams,
+  IADSApiSearchParams,
+  useGetSearchFacet,
+  useGetSearchFacetCounts,
+} from '@/api/search';
 
 interface IOverviewPageContainerProps {
   query: IADSApiSearchParams;

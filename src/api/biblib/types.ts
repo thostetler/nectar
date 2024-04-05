@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { SolrSort } from '@api/models';
-import { IADSApiSearchParams, IDocsEntity } from '@api/search';
+import { SolrSort } from '@/api/models';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search';
 
 export const permissions = ['owner', 'admin', 'write', 'read'];
 
@@ -177,7 +177,7 @@ export interface IADSApiLibraryPermissionParams {
   id: LibraryIdentifier;
 }
 
-export interface IADSApiLibraryPermissionResponse extends Array<UserPermission> {}
+export type IADSApiLibraryPermissionResponse = Array<UserPermission>;
 
 export interface IADSApiLibraryPermissionUpdateParams {
   id: LibraryIdentifier;

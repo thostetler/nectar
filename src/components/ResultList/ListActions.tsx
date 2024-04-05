@@ -1,4 +1,3 @@
-import { Bibcode, ExportApiFormatKey, useVaultBigQuerySearch } from '@api';
 import { ChevronDownIcon, SettingsIcon } from '@chakra-ui/icons';
 import {
   Button,
@@ -23,20 +22,23 @@ import {
   useToast,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { exportFormats, ISortProps, sections, Sort } from '@components';
-import { useIsClient } from '@lib/useIsClient';
-import { AppState, useStore, useStoreApi } from '@store';
-import { makeSearchParams, noop, parseQueryFromUrl } from '@utils';
+import { exportFormats, ISortProps, sections, Sort } from '@/components';
+import { useIsClient } from '@/lib/useIsClient';
+import { AppState, useStore, useStoreApi } from '@/store';
+import { makeSearchParams, noop, parseQueryFromUrl } from '@/utils';
 import { useRouter } from 'next/router';
 import { curryN, values } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
 import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } from 'react';
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
-import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@components/Orcid';
-import { useOrcid } from '@lib/orcid/useOrcid';
-import { useSession } from '@lib/useSession';
-import { useSettings } from '@lib/useSettings';
-import { useColorModeColors } from '@lib';
+import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@/components/Orcid';
+import { useOrcid } from '@/lib/orcid/useOrcid';
+import { useSession } from '@/lib/useSession';
+import { useSettings } from '@/lib/useSettings';
+import { useColorModeColors } from '@/lib';
+import { useVaultBigQuerySearch } from '@/api/vault';
+import { Bibcode } from '@/api/search';
+import { ExportApiFormatKey } from '@/api/export';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps['onChange'];

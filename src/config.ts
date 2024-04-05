@@ -1,5 +1,5 @@
-import { SolrSort } from '@api';
 import { IronSessionOptions } from 'iron-session';
+import { SolrSort } from '@/api/models';
 
 export const APP_DEFAULTS = {
   DETAILS_MAX_AUTHORS: 50,
@@ -16,8 +16,8 @@ export const APP_DEFAULTS = {
   BIBTEX_DEFAULT_AUTHOR_CUTOFF: 10,
   RESULT_ITEM_PUB_CUTOFF: 50,
   EMPTY_QUERY: '*:*',
-  API_TIMEOUT: 30000,
-  SSR_API_TIMEOUT: 1500,
+  API_TIMEOUT: Number(process.env.NEXT_PUBLIC_SEARCH_API_TIMEOUT_MS) ?? 30000,
+  SSR_API_TIMEOUT: Number(process.env.NEXT_PUBLIC_SEARCH_SSR_API_TIMEOUT_MS) ?? 10000,
 } as const;
 
 export const GOOGLE_RECAPTCHA_KEY = '6Lex_aQUAAAAAMwJFbdGFeigshN7mRQdbXoGQ7-N';

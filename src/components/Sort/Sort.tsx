@@ -1,15 +1,15 @@
-import { SolrSort, SolrSortDirection, SolrSortField } from '@api';
 import { Box, HStack, IconButton, Input } from '@chakra-ui/react';
-import { SearchQueryLink, SimpleLinkDropdown } from '@components';
-import { ItemType } from '@components/Dropdown/types';
-import { ISelectProps, Select } from '@components/Select';
-import { APP_DEFAULTS } from '@config';
+import { SearchQueryLink, SimpleLinkDropdown } from '@/components';
+import { ItemType } from '@/components/Dropdown/types';
+import { ISelectProps, Select } from '@/components/Select';
+import { APP_DEFAULTS } from '@/config';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';
-import { useIsClient } from '@lib/useIsClient';
-import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@utils';
+import { useIsClient } from '@/lib/useIsClient';
+import { makeSearchParams, normalizeSolrSort, parseQueryFromUrl } from '@/utils';
 import { useRouter } from 'next/router';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
 import { sortValues } from './model';
+import { SolrSort, SolrSortDirection, SolrSortField } from '@/api/models';
 
 /**
  *

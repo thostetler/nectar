@@ -1,15 +1,14 @@
-import { ExportApiFormatKey, IDocsEntity, isExportApiFormat, useGetAbstract } from '@api';
 import { Box } from '@chakra-ui/react';
-import { CitationExporter, JournalFormatMap } from '@components';
-import { AbsLayout } from '@components/Layout/AbsLayout';
-import { withDetailsPage } from '@hocs/withDetailsPage';
-import { GetServerSideProps, NextPage } from 'next';
+import { CitationExporter, JournalFormatMap } from '@/components';
+import { AbsLayout } from '@/components/Layout/AbsLayout';
+import { NextPage } from 'next';
 import Head from 'next/head';
 import { path } from 'ramda';
-import { composeNextGSSP } from '@ssr-utils';
 import { useRouter } from 'next/router';
-import { getDetailsPageTitle } from '@pages/abs/[id]/abstract';
-import { useSettings } from '@lib/useSettings';
+import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
+import { useSettings } from '@/lib/useSettings';
+import { ExportApiFormatKey, isExportApiFormat } from '@/api/export';
+import { IDocsEntity, useGetAbstract } from '@/api/search';
 
 const ExportCitationPage: NextPage = () => {
   const router = useRouter();
@@ -58,5 +57,3 @@ const ExportCitationPage: NextPage = () => {
 };
 
 export default ExportCitationPage;
-
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(withDetailsPage);

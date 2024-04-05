@@ -13,8 +13,8 @@ const config = {
   experimental: {
     newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
-    optimisticClientCache: false,
-    optimizePackageImports: ['@api', '@components', '@chakra-ui/react', 'ramda'],
+    optimisticClientCache: true,
+    optimizePackageImports: ['@/api', '@/components', '@chakra-ui/react', 'ramda'],
   },
   async rewrites() {
     if (process.env.NODE_ENV !== 'production') {

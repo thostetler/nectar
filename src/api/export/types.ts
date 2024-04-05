@@ -1,5 +1,5 @@
-import { IADSApiSearchParams, IDocsEntity } from '@api';
-import { enumKeys } from '@utils';
+import { enumKeys } from '@/utils';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search';
 
 /**
  * @see https://github.com/adsabs/export_service#readme

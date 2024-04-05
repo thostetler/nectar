@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { useSearch } from '@api';
-import { AssociatedBibcode, IFeedbackParams, Relationship } from '@api/feedback';
+import { AssociatedBibcode, IFeedbackParams, Relationship } from '@/api/feedback';
 import { AddIcon, DeleteIcon } from '@chakra-ui/icons';
 import {
   AlertStatus,
@@ -15,13 +14,14 @@ import {
   Stack,
   useDisclosure,
 } from '@chakra-ui/react';
-import { PreviewModal, Select, SelectOption } from '@components';
+import { PreviewModal, Select, SelectOption } from '@/components';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChangeEvent, MouseEventHandler, useEffect, useRef, useState } from 'react';
 import { FormProvider, useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 import { omit } from 'ramda';
-import { useGetUserEmail } from '@lib';
+import { useGetUserEmail } from '@/lib';
+import { useSearch } from '@/api/search';
 
 type FormValues = {
   name: string;
@@ -102,6 +102,7 @@ export const AssociatedArticlesForm = ({
     isSuccess: bibcodesIsSuccess,
     error: bibcodesError,
     refetch: bibcodesRefetch,
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   } = useSearch(
     {
       fl: ['bibcode'],

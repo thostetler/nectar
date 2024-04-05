@@ -1,6 +1,6 @@
 import { AlertStatus, Text, useDisclosure } from '@chakra-ui/react';
-import { feedbackItems, FeedbackLayout, MissingReferenceForm, SimpleLink } from '@components';
-import { FeedbackAlert } from '@components/FeedbackForms';
+import { feedbackItems, FeedbackLayout, MissingReferenceForm, SimpleLink } from '@/components';
+import { FeedbackAlert } from '@/components/FeedbackForms';
 import { NextPage } from 'next';
 import { useMemo, useState } from 'react';
 
@@ -64,4 +64,3 @@ const MissingReferences: NextPage = () => {
 };
 
 export default MissingReferences;
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';

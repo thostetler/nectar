@@ -3,16 +3,13 @@ import {
   CitationsHistogramKey,
   CitationsHistogramType,
   CitationsStatsKey,
-  IBucket,
-  IDocsEntity,
-  IFacetCountsFields,
   PapersHistogramKey,
   PapersHistogramType,
   ReadsHistogramKey,
   ReadsHistogramType,
   TimeSeriesKey,
   TimeSeriesType,
-} from '@api';
+} from '@/api/metrics/types';
 import {
   IADSApiAuthorNetworkNode,
   IADSApiAuthorNetworkResponse,
@@ -21,8 +18,8 @@ import {
   IADSApiPaperNetworkSummaryGraphNode,
   IADSApiWordCloudResponse,
   IBibcodeDict,
-} from '@api/vis/types';
-import { IAuthorNetworkNodeDetails, IPaperNetworkLinkDetails, IPaperNetworkNodeDetails } from '@components';
+} from '@/api/vis/types';
+import { IAuthorNetworkNodeDetails, IPaperNetworkLinkDetails, IPaperNetworkNodeDetails } from '@/components';
 import { Datum, Serie } from '@nivo/line';
 import * as d3 from 'd3';
 import { decode } from 'he';
@@ -59,6 +56,7 @@ import {
   ISliderRange,
   YearDatum,
 } from '../types';
+import { IBucket, IDocsEntity, IFacetCountsFields } from '@/api/search';
 
 /************ metrics helpers ************/
 

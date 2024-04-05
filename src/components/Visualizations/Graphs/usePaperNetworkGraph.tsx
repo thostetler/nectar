@@ -1,9 +1,13 @@
-import { IADSApiPaperNetworkNodeKey, IADSApiPaperNetworkSummaryGraph, IADSApiPaperNetworkSummaryGraphNode } from '@api';
 import { useColorMode } from '@chakra-ui/react';
 import * as d3 from 'd3';
 import { HierarchyRectangularNode } from 'd3';
 import { pluck } from 'ramda';
 import { useCallback, useMemo } from 'react';
+import {
+  IADSApiPaperNetworkNodeKey,
+  IADSApiPaperNetworkSummaryGraph,
+  IADSApiPaperNetworkSummaryGraphNode,
+} from '@/api/vis';
 
 export const usePaperNetworkGraph = (
   nodes_data: IADSApiPaperNetworkSummaryGraph['nodes'],

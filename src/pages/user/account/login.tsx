@@ -1,16 +1,16 @@
-import { IUserCredentials } from '@api';
 import { Button, Container, FormControl, FormLabel, Heading, Input, InputGroup, Stack } from '@chakra-ui/react';
-import { PasswordTextInput, SimpleLink, StandardAlertMessage } from '@components';
+import { PasswordTextInput, SimpleLink, StandardAlertMessage } from '@/components';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { FormEventHandler, useCallback, useEffect, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
-import { ILoginResponse } from '@pages/api/auth/login';
-import { useFocus } from '@lib/useFocus';
-import { useUser } from '@lib/useUser';
-import { parseAPIError } from '@utils';
+import { ILoginResponse } from '@/pages/api/auth/login';
+import { useFocus } from '@/lib/useFocus';
+import { useUser } from '@/lib/useUser';
+import { parseAPIError } from '@/utils';
 import { useRouter } from 'next/router';
+import { IUserCredentials } from '@/api/user';
 
 const initialParams: IUserCredentials = { email: '', password: '' };
 
@@ -145,5 +145,3 @@ const LoginErrorMessage = (props: { error: AxiosError<ILoginResponse> | Error })
 };
 
 export default Login;
-
-export { injectSessionGSSP as getServerSideProps } from '@ssr-utils';

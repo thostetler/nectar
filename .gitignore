@@ -134,3 +134,4 @@ storybook-static/
 
 # Sentry Config File
 .sentryclirc
+.cache-store

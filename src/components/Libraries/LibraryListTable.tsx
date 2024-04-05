@@ -1,4 +1,3 @@
-import { IADSApiLibraryParams, ILibraryMetadata, LibraryIdentifier, useDeleteLibrary } from '@api';
 import {
   ChevronDownIcon,
   LockIcon,
@@ -9,38 +8,39 @@ import {
   UpDownIcon,
 } from '@chakra-ui/icons';
 import {
-  Table,
-  TableProps,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  Flex,
-  Text,
-  Tooltip,
+  Box,
+  Button,
   Center,
+  Flex,
+  IconButton,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
-  useToast,
-  Button,
+  Table,
+  TableProps,
+  Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tooltip,
+  Tr,
   useBreakpoint,
-  Box,
-  IconButton,
+  useToast,
 } from '@chakra-ui/react';
-import { ControlledPaginationControls } from '@components';
-import { CustomInfoMessage } from '@components/Feedbacks';
+import { ControlledPaginationControls } from '@/components';
+import { CustomInfoMessage } from '@/components/Feedbacks';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
-import { useColorModeColors } from '@lib';
-import { NumPerPageType } from '@types';
-import { noop, parseAPIError } from '@utils';
+import { useColorModeColors } from '@/lib';
+import { NumPerPageType } from '@/types';
+import { noop, parseAPIError } from '@/utils';
 import { intlFormat, intlFormatDistance } from 'date-fns';
 import { useRouter } from 'next/router';
 import { uniq } from 'ramda';
 import { Fragment, MouseEvent, useMemo } from 'react';
 import { DeleteLibrary } from './DeleteLibrary';
+import { IADSApiLibraryParams, ILibraryMetadata, LibraryIdentifier, useDeleteLibrary } from '@/api/biblib';
 
 type Column = keyof ILibraryMetadata;
 type SortDirection = 'asc' | 'desc';

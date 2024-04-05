@@ -1,12 +1,12 @@
 import { Preview } from '@storybook/react';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { StoreProvider, useCreateStore } from '../src/store/store';
+import { StoreProvider, useCreateStore } from '@/store';
 import { initialize, mswLoader } from 'msw-storybook-addon';
-import { handlers } from '../src/mocks/handlers';
-import { theme } from '../src/theme';
-import { MathJaxProvider } from '../src/mathjax';
-import { useCreateQueryClient } from '@lib';
+import { handlers } from '@/mocks/handlers';
+import { theme } from '@/theme';
+import { MathJaxProvider } from '@/mathjax';
+import { useCreateQueryClient } from '@/lib';
 
 export const parameters = {
   chakra: { theme },

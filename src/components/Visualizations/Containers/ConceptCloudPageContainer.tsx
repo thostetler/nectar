@@ -1,4 +1,3 @@
-import { IADSApiSearchParams, useGetWordCloud } from '@api';
 import { Box, Flex, Text, useBreakpointValue } from '@chakra-ui/react';
 import {
   Expandable,
@@ -8,14 +7,16 @@ import {
   SimpleLink,
   StandardAlertMessage,
   WordCloudPane,
-} from '@components';
-import { makeSearchParams } from '@utils';
+} from '@/components';
+import { makeSearchParams } from '@/utils';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { ReactElement, Reducer, useMemo, useReducer } from 'react';
 import { ISliderRange } from '../types';
 import { buildWCDict } from '../utils';
 import { FilterSearchBar, IFilterSearchBarProps } from '../Widgets';
+import { IADSApiSearchParams } from '@/api/search';
+import { useGetWordCloud } from '@/api/vis';
 
 const MAX_ROWS_TO_FETCH = 100;
 

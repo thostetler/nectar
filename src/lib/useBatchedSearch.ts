@@ -1,8 +1,8 @@
-import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, searchKeys, useSearchInfinite } from '@api';
 import { AxiosError } from 'axios';
 import { chain } from 'ramda';
 import { useEffect, useState } from 'react';
 import { InfiniteData, UseInfiniteQueryOptions, useQueryClient } from '@tanstack/react-query';
+import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, searchKeys, useSearchInfinite } from '@/api/search';
 
 const DELAY_BETWEEN_REQUESTS = 500;
 

@@ -1,4 +1,3 @@
-import { fetchLibraries, fetchLibraryEntity, librariesKeys, useGetLibraryEntity } from '@api';
 import { Center, Text } from '@chakra-ui/react';
 import {
   CustomInfoMessage,
@@ -7,13 +6,10 @@ import {
   LibrarySettingsPane,
   LoadingMessage,
   SimpleLink,
-} from '@components';
-import { composeNextGSSP } from '@ssr-utils';
-import { QueryClient } from '@tanstack/react-query';
-import { GetServerSideProps, NextPage } from 'next';
+} from '@/components';
+import { NextPage } from 'next';
 import Head from 'next/head';
-import { logger } from '@logger';
-import { parseAPIError } from '@utils';
+import { useGetLibraryEntity } from '@/api/biblib';
 
 interface ILibrariesHomeProps {
   id?: string;
@@ -75,48 +71,48 @@ const LibrariesHome: NextPage<ILibrariesHomeProps> = ({ id, subpage, from }) => 
 
 export default LibrariesHome;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  const { id = null } = ctx.params;
-  const { from = null } = ctx.query;
-
-  const queryClient = new QueryClient();
-
-  try {
-    if (!id) {
-      void (await queryClient.prefetchQuery({
-        queryKey: librariesKeys.libraries({}),
-        queryFn: fetchLibraries,
-        meta: { params: {} },
-      }));
-
-      return Promise.resolve({
-        props: {},
-      });
-    }
-
-    const libraryId = id[0];
-    const subpage = id[1] ?? null;
-
-    void (await queryClient.prefetchQuery({
-      queryKey: librariesKeys.library({ id: libraryId }),
-      queryFn: fetchLibraryEntity,
-      meta: { params: { id: libraryId } },
-      staleTime: 0,
-    }));
-
-    return Promise.resolve({
-      props: {
-        id: libraryId,
-        subpage: subpage,
-        from,
-      },
-    });
-  } catch (error) {
-    logger.error({ msg: 'GSSP error on individual library page', error });
-    return Promise.resolve({
-      props: {
-        pageError: parseAPIError(error),
-      },
-    });
-  }
-});
+// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+//   const { id = null } = ctx.params;
+//   const { from = null } = ctx.query;
+//
+//   const queryClient = new QueryClient();
+//
+//   try {
+//     if (!id) {
+//       void (await queryClient.prefetchQuery({
+//         queryKey: librariesKeys.libraries({}),
+//         queryFn: fetchLibraries,
+//         meta: { params: {} },
+//       }));
+//
+//       return Promise.resolve({
+//         props: {},
+//       });
+//     }
+//
+//     const libraryId = id[0];
+//     const subpage = id[1] ?? null;
+//
+//     void (await queryClient.prefetchQuery({
+//       queryKey: librariesKeys.library({ id: libraryId }),
+//       queryFn: fetchLibraryEntity,
+//       meta: { params: { id: libraryId } },
+//       staleTime: 0,
+//     }));
+//
+//     return Promise.resolve({
+//       props: {
+//         id: libraryId,
+//         subpage: subpage,
+//         from,
+//       },
+//     });
+//   } catch (error) {
+//     logger.error({ msg: 'GSSP error on individual library page', error });
+//     return Promise.resolve({
+//       props: {
+//         pageError: parseAPIError(error),
+//       },
+//     });
+//   }
+// });

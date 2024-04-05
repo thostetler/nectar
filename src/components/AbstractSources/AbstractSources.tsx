@@ -1,4 +1,3 @@
-import { Esources, IDocsEntity } from '@api';
 import {
   Button,
   HStack,
@@ -13,15 +12,16 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { ChevronDownIcon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
-import { SimpleLinkList } from '@components';
-import { ItemType } from '@components/Dropdown/types';
-import { useIsClient } from '@lib/useIsClient';
+import { SimpleLinkList } from '@/components';
+import { ItemType } from '@/components/Dropdown/types';
+import { useIsClient } from '@/lib/useIsClient';
 import { HTMLAttributes, MouseEvent, MouseEventHandler, ReactElement, useMemo } from 'react';
-import { useResolverQuery } from '@api/resolver';
+import { useResolverQuery } from '@/api/resolver';
 import { AcademicCapIcon } from '@heroicons/react/24/solid';
-import { processLinkData } from '@components/AbstractSources/linkGenerator';
-import { IDataProductSource, IFullTextSource, IRelatedWorks } from '@components/AbstractSources/types';
-import { useSettings } from '@lib/useSettings';
+import { processLinkData } from '@/components/AbstractSources/linkGenerator';
+import { IDataProductSource, IFullTextSource, IRelatedWorks } from '@/components/AbstractSources/types';
+import { useSettings } from '@/lib/useSettings';
+import { Esources, IDocsEntity } from '@/api/search';
 
 export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
   doc?: IDocsEntity;

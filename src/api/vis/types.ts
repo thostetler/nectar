@@ -1,4 +1,4 @@
-import { Bibcode, IADSApiSearchParams } from '@api';
+import { Bibcode, IADSApiSearchParams } from '@/api/search';
 
 export interface IADSApiVisParams {
   bibcodes?: Bibcode[];

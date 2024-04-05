@@ -1,14 +1,9 @@
-import { fetchSearch, getSingleRecordParams, searchKeys } from '@api';
 import { AlertStatus, Flex, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@chakra-ui/react';
-import { FeedbackLayout } from '@components';
-import { FeedbackAlert, RecordPanel } from '@components/FeedbackForms';
-import { GetServerSideProps, NextPage } from 'next';
+import { FeedbackLayout } from '@/components';
+import { FeedbackAlert, RecordPanel } from '@/components/FeedbackForms';
+import { NextPage } from 'next';
 import { useEffect, useMemo, useState } from 'react';
-import { composeNextGSSP } from '@ssr-utils';
-import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
-import { parseAPIError } from '@utils';
-import { logger } from '@logger';
 
 const Record: NextPage = () => {
   const [alertDetails, setAlertDetails] = useState<{ status: AlertStatus; title: string; description?: string }>({
@@ -105,33 +100,33 @@ const Record: NextPage = () => {
 
 export default Record;
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  const { bibcode } = ctx.query;
-
-  try {
-    if (typeof bibcode === 'string') {
-      const queryClient = new QueryClient();
-      const params = getSingleRecordParams(bibcode);
-
-      void (await queryClient.prefetchQuery({
-        queryKey: searchKeys.record(bibcode),
-        queryFn: fetchSearch,
-        meta: { params },
-      }));
-
-      return {
-        props: {
-          dehydratedState: dehydrate(queryClient),
-        },
-      };
-    }
-    return { props: {} };
-  } catch (error) {
-    logger.error({ msg: 'GSSP error on missing/update feedback form', error });
-    return {
-      props: {
-        pageError: parseAPIError(error),
-      },
-    };
-  }
-});
+// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+//   const { bibcode } = ctx.query;
+//
+//   try {
+//     if (typeof bibcode === 'string') {
+//       const queryClient = new QueryClient();
+//       const params = getSingleRecordParams(bibcode);
+//
+//       void (await queryClient.prefetchQuery({
+//         queryKey: searchKeys.record(bibcode),
+//         queryFn: fetchSearch,
+//         meta: { params },
+//       }));
+//
+//       return {
+//         props: {
+//           dehydratedState: dehydrate(queryClient),
+//         },
+//       };
+//     }
+//     return { props: {} };
+//   } catch (error) {
+//     logger.error({ msg: 'GSSP error on missing/update feedback form', error });
+//     return {
+//       props: {
+//         pageError: parseAPIError(error),
+//       },
+//     };
+//   }
+// });

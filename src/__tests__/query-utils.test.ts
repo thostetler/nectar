@@ -1,7 +1,7 @@
-import { IADSApiSearchParams } from '@api';
-import * as query from '@query-utils';
-import { defaultQueryParams } from '@store/slices';
+import * as query from '@/query-utils';
+import { defaultQueryParams } from '@/store/slices';
 import { describe, expect, test } from 'vitest';
+import { IADSApiSearchParams } from '@/api/search';
 
 const testQuery: IADSApiSearchParams = {
   ...defaultQueryParams,

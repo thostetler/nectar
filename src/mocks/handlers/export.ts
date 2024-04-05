@@ -1,6 +1,7 @@
 import { rest } from 'msw';
-import { ApiTargets, ExportApiFormatKey, IExportApiParams } from '@api';
-import { apiHandlerRoute } from '@mocks/mockHelpers';
+import { apiHandlerRoute } from '@/mocks/mockHelpers';
+import { ExportApiFormatKey, IExportApiParams } from '@/api/export';
+import { ApiTargets } from '@/api/models';
 
 export const exportHandlers = [
   rest.post<IExportApiParams, { format: ExportApiFormatKey }>(
