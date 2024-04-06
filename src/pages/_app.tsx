@@ -3,7 +3,7 @@ import { Layout } from '@/components';
 import { useIsClient } from 'src/lib';
 import { useCreateQueryClient } from '@/lib/useCreateQueryClient';
 import { MathJaxProvider } from '@/mathjax';
-import { AppState, StoreProvider, useCreateStore, useStore, useStoreApi } from '@/store';
+import { AppState, StoreProvider, useCreateStore, useStore } from '@/store';
 import { theme } from '@/theme';
 import { AppMode } from '@/types';
 import { AppProps, NextWebVitalsMetric } from 'next/app';
@@ -11,18 +11,14 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
 import { FC, memo, ReactElement, useEffect, useMemo } from 'react';
-import { DehydratedState, Hydrate, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
+import { DehydratedState, Hydrate, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { IronSession } from 'iron-session';
-import axios from 'axios';
-import { isNilOrEmpty, notEqual } from 'ramda-adjunct';
-import { useUser } from '@/lib/useUser';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
 import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
-import api, { checkUserData } from '@/api/api';
-import { userKeys } from '@/api/user';
+import api from '@/api/api';
 import { logger } from '@/logger';
+import { SessionProvider, signIn, useSession } from 'next-auth/react';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -49,7 +45,7 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
     <Providers pageProps={pageProps as AppPageProps}>
       <AppModeRouter />
       <TopProgressBar />
-      <UserSync />
+      <SessionHelper />
       <Layout>
         <Component {...pageProps} />
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
@@ -67,8 +63,10 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
         <ChakraProvider theme={theme}>
           <StoreProvider createStore={createStore}>
             <QCProvider>
-              <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
-              <ReactQueryDevtools />
+              <SessionProvider>
+                <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
+                <ReactQueryDevtools />
+              </SessionProvider>
             </QCProvider>
           </StoreProvider>
         </ChakraProvider>
@@ -99,63 +97,87 @@ const AppModeRouter = (): ReactElement => {
   return <></>;
 };
 
-/**
- * Syncs the user data from the server to the client
- * work in progress, not sure if this is the best way to do this
- */
-const UserSync = (): ReactElement => {
-  const router = useRouter();
-  const store = useStoreApi();
-  const { user } = useUser();
-  const qc = useQueryClient();
+// /**
+//  * Syncs the user data from the server to the client
+//  * work in progress, not sure if this is the best way to do this
+//  */
+// const UserSync = (): ReactElement => {
+//   const router = useRouter();
+//   const store = useStoreApi();
+//   const { user } = useUser();
+//   const qc = useQueryClient();
+//
+//   const { data } = useQuery<{
+//     user: IronSession['token'];
+//     isAuthenticated: boolean;
+//   }>({
+//     queryKey: ['user'],
+//     queryFn: async () => {
+//       const { data } = await axios.get<{
+//         user: IronSession['token'];
+//         isAuthenticated: boolean;
+//       }>('/api/user', {
+//         headers: {
+//           'X-Refresh-Token': 1,
+//         },
+//       });
+//       if (isNilOrEmpty(data)) {
+//         throw new Error('Empty session');
+//       }
+//       return data;
+//     },
+//     retry: false,
+//
+//     // refetch every 5 minutes
+//     refetchInterval: 60 * 5 * 1000,
+//   });
+//
+//   // Comparing the incoming user data with the current user data, and update the store if they are different
+//   useEffect(() => {
+//     if (data?.user && checkUserData(data?.user) && notEqual(data.user, user)) {
+//       logger.debug({ msg: 'User Synced', user: data.user });
+//
+//       store.setState({ user: data.user });
+//
+//       // apply the user data to the api instance
+//       api.setUserData(data.user);
+//
+//       // attempt to invalidate any currently cached user settings
+//       void qc.invalidateQueries(userKeys.getUserSettings());
+//     }
+//   }, [data, store, user]);
+//
+//   // if both the incoming and the current user data is invalid, reload the page
+//   useEffect(() => {
+//     if (data?.user && !checkUserData(data?.user) && !checkUserData(user)) {
+//       router.reload();
+//     }
+//   }, [data, router, user]);
+//
+//   return <></>;
+// };
 
-  const { data } = useQuery<{
-    user: IronSession['token'];
-    isAuthenticated: boolean;
-  }>({
-    queryKey: ['user'],
-    queryFn: async () => {
-      const { data } = await axios.get<{
-        user: IronSession['token'];
-        isAuthenticated: boolean;
-      }>('/api/user', {
-        headers: {
-          'X-Refresh-Token': 1,
-        },
-      });
-      if (isNilOrEmpty(data)) {
-        throw new Error('Empty session');
-      }
-      return data;
-    },
-    retry: false,
+const SessionHelper = () => {
+  const { status, data } = useSession();
 
-    // refetch every 5 minutes
-    refetchInterval: 60 * 5 * 1000,
-  });
-
-  // Comparing the incoming user data with the current user data, and update the store if they are different
   useEffect(() => {
-    if (data?.user && checkUserData(data?.user) && notEqual(data.user, user)) {
-      logger.debug({ msg: 'User Synced', user: data.user });
-
-      store.setState({ user: data.user });
-
-      // apply the user data to the api instance
-      api.setUserData(data.user);
-
-      // attempt to invalidate any currently cached user settings
-      void qc.invalidateQueries(userKeys.getUserSettings());
+    if (status === 'unauthenticated') {
+      signIn('anonymous', { redirect: false })
+        .then((res) => {
+          if (res?.ok) {
+            logger.debug('logged in as anonymous user');
+          }
+        })
+        .catch((error: Error) => {
+          logger.error({ msg: 'Failed to login as anonymous user', error });
+        });
     }
-  }, [data, store, user]);
 
-  // if both the incoming and the current user data is invalid, reload the page
-  useEffect(() => {
-    if (data?.user && !checkUserData(data?.user) && !checkUserData(user)) {
-      router.reload();
+    if (status === 'authenticated') {
+      api.setToken(data.user.apiToken);
     }
-  }, [data, router, user]);
-
+    logger.debug({ msg: 'Session', status, data });
+  }, [status, data]);
   return <></>;
 };
 

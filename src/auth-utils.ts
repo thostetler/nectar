@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { defaultRequestConfig } from '@/api/config';
 import { isNil } from 'ramda';
-import { isPast, parseISO } from 'date-fns';
+import { isFuture, isPast, parseISO } from 'date-fns';
 import { APP_DEFAULTS } from '@/config';
 import { IBootstrapPayload, ICSRFResponse, IUserData } from '@/api/user';
 import { ApiTargets } from '@/api/models';
@@ -34,10 +34,14 @@ export const configWithCSRF = async (config: ApiRequestConfig): Promise<ApiReque
 export const fetchUserData = async (additionalConfig?: AxiosRequestConfig) => {
   const config: AxiosRequestConfig = {
     ...defaultRequestConfig,
+    timeout: APP_DEFAULTS.API_TIMEOUT,
     ...additionalConfig,
+    headers: {
+      ...defaultRequestConfig?.headers,
+      ...additionalConfig?.headers,
+    },
     method: 'GET',
     url: ApiTargets.BOOTSTRAP,
-    timeout: APP_DEFAULTS.API_TIMEOUT,
   };
 
   return await axios.request<IBootstrapPayload, AxiosResponse<IBootstrapPayload>>(config);
@@ -73,6 +77,12 @@ export const isUserData = (userData?: IUserData): userData is IUserData => {
   );
 };
 
+export const isValidApiToken = (apiToken: string, expireAt: string) => {
+  return (
+    typeof apiToken === 'string' && typeof expireAt === 'string' && apiToken.length > 0 && isFuture(parseISO(expireAt))
+  );
+};
+
 /**
  * Checks if the user data is valid and the token is not expired
  * @param userData
@@ -80,13 +90,6 @@ export const isUserData = (userData?: IUserData): userData is IUserData => {
 export const isValidToken = (userData?: IUserData): boolean => {
   return isUserData(userData) && !isPast(parseISO(userData.expire_in));
 };
-
-/**
- * Checks if the user is authenticated
- * @param user
- */
-export const isAuthenticated = (user: IUserData) =>
-  isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
 
 /**
  * Picks the user data from the bootstrap payload

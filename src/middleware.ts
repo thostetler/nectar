@@ -1,9 +1,9 @@
 import { sessionConfig } from '@/config';
-import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
 import { getIronSession } from 'iron-session/edge';
 import { edgeLogger } from 'logger/logger';
 // eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
+import { withAuth } from 'next-auth/middleware';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
@@ -83,37 +83,60 @@ const protectedRoute = async (req: NextRequest, res: NextResponse) => {
   return redirect(url, req, 'login-required');
 };
 
-export async function middleware(req: NextRequest) {
-  log.info({
-    msg: 'Request',
-    method: req.method,
-    url: req.nextUrl.toString(),
-  });
+// export async function middleware(req: NextRequest) {
+//   log.info({
+//     msg: 'Request',
+//     method: req.method,
+//     url: req.nextUrl.toString(),
+//   });
+//
+//   // const res = await initSession(req, NextResponse.next());
+//   const res = NextResponse.next();
+//   return res;
+//
+//   const path = req.nextUrl.pathname;
+//
+//   if (path.startsWith('/user/account/login')) {
+//     return loginMiddleware(req, res);
+//   }
+//
+//   if (path.startsWith('/user/account/register') || path.startsWith('/user/forgotpassword')) {
+//     return redirectIfAuthenticated(req, res);
+//   }
+//
+//   if (path.startsWith('/user/libraries') || path.startsWith('/user/settings')) {
+//     return protectedRoute(req, res);
+//   }
+//
+//   if (path.startsWith('/user/account/verify/change-email') || path.startsWith('/user/account/verify/register')) {
+//     return verifyMiddleware(req, res);
+//   }
+//
+//   log.debug({ msg: 'Non-special route, continuing', res });
+//   return res;
+// }
 
-  // const res = await initSession(req, NextResponse.next());
-  const res = NextResponse.next();
+const middleware = async (req: NextRequest) => {
+  return Promise.resolve(NextResponse.next({ request: req }));
+};
 
-  const path = req.nextUrl.pathname;
+const PROTECTED_ROUTES = ['/user/settings', '/user/libraries'];
+const Anon = 'anonymous' as const;
 
-  if (path.startsWith('/user/account/login')) {
-    return loginMiddleware(req, res);
-  }
-
-  if (path.startsWith('/user/account/register') || path.startsWith('/user/forgotpassword')) {
-    return redirectIfAuthenticated(req, res);
-  }
-
-  if (path.startsWith('/user/libraries') || path.startsWith('/user/settings')) {
-    return protectedRoute(req, res);
-  }
-
-  if (path.startsWith('/user/account/verify/change-email') || path.startsWith('/user/account/verify/register')) {
-    return verifyMiddleware(req, res);
-  }
-
-  log.debug({ msg: 'Non-special route, continuing', res });
-  return res;
-}
+export default withAuth(middleware, {
+  pages: {
+    signIn: '/user/account/login',
+  },
+  callbacks: {
+    authorized: ({ token, req }) => {
+      log.debug({ msg: 'authorized callback', token });
+      if (PROTECTED_ROUTES.some((route) => req.nextUrl.pathname.startsWith(route))) {
+        return token.sub !== Anon;
+      }
+      return true;
+    },
+  },
+});
 
 export const config = {
   matcher: [

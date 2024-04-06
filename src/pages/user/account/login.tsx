@@ -1,71 +1,51 @@
 import { Button, Container, FormControl, FormLabel, Heading, Input, InputGroup, Stack } from '@chakra-ui/react';
-import { PasswordTextInput, SimpleLink, StandardAlertMessage } from '@/components';
-import { NextPage } from 'next';
+import { PasswordTextInput, SimpleLink } from '@/components';
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import Head from 'next/head';
-import { FormEventHandler, useCallback, useEffect, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import axios, { AxiosError } from 'axios';
-import { ILoginResponse } from '@/pages/api/auth/login';
+import { FormEventHandler, useState } from 'react';
 import { useFocus } from '@/lib/useFocus';
-import { useUser } from '@/lib/useUser';
-import { parseAPIError } from '@/utils';
+import { getCsrfToken, signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import { logger } from '@/logger';
 import { IUserCredentials } from '@/api/user';
 
 const initialParams: IUserCredentials = { email: '', password: '' };
 
-const Login: NextPage = () => {
-  const { reload } = useRouter();
+export default function LoginPage({ csrfToken }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const router = useRouter();
   const [params, setParams] = useState<IUserCredentials>(initialParams);
   const [mainInputRef, focus] = useFocus<HTMLInputElement>();
-  const { reset: resetUser } = useUser();
-
-  const {
-    mutate: submit,
-    data,
-    isError,
-    isLoading,
-    error,
-  } = useMutation<ILoginResponse, AxiosError<ILoginResponse> | Error, IUserCredentials>(
-    ['login'],
-    async (params) => {
-      const { data } = await axios.post<ILoginResponse>('/api/auth/login', params);
-      if (data?.error) {
-        throw new Error(data.error);
-      }
-      return data;
-    },
-    {
-      cacheTime: 0,
-      retry: false,
-    },
-  );
-
-  // redirect on successful login
-  useEffect(() => {
-    if (data?.success) {
-      reload();
-    }
-  }, [data?.success, reload, resetUser]);
 
   const handleChange: FormEventHandler<HTMLInputElement> = (event) => {
     const { name, value } = event.currentTarget;
     setParams((prevParams) => ({ ...prevParams, [name]: value }));
   };
 
-  const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
-    (event) => {
-      event.preventDefault();
-      submit(params);
-    },
-    [params, submit],
-  );
+  const callbackUrl = Array.isArray(router.query.callbackUrl)
+    ? router.query.callbackUrl[0]
+    : router.query.callbackUrl ?? '';
+  const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
+    event.preventDefault();
 
-  useEffect(() => {
-    if (isError) {
-      focus();
+    try {
+      await signIn(
+        'login',
+        {
+          redirect: false,
+          email: params.email,
+          password: params.password,
+          csrfToken,
+        },
+        {
+          callbackUrl,
+        },
+      );
+    } catch (error) {
+      logger.error({ msg: 'login error', error });
     }
-  }, [isError]);
+  };
 
   return (
     <>
@@ -78,7 +58,7 @@ const Login: NextPage = () => {
           Login
         </Heading>
 
-        <form onSubmit={handleSubmit} aria-labelledby="form-label">
+        <form method="post" onSubmit={handleSubmit} aria-labelledby="form-label">
           <Stack direction="column" spacing={4}>
             <FormControl isRequired>
               <FormLabel>Email</FormLabel>
@@ -109,39 +89,23 @@ const Login: NextPage = () => {
               Forgot password?
             </SimpleLink>
             {/* show loading indicator even after success, since we should be awaiting a page refresh */}
-            <Button type="submit" isLoading={isLoading || data?.success}>
-              Submit
-            </Button>
-            {isLoading || data?.success ? null : (
-              <SimpleLink alignSelf="center" href="/user/account/register">
-                Register
-              </SimpleLink>
-            )}
+            <Button type="submit">Submit</Button>
           </Stack>
         </form>
-        <LoginErrorMessage error={error} />
       </Container>
     </>
   );
-};
+}
 
-const LoginErrorMessage = (props: { error: AxiosError<ILoginResponse> | Error }) => {
-  switch (parseAPIError(props.error) as ILoginResponse['error']) {
-    case 'login-failed':
-    case 'invalid-credentials':
-      return (
-        <StandardAlertMessage
-          status="error"
-          title="Invalid credentials"
-          description="The email or password you entered is incorrect."
-        />
-      );
-    case 'failed-userdata-request':
-    case 'invalid-token':
-      return <StandardAlertMessage status="error" title="Unable to login" description="Please try again later." />;
-    default:
-      return null;
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const session = await getServerSession(ctx.req, ctx.res, authOptions);
+
+  if (session?.user?.isLoggedIn) {
+    return { redirect: { destination: '/', permanentRedirect: false } };
   }
-};
 
-export default Login;
+  const csrfToken = await getCsrfToken(ctx);
+  return {
+    props: { csrfToken: csrfToken ?? null },
+  };
+}

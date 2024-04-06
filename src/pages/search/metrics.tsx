@@ -1,35 +1,29 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { MetricsPageContainer, VizPageLayout } from '@/components';
-import { makeSearchParams } from '@/utils';
+import { makeSearchParams, parseQueryFromUrl } from '@/utils';
 import { NextPage } from 'next';
 import { IADSApiSearchParams } from '@/api/search';
+import { useRouter } from 'next/router';
 
-interface IMetricsProps {
-  originalQuery: IADSApiSearchParams;
-  bibsQuery: IADSApiSearchParams;
-  error?: string;
-}
+const BATCH_SIZE = 1000;
 
-const MetricsPage: NextPage<IMetricsProps> = (props) => {
-  const { error, originalQuery, bibsQuery } = props;
+const MetricsPage: NextPage = () => {
+  const router = useRouter();
+  const { qid: _, ...originalQuery } = router.query;
+  const { qid = null, p, ...query } = parseQueryFromUrl<{ qid: string }>(router.asPath, { sortPostfix: 'id asc' });
+  const bibsQuery: IADSApiSearchParams = {
+    rows: BATCH_SIZE,
+    fl: ['bibcode'],
+    ...(qid ? { q: `docs(${qid})`, sort: ['id asc'] } : query),
+  };
 
   return (
     <VizPageLayout vizPage="metrics" from={{ pathname: '/search', query: makeSearchParams(originalQuery) }}>
-      {error ? (
-        <Alert status="error" my={5}>
-          <AlertIcon />
-          <AlertTitle mr={2}>Error fetching records!</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      ) : (
-        <MetricsPageContainer query={bibsQuery} />
-      )}
+      <MetricsPageContainer query={bibsQuery} />
     </VizPageLayout>
   );
 };
 
 // export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-//   const BATCH_SIZE = 1000;
 //   const { qid: _qid, ...originalQuery } = ctx.query;
 //   const { qid = null, p, ...query } = parseQueryFromUrl<{ qid: string }>(ctx.req.url, { sortPostfix: 'id asc' });
 //
