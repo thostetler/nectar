@@ -22,7 +22,6 @@ import {
 import { WarningTwoIcon } from '@chakra-ui/icons';
 import { BibstemPicker } from '@/components';
 import { useIsClient } from '@/lib/useIsClient';
-import { composeNextGSSP } from '@/ssr-utils';
 import { stringifySearchParams } from '@/utils';
 import DOMPurify from 'isomorphic-dompurify';
 import { GetServerSideProps, NextPage } from 'next';
@@ -350,7 +349,7 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
   if (ctx.req.method == 'POST') {
     const queryClient = new QueryClient();
 
@@ -381,7 +380,7 @@ export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx
   }
 
   return { props: {} };
-});
+};
 
 const escape = (val?: string): string => (typeof val === 'string' ? DOMPurify.sanitize(val) : '');
 const listSanitizer = (v: string): string[] =>

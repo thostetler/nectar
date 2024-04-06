@@ -1,6 +1,6 @@
 import { IUserData } from '@/api/user/types';
 import { APP_STORAGE_KEY, updateAppUser } from '@/store';
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, HttpStatusCode } from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import { identity, isNil } from 'ramda';
 import { defaultRequestConfig } from './config';
@@ -58,10 +58,6 @@ const applyTokenToRequest = (request: ApiRequestConfig, token: string): ApiReque
 
 export type ApiRequestConfig = AxiosRequestConfig;
 
-enum API_STATUS {
-  UNAUTHORIZED = 401,
-}
-
 const log = logger.child({}, { msgPrefix: '[api] ' });
 
 /**
@@ -80,13 +76,6 @@ class Api {
     this.service = axios.create(defaultRequestConfig);
     void this.init();
   }
-
-  // private buildKey(config: ApiRequestConfig) {
-  //   if (config?.url && config?.params) {
-  //     return `${config.url}?${JSON.stringify(config.params)}`;
-  //   }
-  //   throw new Error('Url and params are required to build a key');
-  // }
 
   private async init() {
     const defaultCacheConfig: CacheOptions = {
@@ -150,67 +139,44 @@ class Api {
         log.error({ msg: 'Error creating cache interceptor', error });
       }
     }
-    this.service.interceptors.response.use(
-      identity,
-
-      //
-      // async (response) => {
-      //   logger.debug({ msg: 'API Response', response });
-      //   if (typeof window === 'undefined') {
-      //     const redis = await (await import('../../redis')).createRedisInstance();
-      //
-      //     if (response.config.url.startsWith('/search')) {
-      //       try {
-      //         const key = this.buildKey(response.config);
-      //         const value = JSON.stringify(response.data);
-      //         await redis.set(key, value, 'PX', Number(process.env.REDIS_MAX_AGE));
-      //       } catch (error) {
-      //         logger.error({ msg: 'Error building redis key, not caching response', error });
-      //       }
-      //     }
-      //   }
-      //
-      //   return Promise.resolve(response);
-      // },
-      (error: AxiosError & { canRefresh: boolean }) => {
-        log.error(error);
-        if (axios.isAxiosError(error)) {
-          // if the server never responded, there won't be a response object -- in that case, reject immediately
-          // this is important for SSR, just fail fast
-          if (!error.response || typeof window === 'undefined') {
-            return Promise.reject(error);
-          }
-
-          // check if the incoming error is the exact same status and URL as the last request
-          // if so, we should reject to keep from getting into a loop
-          if (
-            this.recentError &&
-            this.recentError.status === error.response.status &&
-            this.recentError.config.url === error.config.url
-          ) {
-            // clear the recent error
-            this.recentError = null;
-            log.debug({ msg: 'Rejecting request due to recent error', err: error });
-            return Promise.reject(error);
-          }
-
-          // if request is NOT bootstrap, store error config
-          if (error.config.url !== '/api/user') {
-            this.recentError = { status: error.response.status, config: error.config };
-          }
-
-          if (error.response.status === API_STATUS.UNAUTHORIZED) {
-            this.invalidateUserData();
-
-            log.debug({ msg: 'Unauthorized request, refreshing token and retrying', err: error });
-
-            // retry the request
-            return this.request(error.config as ApiRequestConfig);
-          }
+    this.service.interceptors.response.use(identity, (error: AxiosError & { canRefresh: boolean }) => {
+      log.error(error);
+      if (axios.isAxiosError(error)) {
+        // if the server never responded, there won't be a response object -- in that case, reject immediately
+        // this is important for SSR, just fail fast
+        if (!error.response || typeof window === 'undefined') {
+          return Promise.reject(error);
         }
-        return Promise.reject(error);
-      },
-    );
+
+        // check if the incoming error is the exact same status and URL as the last request
+        // if so, we should reject to keep from getting into a loop
+        if (
+          this.recentError &&
+          this.recentError.status === error.response.status &&
+          this.recentError.config.url === error.config.url
+        ) {
+          // clear the recent error
+          this.recentError = null;
+          log.debug({ msg: 'Rejecting request due to recent error', err: error });
+          return Promise.reject(error);
+        }
+
+        // if request is NOT bootstrap, store error config
+        if (error.config.url !== '/api/user') {
+          this.recentError = { status: error.response.status, config: error.config };
+        }
+
+        if (error.response.status === HttpStatusCode.Unauthorized) {
+          this.invalidateUserData();
+
+          log.debug({ msg: 'Unauthorized request, refreshing token and retrying', err: error });
+
+          // retry the request
+          return this.request(error.config as ApiRequestConfig);
+        }
+      }
+      return Promise.reject(error);
+    });
   }
 
   public static getInstance(): Api {
@@ -245,6 +211,8 @@ class Api {
     }
     // serverside, we can just send the request
     if (typeof window === 'undefined') {
+      return Promise.reject('Blocked');
+
       //   // check redis if we have this
       //   try {
       //     const key = this.buildKey(config);
@@ -256,11 +224,11 @@ class Api {
       //     }
       //   } catch (error) {}
 
-      return this.service.request<T>(applyTokenToRequest(config, this.userData?.access_token));
+      // return this.service.request<T>(applyTokenToRequest(config, this.userData?.access_token));
     }
 
     // in the case we have an unauthorized response, we should skip right to refreshing the token
-    const unauthorized = this.recentError?.status === API_STATUS.UNAUTHORIZED;
+    const unauthorized = this.recentError?.status === HttpStatusCode.Unauthorized;
 
     // we have valid token, send the request right away
     if (!unauthorized && checkUserData(this.userData)) {

@@ -201,7 +201,7 @@ export const Select = forwardRef(SelectImpl) as <
 
 export const createOptions =
   <T,>(labelKey: keyof T | ((item: T) => ReactNode), valueKey: keyof T | ((item: T) => ReactNode)) =>
-  (items: T[]): Array<SelectOption<T>> => {
+  (items: T[] = []): Array<SelectOption<T>> => {
     return items.map(
       (item) =>
         ({

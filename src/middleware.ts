@@ -1,5 +1,4 @@
 import { sessionConfig } from '@/config';
-import { initSession } from '@/middlewares/initSession';
 import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
 import { getIronSession } from 'iron-session/edge';
 import { edgeLogger } from 'logger/logger';
@@ -91,7 +90,8 @@ export async function middleware(req: NextRequest) {
     url: req.nextUrl.toString(),
   });
 
-  const res = await initSession(req, NextResponse.next());
+  // const res = await initSession(req, NextResponse.next());
+  const res = NextResponse.next();
 
   const path = req.nextUrl.pathname;
 
