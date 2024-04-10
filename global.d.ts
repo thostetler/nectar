@@ -24,7 +24,8 @@ declare module 'iron-session' {
 declare module 'next-auth' {
   interface User {
     id: string;
-    sessionCookie: string;
+    apiToken?: string;
+    expires?: string;
   }
 
   interface Session {
@@ -32,14 +33,16 @@ declare module 'next-auth' {
       apiToken: string;
       isLoggedIn: boolean;
     } & DefaultSession['user'];
+    error?: string;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    access_token?: string;
-    expire_in?: string;
+    apiToken?: string;
+    expires?: string;
     id: string;
+    error?: string;
   }
 }
 

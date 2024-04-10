@@ -2,9 +2,6 @@ import { AppState } from '@/store';
 import { withIronSessionSsr } from 'iron-session/next';
 import { sessionConfig } from '@/config';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
-import api, { isUserData } from '@/api/api';
-import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
-import { getNotification, NotificationId } from '@/store/slices';
 import { parseAPIError } from '@/utils';
 import { logger } from '@/logger';
 
@@ -16,37 +13,37 @@ const injectNonce: IncomingGSSP = (ctx, prev) => {
   return Promise.resolve({ props: { nonce, ...prev.props } });
 };
 
-const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
-  const userData = ctx.req.session.token;
+// const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
+//   const userData = ctx.req.session.token;
+//
+//   log.debug({
+//     msg: 'Injecting session data into client props',
+//     userData,
+//     isValidUserData: isUserData(userData),
+//     token: isUserData(userData) ? userData.access_token : null,
+//   });
+//
+//   const qc = new QueryClient();
+//   // found an incoming dehydrated state, hydrate it
+//   if (prevResult?.props?.dehydratedState) {
+//     hydrate(qc, prevResult.props.dehydratedState);
+//   }
+//   qc.setQueryData(['user'], userData);
+//
+//   return Promise.resolve({
+//     props: {
+//       dehydratedAppState: {
+//         ...((prevResult?.props?.dehydratedAppState ?? {}) as AppState),
+//         user: isUserData(userData) ? userData : {},
+//         // set notification if present
+//         notification: getNotification(ctx.query?.notify as NotificationId),
+//       } as AppState,
+//       dehydratedState: dehydrate(qc),
+//     },
+//   });
+// };
 
-  log.debug({
-    msg: 'Injecting session data into client props',
-    userData,
-    isValidUserData: isUserData(userData),
-    token: isUserData(userData) ? userData.access_token : null,
-  });
-
-  const qc = new QueryClient();
-  // found an incoming dehydrated state, hydrate it
-  if (prevResult?.props?.dehydratedState) {
-    hydrate(qc, prevResult.props.dehydratedState);
-  }
-  qc.setQueryData(['user'], userData);
-
-  return Promise.resolve({
-    props: {
-      dehydratedAppState: {
-        ...((prevResult?.props?.dehydratedAppState ?? {}) as AppState),
-        user: isUserData(userData) ? userData : {},
-        // set notification if present
-        notification: getNotification(ctx.query?.notify as NotificationId),
-      } as AppState,
-      dehydratedState: dehydrate(qc),
-    },
-  });
-};
-
-export const injectSessionGSSP = withIronSessionSsr((ctx) => updateUserStateSSR(ctx, { props: {} }), sessionConfig);
+// export const injectSessionGSSP = withIronSessionSsr((ctx) => updateUserStateSSR(ctx, { props: {} }), sessionConfig);
 
 type IncomingGSSP = (
   ctx: GetServerSidePropsContext,
@@ -63,8 +60,7 @@ export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
     GetServerSidePropsResult<Record<string, unknown>>
   > => {
     fns.push(injectNonce);
-    fns.push(updateUserStateSSR);
-    api.setUserData(ctx.req.session.token);
+    // fns.push(updateUserStateSSR);
     let ssrProps = { props: {} };
     for (const fn of fns) {
       let result;

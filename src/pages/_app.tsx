@@ -18,7 +18,7 @@ import '../styles/styles.css';
 import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
 import api from '@/api/api';
 import { logger } from '@/logger';
-import { SessionProvider, signIn, useSession } from 'next-auth/react';
+import { SessionProvider, signIn, signOut, useSession } from 'next-auth/react';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -173,9 +173,15 @@ const SessionHelper = () => {
         });
     }
 
-    if (status === 'authenticated') {
-      api.setToken(data.user.apiToken);
+    if (status === 'authenticated' && data.user.apiToken) {
+      if (data.error && data.error === 'TokenExpired') {
+        logger.error({ msg: 'Token Expired', error: data.error });
+        void signOut({ redirect: data.user.isLoggedIn });
+      } else {
+        api.setToken(data.user.apiToken);
+      }
     }
+
     logger.debug({ msg: 'Session', status, data });
   }, [status, data]);
   return <></>;

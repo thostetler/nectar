@@ -33,7 +33,7 @@ import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } fro
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@/components/Orcid';
 import { useOrcid } from '@/lib/orcid/useOrcid';
-import { useSession } from '@/lib/useSession';
+import { useNectarSession } from '@/lib/useNectarSession';
 import { useSettings } from '@/lib/useSettings';
 import { useColorModeColors } from '@/lib';
 import { useVaultBigQuerySearch } from '@/api/vault';
@@ -52,7 +52,7 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
   const selected = useStore((state) => state.docs.selected ?? []);
   const clearSelected = useStore((state) => state.clearSelected);
   const isClient = useIsClient();
-  const { isAuthenticated } = useSession();
+  const { isAuthenticated } = useNectarSession();
   const noneSelected = selected.length === 0;
   const [exploreAll, setExploreAll] = useState(true);
   const router = useRouter();

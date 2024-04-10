@@ -31,7 +31,7 @@ const resolveApiBaseUrl = (defaultBaseUrl = ''): string => {
 export const defaultRequestConfig: AxiosRequestConfig = {
   baseURL: resolveApiBaseUrl(),
   withCredentials: true,
-  timeout: typeof window === 'undefined' ? APP_DEFAULTS.SSR_API_TIMEOUT : APP_DEFAULTS.API_TIMEOUT,
+  timeout: APP_DEFAULTS.API_TIMEOUT,
   paramsSerializer: {
     serialize: (params) =>
       qs.stringify(params, {

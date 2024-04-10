@@ -43,6 +43,7 @@ export interface IBootstrapPayload {
   expire_in: string;
   refresh_token: string;
   message?: string;
+  error?: string;
 }
 
 export type IUserData = Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expire_in'>;

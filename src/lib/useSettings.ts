@@ -4,7 +4,7 @@ import { useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { isNotEmpty } from 'ramda-adjunct';
-import { useSession } from '@/lib/useSession';
+import { useNectarSession } from '@/lib/useNectarSession';
 import {
   DEFAULT_USER_DATA,
   IADSApiUserDataParams,
@@ -15,7 +15,7 @@ import {
 } from '@/api/user';
 
 export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) => {
-  const { isAuthenticated } = useSession();
+  const { isAuthenticated } = useNectarSession();
   const toast = useToast({
     position: 'bottom',
     isClosable: true,

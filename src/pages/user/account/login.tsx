@@ -44,6 +44,7 @@ export default function LoginPage({ csrfToken }: InferGetServerSidePropsType<typ
       );
     } catch (error) {
       logger.error({ msg: 'login error', error });
+      focus();
     }
   };
 

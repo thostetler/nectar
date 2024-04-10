@@ -3,7 +3,7 @@ import { SettingsLayout, StandardAlertMessage } from '@/components';
 import { FormEventHandler, useState } from 'react';
 import { AppState, useStore } from '@/store';
 import { parseAPIError } from '@/utils';
-import { useSession } from '@/lib/useSession';
+import { useNectarSession } from '@/lib/useNectarSession';
 import { useDeleteAccount } from '@/api/user';
 
 type FormError = {
@@ -15,7 +15,7 @@ const DeleteAccountPage = () => {
   const [email, setEmail] = useState('');
   const [formError, setFormError] = useState<FormError>(null);
   const storeEmail = useStore((state: AppState) => state.user.username);
-  const { logout } = useSession();
+  const { logout } = useNectarSession();
   const {
     mutate: deleteAccount,
     error,

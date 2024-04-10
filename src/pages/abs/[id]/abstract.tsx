@@ -42,7 +42,7 @@ import { equals, isNil, path } from 'ramda';
 import { memo, ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
-import { useSession } from '@/lib/useSession';
+import { useNectarSession } from '@/lib/useNectarSession';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { isNilOrEmpty } from 'ramda-adjunct';
 import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@/api/search';
@@ -61,7 +61,7 @@ const createQuery = (type: 'author' | 'orcid', value: string): IADSApiSearchPara
 const AbstractPage: NextPage = () => {
   const router = useRouter();
   const isClient = useIsClient();
-  const { isAuthenticated } = useSession();
+  const { isAuthenticated } = useNectarSession();
   const { data } = useGetAbstract({ id: router.query.id as string });
   const doc = path<IDocsEntity>(['docs', 0], data);
 

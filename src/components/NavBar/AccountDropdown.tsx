@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { ItemItem, ItemType, ListType } from './types';
-import { useSession } from '@/lib/useSession';
+import { useNectarSession } from '@/lib/useNectarSession';
 import { HStack, Icon, Text } from '@chakra-ui/react';
 import { UserIcon } from '@heroicons/react/24/solid';
 
@@ -34,7 +34,7 @@ interface IAccountDropdown {
 
 export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
   const { type, onFinished } = props;
-  const { isAuthenticated, logout } = useSession();
+  const { isAuthenticated, logout } = useNectarSession();
 
   const router = useRouter();
   const itemsToShow = isAuthenticated ? loggedInItems : items;
