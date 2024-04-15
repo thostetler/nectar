@@ -131,7 +131,7 @@ const SearchPage: NextPage = () => {
 
     // generate search string and trigger page transition, also update store
     const search = makeSearchParams({ ...params, ...query, sort, p: 1 });
-    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: false });
   };
 
   // On submission handler
@@ -147,7 +147,7 @@ const SearchPage: NextPage = () => {
 
     // generate a URL search string and trigger a page transition, and update store
     const search = makeSearchParams({ ...params, ...query, q, p: 1 });
-    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: false });
   };
 
   // Update the store when we have data
@@ -171,7 +171,7 @@ const SearchPage: NextPage = () => {
 
   const handleSearchFacetSubmission = (queryUpdates: Partial<IADSApiSearchParams>) => {
     const search = makeSearchParams({ ...params, ...queryUpdates, p: 1 });
-    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+    void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: false });
   };
 
   const handleToggleExpand = () => {

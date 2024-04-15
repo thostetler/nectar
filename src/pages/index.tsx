@@ -29,7 +29,7 @@ const Pager = dynamic<IPagerProps>(() => import('@/components/Pager').then((m) =
 
 const HomePage: NextPage = () => {
   const sort = useStore((state) => state.query.sort);
-  const { settings } = useSettings();
+  const { settings } = useSettings({ suspense: false });
   const submitQuery = useStore((state) => state.submitQuery);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);

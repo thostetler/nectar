@@ -1,8 +1,8 @@
 import { isNil } from 'ramda';
-import { QueryFunction, useQuery, UseQueryResult } from '@tanstack/react-query';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { IADSApiGraphicsParams, IADSApiGraphicsResponse } from './types';
 import { IDocsEntity } from '@/api/search';
-import { ADSQuery } from '@/api/types';
+import { ADSQuery, QueryFunctionSsr } from '@/api/types';
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
 
@@ -56,13 +56,23 @@ export const useGetGraphics: ADSQuery<IDocsEntity['bibcode'], IADSApiGraphicsRes
   });
 };
 
-export const fetchGraphics: QueryFunction<IADSApiGraphicsResponse> = async ({ meta }) => {
+export const fetchGraphics: QueryFunctionSsr<IADSApiGraphicsResponse> = async ({ meta }, options) => {
   const { params } = meta as { params: IADSApiGraphicsParams };
 
   const config: ApiRequestConfig = {
     method: 'GET',
     url: `${ApiTargets.GRAPHICS}/${params.bibcode}`,
   };
+
+  if (typeof window === 'undefined' && options?.token && options?.token.length > 0) {
+    const { data: graphics } = await api.ssrRequest<IADSApiGraphicsResponse>(config, options);
+
+    if (isNil(graphics) || graphics.Error) {
+      return null;
+    }
+
+    return graphics;
+  }
 
   const { data: graphics } = await api.request<IADSApiGraphicsResponse>(config);
 

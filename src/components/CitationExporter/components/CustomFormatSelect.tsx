@@ -2,7 +2,7 @@ import { ChangeEvent, Dispatch, useEffect, useState } from 'react';
 import { CitationExporterEvent } from '../CitationExporter.machine';
 import { Button, FormControl, FormLabel, Input, Text } from '@chakra-ui/react';
 import { Select } from '@/components/Select';
-import { useNectarSession } from '@/lib/useNectarSession';
+import { useNectarSession } from '@/lib/auth/useNectarSession';
 import { SimpleLink } from '@/components/SimpleLink';
 import { useSettings } from '@/lib/useSettings';
 import { useColorModeColors } from '@/lib';

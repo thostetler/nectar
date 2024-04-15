@@ -16,9 +16,8 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
 import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
-import api from '@/api/api';
 import { logger } from '@/logger';
-import { SessionProvider, signIn, signOut, useSession } from 'next-auth/react';
+import { SessionProvider } from '@/lib/auth/SessionProvider';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -45,7 +44,6 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
     <Providers pageProps={pageProps as AppPageProps}>
       <AppModeRouter />
       <TopProgressBar />
-      <SessionHelper />
       <Layout>
         <Component {...pageProps} />
         <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
@@ -58,20 +56,20 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
 
   return (
-    <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
-      <MathJaxProvider>
-        <ChakraProvider theme={theme}>
-          <StoreProvider createStore={createStore}>
-            <QCProvider>
-              <SessionProvider>
+    <SessionProvider>
+      <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
+        <MathJaxProvider>
+          <ChakraProvider theme={theme}>
+            <StoreProvider createStore={createStore}>
+              <QCProvider>
                 <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
                 <ReactQueryDevtools />
-              </SessionProvider>
-            </QCProvider>
-          </StoreProvider>
-        </ChakraProvider>
-      </MathJaxProvider>
-    </GoogleReCaptchaProvider>
+              </QCProvider>
+            </StoreProvider>
+          </ChakraProvider>
+        </MathJaxProvider>
+      </GoogleReCaptchaProvider>
+    </SessionProvider>
   );
 };
 
@@ -94,96 +92,6 @@ const AppModeRouter = (): ReactElement => {
     }
   }, [mode, router.asPath]);
 
-  return <></>;
-};
-
-// /**
-//  * Syncs the user data from the server to the client
-//  * work in progress, not sure if this is the best way to do this
-//  */
-// const UserSync = (): ReactElement => {
-//   const router = useRouter();
-//   const store = useStoreApi();
-//   const { user } = useUser();
-//   const qc = useQueryClient();
-//
-//   const { data } = useQuery<{
-//     user: IronSession['token'];
-//     isAuthenticated: boolean;
-//   }>({
-//     queryKey: ['user'],
-//     queryFn: async () => {
-//       const { data } = await axios.get<{
-//         user: IronSession['token'];
-//         isAuthenticated: boolean;
-//       }>('/api/user', {
-//         headers: {
-//           'X-Refresh-Token': 1,
-//         },
-//       });
-//       if (isNilOrEmpty(data)) {
-//         throw new Error('Empty session');
-//       }
-//       return data;
-//     },
-//     retry: false,
-//
-//     // refetch every 5 minutes
-//     refetchInterval: 60 * 5 * 1000,
-//   });
-//
-//   // Comparing the incoming user data with the current user data, and update the store if they are different
-//   useEffect(() => {
-//     if (data?.user && checkUserData(data?.user) && notEqual(data.user, user)) {
-//       logger.debug({ msg: 'User Synced', user: data.user });
-//
-//       store.setState({ user: data.user });
-//
-//       // apply the user data to the api instance
-//       api.setUserData(data.user);
-//
-//       // attempt to invalidate any currently cached user settings
-//       void qc.invalidateQueries(userKeys.getUserSettings());
-//     }
-//   }, [data, store, user]);
-//
-//   // if both the incoming and the current user data is invalid, reload the page
-//   useEffect(() => {
-//     if (data?.user && !checkUserData(data?.user) && !checkUserData(user)) {
-//       router.reload();
-//     }
-//   }, [data, router, user]);
-//
-//   return <></>;
-// };
-
-const SessionHelper = () => {
-  const { status, data } = useSession();
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      signIn('anonymous', { redirect: false })
-        .then((res) => {
-          if (res?.ok) {
-            logger.debug('logged in as anonymous user');
-          }
-        })
-        .catch((error: Error) => {
-          logger.error({ msg: 'Failed to login as anonymous user', error });
-        });
-    }
-
-    if (status === 'authenticated' && data.user.apiToken) {
-      if (data.error && data.error === 'TokenExpired') {
-        logger.error({ msg: 'Token Expired', error: data.error });
-        void signOut({ redirect: data.user.isLoggedIn });
-      } else {
-        api.setToken(data.user.apiToken);
-      }
-    }
-
-    logger.debug({ msg: 'Session', status, data });
-  }, [status, data]);
   return <></>;
 };
 

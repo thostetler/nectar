@@ -33,7 +33,7 @@ import { MouseEventHandler, ReactElement, useCallback, useEffect, useState } fro
 import { SecondOrderOpsLinks } from './SecondOrderOpsLinks';
 import { BulkClaimMenuItem, BulkDeleteMenuItem } from '@/components/Orcid';
 import { useOrcid } from '@/lib/orcid/useOrcid';
-import { useNectarSession } from '@/lib/useNectarSession';
+import { useNectarSession } from '@/lib/auth/useNectarSession';
 import { useSettings } from '@/lib/useSettings';
 import { useColorModeColors } from '@/lib';
 import { useVaultBigQuerySearch } from '@/api/vault';

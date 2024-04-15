@@ -1,10 +1,14 @@
 import { IUserData } from '@/api/user/types';
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { isPast, parseISO } from 'date-fns';
-import { isNil } from 'ramda';
+import { identity, isNil } from 'ramda';
 import { defaultRequestConfig } from './config';
-import { buildStorage, CacheOptions, canStale, setupCache, StorageValue } from 'axios-cache-interceptor';
+import { buildStorage, CacheOptions, setupCache, StorageValue } from 'axios-cache-interceptor';
 import { logger } from '@/logger';
+import { parseAPIError } from '@/utils';
+import { getForwardedHeaders } from '@/auth';
+import { RequestHeaders } from 'request-ip';
+import { GetServerSidePropsContext } from 'next';
 
 export const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
@@ -52,26 +56,81 @@ const log = logger.child({}, { msgPrefix: '[api] ' });
 class Api {
   private static instance: Api;
   private service: AxiosInstance;
-  private token: string;
-  private bootstrapRetries = 2;
-  private recentError: { status: number; config: AxiosRequestConfig };
+  private latestError: number;
+  private refreshRetries: 3;
 
   private constructor() {
     this.service = axios.create(defaultRequestConfig);
     void this.init();
   }
 
-  private applyToken(request: ApiRequestConfig) {
-    return {
-      ...request,
-      headers: {
-        ...request.headers,
-        authorization: `Bearer ${this.token}`,
-      },
-    };
-  }
-
   private async init() {
+    this.service.interceptors.request.use((config) => {
+      log.debug({ msg: 'Intercepted Request', config });
+      // const hasRefreshHeader = config.headers.has('X-REFRESH');
+      //
+      // // server side
+      // if (typeof window === 'undefined') {
+      //   if (hasRefreshHeader) {
+      //     try {
+      //       const result = await signIn('anonymous', { redirect: false });
+      //       if (result.ok) {
+      //         const session = await getSession();
+      //         config.headers.delete('X-REFRESH');
+      //         log.debug('Logged in as anonymous user');
+      //         config.headers.Authorization = `Bearer ${session.user.apiToken}`;
+      //         return config;
+      //       }
+      //     } catch (error) {
+      //       log.error({ msg: 'Failed to log in as anonymous user', error });
+      //     }
+      //   }
+      //
+      //   return Promise.resolve(config);
+      // }
+
+      // const session = await getSession({});
+      //
+      // // if session is available, apply token
+      // if (session && !hasRefreshHeader) {
+      //   return this.configWithToken(config, session.user.apiToken);
+      // }
+      //
+      // // otherwise, we can log in as an anonymous user
+      // try {
+      //   const result = await signIn('anonymous', { redirect: false });
+      //   if (result.ok) {
+      //     const session = await getSession();
+      //     config.headers.delete('X-REFRESH');
+      //     log.debug('Logged in as anonymous user');
+      //     config.headers.Authorization = `Bearer ${session.user.apiToken}`;
+      //     return config;
+      //   }
+      // } catch (error) {
+      //   log.error({ msg: 'Failed to log in as anonymous user', error });
+      // }
+      return config;
+    });
+    this.service.interceptors.response.use(identity, (error: AxiosError) => {
+      logger.error({ msg: 'API Error', error });
+
+      // if (error.status === HttpStatusCode.Unauthorized || error.status === HttpStatusCode.TooManyRequests) {
+      //   const serializedErrorConfig = fastHashStr(JSON.stringify(error.config));
+      //   if (this.latestError === serializedErrorConfig) {
+      //     this.refreshRetries -= 1;
+      //   }
+      //   this.latestError = serializedErrorConfig;
+      //   if (this.refreshRetries > 0) {
+      //     logger.debug('Retrying request');
+      //     error.config.headers.set('X-REFRESH');
+      //     return this.service.request(error.config);
+      //   }
+      // }
+
+      logger.debug('Rejecting request');
+      return Promise.reject(parseAPIError(error));
+    });
+
     const defaultCacheConfig: CacheOptions = {
       debug: (...args) => logger.debug(...args),
       cacheTakeover: false,
@@ -103,74 +162,48 @@ class Api {
         log.error({ msg: 'Error creating cache interceptor', error });
       }
     } else {
-      try {
-        const redis = (await import('@/redis')).createRedisInstance();
-        const storage = buildStorage({
-          async find(key) {
-            const value = await redis.get(`axios-cache-${key}`);
-            if (!value) {
-              return;
-            }
-            return JSON.parse(value) as StorageValue;
-          },
-          async set(key, value, req) {
-            const isLoadingTTL = Date.now() + (req?.cache && typeof req.cache.ttl === 'number' ? req.cache.ttl : 60000);
-            const ttl =
-              value.state === 'loading'
-                ? isLoadingTTL
-                : (value.state === 'stale' && value.ttl) || (value.state === 'cached' && !canStale(value))
-                ? value.createdAt + value.ttl
-                : undefined;
-
-            await redis.set(`axios-cache-${key}`, JSON.stringify(value), 'PXAT', ttl);
-          },
-          async remove(key) {
-            await redis.del(`axios-cache-${key}`);
-          },
-        });
-        setupCache(this.service, { ...defaultCacheConfig, storage });
-      } catch (error) {
-        log.error({ msg: 'Error creating cache interceptor', error });
-      }
+      // try {
+      //   const redis = (await import('@/redis')).createRedisInstance();
+      //   const storage = buildStorage({
+      //     async find(key) {
+      //       try {
+      //         const value = await redis.get(`axios-cache-${key}`);
+      //         if (!value) {
+      //           return;
+      //         }
+      //         return JSON.parse(value) as StorageValue;
+      //       } catch (error) {
+      //         log.error({ msg: 'Error fetching result from Redis store', error });
+      //       }
+      //     },
+      //     async set(key, value, req) {
+      //       const isLoadingTTL = Date.now() + (req?.cache && typeof req.cache.ttl === 'number' ? req.cache.ttl : 60000);
+      //       const ttl =
+      //         value.state === 'loading'
+      //           ? isLoadingTTL
+      //           : (value.state === 'stale' && value.ttl) || (value.state === 'cached' && !canStale(value))
+      //           ? value.createdAt + value.ttl
+      //           : undefined;
+      //
+      //       try {
+      //         await redis.set(`axios-cache-${key}`, JSON.stringify(value), 'PXAT', ttl);
+      //       } catch (error) {
+      //         log.error({ msg: 'Error setting result in Redis store', error });
+      //       }
+      //     },
+      //     async remove(key) {
+      //       try {
+      //         await redis.del(`axios-cache-${key}`);
+      //       } catch (error) {
+      //         log.error({ msg: 'Error deleting entry in Redis store', error });
+      //       }
+      //     },
+      //   });
+      //   setupCache(this.service, { ...defaultCacheConfig, storage });
+      // } catch (error) {
+      //   log.error({ msg: 'Error creating cache interceptor', error });
+      // }
     }
-    // this.service.interceptors.response.use(identity, (error: AxiosError & { canRefresh: boolean }) => {
-    //   log.error(error);
-    //   if (axios.isAxiosError(error)) {
-    //     // if the server never responded, there won't be a response object -- in that case, reject immediately
-    //     // this is important for SSR, just fail fast
-    //     if (!error.response || typeof window === 'undefined') {
-    //       return Promise.reject(error);
-    //     }
-    //
-    //     // check if the incoming error is the exact same status and URL as the last request
-    //     // if so, we should reject to keep from getting into a loop
-    //     if (
-    //       this.recentError &&
-    //       this.recentError.status === error.response.status &&
-    //       this.recentError.config.url === error.config.url
-    //     ) {
-    //       // clear the recent error
-    //       this.recentError = null;
-    //       log.debug({ msg: 'Rejecting request due to recent error', err: error });
-    //       return Promise.reject(error);
-    //     }
-    //
-    //     // if request is NOT bootstrap, store error config
-    //     if (error.config.url !== '/api/user') {
-    //       this.recentError = { status: error.response.status, config: error.config };
-    //     }
-    //
-    //     if (error.response.status === HttpStatusCode.Unauthorized) {
-    //       this.invalidateUserData();
-    //
-    //       log.debug({ msg: 'Unauthorized request, refreshing token and retrying', err: error });
-    //
-    //       // retry the request
-    //       return this.request(error.config as ApiRequestConfig);
-    //     }
-    //   }
-    //   return Promise.reject(error);
-    // });
   }
 
   public static getInstance(): Api {
@@ -178,10 +211,6 @@ class Api {
       Api.instance = new Api();
     }
     return Api.instance;
-  }
-
-  public setToken(token: string) {
-    this.token = token;
   }
 
   /**
@@ -192,73 +221,40 @@ class Api {
     log.debug({
       msg: 'API Request',
       config,
-      token: this.token,
     });
-    // serverside, we can just send the request
-    if (typeof window === 'undefined') {
-      return Promise.reject('Blocked');
-      // return this.service.request<T>(applyTokenToRequest(config, this.userData?.access_token));
-    }
-
-    return this.service.request<T>(this.applyToken(config));
-
-    // // in the case we have an unauthorized response, we should skip right to refreshing the token
-    // const unauthorized = this.recentError?.status === HttpStatusCode.Unauthorized;
-    //
-    // // we have valid token, send the request right away
-    // if (!unauthorized && checkUserData(this.userData)) {
-    //   return this.service.request<T>(applyTokenToRequest(config, this.userData.access_token));
-    // }
-    //
-    // // otherwise attempt to get the token from local storage
-    // const userData = checkLocalStorageForUserData();
-    // if (!unauthorized && checkUserData(userData)) {
-    //   // set user data property
-    //   this.setUserData(userData);
-    //
-    //   return this.service.request<T>(applyTokenToRequest(config, userData.access_token));
-    // }
-    //
-    // // finally, we have to attempt a bootstrap request
-    // try {
-    //   const freshUserData = await this.fetchUserData();
-    //
-    //   // if we don't have valid user data, throw an error
-    //   if (!checkUserData(freshUserData)) {
-    //     return Promise.reject(new Error('Unable to refresh token'));
-    //   }
-    //
-    //   // set user data property and in the app store
-    //   this.setUserData(freshUserData);
-    //   updateAppUser(freshUserData);
-    //
-    //   return this.service.request<T>(applyTokenToRequest(config, freshUserData.access_token));
-    // } catch (e) {
-    //   if (this.bootstrapRetries > 0) {
-    //     this.bootstrapRetries -= 1;
-    //     return this.request(config);
-    //   }
-    //   // bootstrapping failed all attempts, let user know
-    //   const bootstrapError = new Error('Unrecoverable Error, unable to refresh token', { cause: e as Error });
-    //   return Promise.reject(bootstrapError);
-    // }
+    return this.service.request<T>(config);
   }
 
-  // async fetchUserData() {
-  //   const { data } = await axios.get<IApiUserResponse>('/api/user', {
-  //     headers: {
-  //       'x-Refresh-Token': 1,
-  //     },
-  //   });
-  //   log.debug({ msg: 'Fetching user data', data });
-  //   return data.user;
-  // }
+  async ssrRequest<T>(
+    config: ApiRequestConfig,
+    options: { token: string; req: GetServerSidePropsContext['req'] },
+  ): Promise<AxiosResponse<T>> {
+    log.debug({
+      msg: 'ServerSide API Request',
+      config,
+    });
+
+    return this.service.request<T>(this.configWithToken(config, options.token, options.req?.headers));
+  }
+
+  private configWithToken<T extends ApiRequestConfig>(
+    config: T,
+    token: string,
+    additionalHeaders: RequestHeaders = {},
+  ): T {
+    return {
+      ...config,
+      headers: {
+        ...config.headers,
+        ...getForwardedHeaders(additionalHeaders),
+        Authorization: `Bearer ${token}`,
+      },
+    };
+  }
 
   public reset() {
     this.service = this.service = axios.create(defaultRequestConfig);
     void this.init();
-    this.recentError = null;
-    this.bootstrapRetries = 2;
   }
 }
 

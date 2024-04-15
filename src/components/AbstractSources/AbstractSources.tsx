@@ -15,26 +15,24 @@ import { ChevronDownIcon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { SimpleLinkList } from '@/components';
 import { ItemType } from '@/components/Dropdown/types';
 import { useIsClient } from '@/lib/useIsClient';
-import { HTMLAttributes, MouseEvent, MouseEventHandler, ReactElement, useMemo } from 'react';
+import { MouseEvent, MouseEventHandler, ReactElement, useMemo } from 'react';
 import { useResolverQuery } from '@/api/resolver';
 import { AcademicCapIcon } from '@heroicons/react/24/solid';
 import { processLinkData } from '@/components/AbstractSources/linkGenerator';
 import { IDataProductSource, IFullTextSource, IRelatedWorks } from '@/components/AbstractSources/types';
 import { useSettings } from '@/lib/useSettings';
-import { Esources, IDocsEntity } from '@/api/search';
+import { Esources } from '@/api/search';
+import { useGetAbstractDoc } from '@/lib';
 
-export interface IAbstractSourcesProps extends HTMLAttributes<HTMLDivElement> {
-  doc?: IDocsEntity;
-}
-
-export const AbstractSources = ({ doc }: IAbstractSourcesProps): ReactElement => {
+export const AbstractSources = (): ReactElement => {
   const isClient = useIsClient();
   const { settings } = useSettings();
 
+  const { doc } = useGetAbstractDoc();
   const sources = processLinkData(doc, settings.link_server);
 
   const { data: relatedWorksResp } = useResolverQuery(
-    { bibcode: doc.bibcode, link_type: 'associated' },
+    { bibcode: doc?.bibcode, link_type: 'associated' },
     { enabled: !!doc?.bibcode },
   );
 

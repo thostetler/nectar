@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { ItemItem, ItemType, ListType } from './types';
-import { useNectarSession } from '@/lib/useNectarSession';
+import { useNectarSession } from '@/lib/auth/useNectarSession';
 import { HStack, Icon, Text } from '@chakra-ui/react';
 import { UserIcon } from '@heroicons/react/24/solid';
 
@@ -43,7 +43,7 @@ export const AccountDropdown = (props: IAccountDropdown): ReactElement => {
     const id = (e.target as HTMLElement).dataset['id'];
     if (isBrowser()) {
       if (id === 'logout') {
-        logout();
+        void logout();
       } else {
         const item = itemsToShow.find((item) => item !== 'divider' && id === item.id);
         void router.push(item ? (item as ItemItem).path : '/');

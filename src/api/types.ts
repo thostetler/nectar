@@ -1,5 +1,6 @@
 import { AxiosError } from 'axios';
 import {
+  QueryFunctionContext,
   QueryKey,
   UseInfiniteQueryOptions,
   UseInfiniteQueryResult,
@@ -8,6 +9,7 @@ import {
   UseQueryOptions,
   UseQueryResult,
 } from '@tanstack/react-query';
+import { GetServerSidePropsContext } from 'next';
 
 export type ADSQuery<
   TProps,
@@ -36,3 +38,11 @@ export type ADSMutation<
   TError = Error | AxiosError,
   TResult = UseMutationResult<TData, TError, TVariables>,
 > = (params?: TParams, options?: UseMutationOptions<TData, TError, TVariables>) => TResult;
+
+export type QueryFunctionSsr<T = unknown, TQueryKey extends QueryKey = QueryKey> = (
+  context: QueryFunctionContext<TQueryKey>,
+  options?: {
+    token: string;
+    req: GetServerSidePropsContext['req'];
+  },
+) => T | Promise<T>;

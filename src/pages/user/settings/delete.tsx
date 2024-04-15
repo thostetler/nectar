@@ -3,7 +3,7 @@ import { SettingsLayout, StandardAlertMessage } from '@/components';
 import { FormEventHandler, useState } from 'react';
 import { AppState, useStore } from '@/store';
 import { parseAPIError } from '@/utils';
-import { useNectarSession } from '@/lib/useNectarSession';
+import { useNectarSession } from '@/lib/auth/useNectarSession';
 import { useDeleteAccount } from '@/api/user';
 
 type FormError = {

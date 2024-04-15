@@ -1,7 +1,7 @@
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
-import { ADSQuery } from '@/api/types';
-import { QueryFunction, useQuery } from '@tanstack/react-query';
+import { ADSQuery, QueryFunctionSsr } from '@/api/types';
+import { useQuery } from '@tanstack/react-query';
 import { IADSApiResolverParams, IADSApiResolverResponse } from './types';
 
 export enum ResolverKeys {
@@ -21,7 +21,7 @@ export const useResolverQuery: ADSQuery<IADSApiResolverParams, IADSApiResolverRe
   });
 };
 
-export const fetchLinks: QueryFunction<IADSApiResolverResponse> = async ({ meta }) => {
+export const fetchLinks: QueryFunctionSsr<IADSApiResolverResponse> = async ({ meta }, options) => {
   const { params } = meta as { params: IADSApiResolverParams };
 
   const config: ApiRequestConfig = {
@@ -30,7 +30,11 @@ export const fetchLinks: QueryFunction<IADSApiResolverResponse> = async ({ meta 
     validateStatus: (status) => status === 200 || status === 404,
   };
 
-  const { data } = await api.request<IADSApiResolverResponse>(config);
+  if (typeof window === 'undefined' && options?.token && options?.token.length > 0) {
+    const { data } = await api.ssrRequest<IADSApiResolverResponse>(config, options);
+    return data;
+  }
 
+  const { data } = await api.request<IADSApiResolverResponse>(config);
   return data;
 };

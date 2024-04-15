@@ -29,7 +29,7 @@ import {
 import { isString } from '@/utils';
 import { resolveObjectQuery } from '@/api/objects/objects';
 import { IADSApiSearchParams, IADSApiSearchResponse, IBigQueryMutationParams, IDocsEntity } from './types';
-import { ADSMutation, ADSQuery, InfiniteADSQuery } from '@/api/types';
+import { ADSMutation, ADSQuery, InfiniteADSQuery, QueryFunctionSsr } from '@/api/types';
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
 
@@ -385,7 +385,7 @@ export const fetchBigQuerySearch: MutationFunction<IADSApiSearchResponse['respon
  *
  * *This shouldn't be used directly, except during prefetching*
  */
-export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }) => {
+export const fetchSearch: QueryFunctionSsr<IADSApiSearchResponse> = async ({ meta }, options) => {
   const { params } = meta as { params: IADSApiSearchParams };
 
   const finalParams = { ...params };
@@ -399,6 +399,11 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }
     url: ApiTargets.SEARCH,
     params: finalParams,
   };
+
+  if (typeof window === 'undefined' && options?.token && options?.token.length > 0) {
+    const { data } = await api.ssrRequest<IADSApiSearchResponse>(config, options);
+    return data;
+  }
   const { data } = await api.request<IADSApiSearchResponse>(config);
   return data;
 };

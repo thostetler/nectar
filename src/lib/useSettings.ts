@@ -4,7 +4,7 @@ import { useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { isNotEmpty } from 'ramda-adjunct';
-import { useNectarSession } from '@/lib/useNectarSession';
+import { useNectarSession } from '@/lib/auth/useNectarSession';
 import {
   DEFAULT_USER_DATA,
   IADSApiUserDataParams,

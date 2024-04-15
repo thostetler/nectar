@@ -1,5 +1,5 @@
 import { isNil } from 'ramda';
-import { QueryFunction, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getMetricsParams, getMetricsTimeSeriesParams } from './model';
 import {
   BasicStatsKey,
@@ -9,7 +9,7 @@ import {
   MetricsResponseKey,
 } from './types';
 import { Bibcode } from '@/api/search';
-import { ADSQuery } from '@/api/types';
+import { ADSQuery, QueryFunctionSsr } from '@/api/types';
 import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
 
@@ -89,7 +89,7 @@ export const useGetMetricsTimeSeries: ADSQuery<Bibcode[], IADSApiMetricsResponse
   });
 };
 
-export const fetchMetrics: QueryFunction<IADSApiMetricsResponse> = async ({ meta }) => {
+export const fetchMetrics: QueryFunctionSsr<IADSApiMetricsResponse> = async ({ meta }, options) => {
   const { params } = meta as { params: IADSApiMetricsParams };
 
   const config: ApiRequestConfig = {
@@ -97,6 +97,16 @@ export const fetchMetrics: QueryFunction<IADSApiMetricsResponse> = async ({ meta
     url: ApiTargets.SERVICE_METRICS,
     data: params,
   };
+
+  if (typeof window === 'undefined' && options?.token && options?.token.length > 0) {
+    const { data: metrics } = await api.ssrRequest<IADSApiMetricsResponse>(config, options);
+
+    if (isNil(metrics) || metrics[MetricsResponseKey.E]) {
+      return null;
+    }
+
+    return metrics;
+  }
 
   const { data: metrics } = await api.request<IADSApiMetricsResponse>(config);
 

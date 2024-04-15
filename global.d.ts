@@ -1,5 +1,4 @@
 import { SetupServerApi } from 'msw/node';
-import { DefaultSession } from 'next-auth';
 
 declare module 'vitest' {
   export interface TestContext {
@@ -9,40 +8,15 @@ declare module 'vitest' {
 
 declare module 'iron-session' {
   interface IronSessionData {
-    token?: {
-      access_token: string;
-      anonymous: boolean;
-      expire_in: string;
-      username: string;
-    };
-    isAuthenticated?: boolean;
-    apiCookieHash?: string;
-    bot?: boolean;
-  }
-}
-
-declare module 'next-auth' {
-  interface User {
-    id: string;
-    apiToken?: string;
-    expires?: string;
-  }
-
-  interface Session {
     user: {
+      email: string;
+    };
+    auth: {
       apiToken: string;
-      isLoggedIn: boolean;
-    } & DefaultSession['user'];
-    error?: string;
-  }
-}
-
-declare module 'next-auth/jwt' {
-  interface JWT {
-    apiToken?: string;
-    expires?: string;
-    id: string;
-    error?: string;
+      isAuthenticated: boolean;
+      expires: string;
+    };
+    bot?: boolean;
   }
 }
 

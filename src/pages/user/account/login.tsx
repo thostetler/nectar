@@ -1,20 +1,18 @@
-import { Button, Container, FormControl, FormLabel, Heading, Input, InputGroup, Stack } from '@chakra-ui/react';
+import { Alert, Button, Container, FormControl, FormLabel, Heading, Input, InputGroup, Stack } from '@chakra-ui/react';
 import { PasswordTextInput, SimpleLink } from '@/components';
-import { GetServerSidePropsContext, InferGetServerSidePropsType } from 'next';
 import Head from 'next/head';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, useCallback, useEffect, useState } from 'react';
 import { useFocus } from '@/lib/useFocus';
-import { getCsrfToken, signIn } from 'next-auth/react';
-import { useRouter } from 'next/router';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/pages/api/auth/[...nextauth]';
-import { logger } from '@/logger';
 import { IUserCredentials } from '@/api/user';
+import { ILoginResponse } from '@/pages/api/auth/login';
+import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
+import { useRouter } from 'next/router';
 
 const initialParams: IUserCredentials = { email: '', password: '' };
 
-export default function LoginPage({ csrfToken }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const router = useRouter();
+export default function LoginPage() {
+  const { reload } = useRouter();
   const [params, setParams] = useState<IUserCredentials>(initialParams);
   const [mainInputRef, focus] = useFocus<HTMLInputElement>();
 
@@ -23,30 +21,47 @@ export default function LoginPage({ csrfToken }: InferGetServerSidePropsType<typ
     setParams((prevParams) => ({ ...prevParams, [name]: value }));
   };
 
-  const callbackUrl = Array.isArray(router.query.callbackUrl)
-    ? router.query.callbackUrl[0]
-    : router.query.callbackUrl ?? '';
-  const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
-    event.preventDefault();
+  const {
+    mutate: submit,
+    data,
+    isError,
+    isLoading,
+    error,
+  } = useMutation<ILoginResponse, null, IUserCredentials>(
+    ['login'],
+    async (params) => {
+      const { data } = await axios.post<ILoginResponse>('/api/auth/login', params);
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+      return data;
+    },
+    {
+      cacheTime: 0,
+      retry: false,
+    },
+  );
 
-    try {
-      await signIn(
-        'login',
-        {
-          redirect: false,
-          email: params.email,
-          password: params.password,
-          csrfToken,
-        },
-        {
-          callbackUrl,
-        },
-      );
-    } catch (error) {
-      logger.error({ msg: 'login error', error });
+  // redirect on successful login
+  useEffect(() => {
+    if (data?.success) {
+      reload();
+    }
+  }, [data?.success, reload]);
+
+  const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
+    (event) => {
+      event.preventDefault();
+      submit(params);
+    },
+    [params, submit],
+  );
+
+  useEffect(() => {
+    if (isError) {
       focus();
     }
-  };
+  }, [isError]);
 
   return (
     <>
@@ -90,7 +105,10 @@ export default function LoginPage({ csrfToken }: InferGetServerSidePropsType<typ
               Forgot password?
             </SimpleLink>
             {/* show loading indicator even after success, since we should be awaiting a page refresh */}
-            <Button type="submit">Submit</Button>
+            <Button type="submit" isLoading={isLoading}>
+              Submit
+            </Button>
+            <LoginFormError error={error} isLoading={isLoading} />
           </Stack>
         </form>
       </Container>
@@ -98,15 +116,27 @@ export default function LoginPage({ csrfToken }: InferGetServerSidePropsType<typ
   );
 }
 
-export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const session = await getServerSession(ctx.req, ctx.res, authOptions);
-
-  if (session?.user?.isLoggedIn) {
-    return { redirect: { destination: '/', permanentRedirect: false } };
+const LoginFormError = ({ error, isLoading }: { error: string; isLoading: boolean }) => {
+  if (!error || isLoading) {
+    return null;
   }
 
-  const csrfToken = await getCsrfToken(ctx);
-  return {
-    props: { csrfToken: csrfToken ?? null },
+  const getMsg = () => {
+    switch (error) {
+      case 'InvalidCredentials':
+        return 'The username or password you entered is incorrect. Please try again.';
+      case 'UserNotFound':
+        return 'The account you are trying to access does not exist. Please check your username and try again.';
+      case 'AccountValidation':
+        return 'There seems to be a problem with your account validation. Please contact support for assistance.';
+      case 'AccountNotVerified':
+        return 'Your account has not been verified yet. Please check your email for the verification link.';
+      case 'InvalidCSRF':
+        return 'There was a problem with your request. Please refresh the page and try again.';
+      default:
+        return 'An unexpected error occurred while trying to sign you in. Please try again later.';
+    }
   };
-}
+
+  return <Alert status="error">{getMsg()}</Alert>;
+};

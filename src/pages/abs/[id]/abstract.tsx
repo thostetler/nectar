@@ -1,4 +1,5 @@
 import {
+  Alert,
   Box,
   Button,
   Center,
@@ -6,6 +7,7 @@ import {
   HStack,
   Icon,
   IconButton,
+  Spinner,
   Stack,
   Table,
   Tag,
@@ -35,17 +37,19 @@ import { APP_DEFAULTS, EXTERNAL_URLS, NASA_SCIX_BRAND_NAME } from '@/config';
 import { useIsClient } from '@/lib/useIsClient';
 import { pluralize, unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
-import { NextPage } from 'next';
+import { InferGetServerSidePropsType, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
-import { equals, isNil, path } from 'ramda';
+import { equals, isNil } from 'ramda';
 import { memo, ReactElement } from 'react';
 import { useRouter } from 'next/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
-import { useNectarSession } from '@/lib/useNectarSession';
+import { useNectarSession } from '@/lib/auth/useNectarSession';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { isNilOrEmpty } from 'ramda-adjunct';
-import { IADSApiSearchParams, IDocsEntity, useGetAbstract } from '@/api/search';
+import { IADSApiSearchParams, IDocsEntity } from '@/api/search';
+import { useGetAbstractDoc } from '@/lib';
+import { getDetailsPageGSSP } from '@/lib/getDetailsPageGSSP';
 
 const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
   () => import('@/components/AllAuthorsModal').then((m) => m.AllAuthorsModal),
@@ -58,12 +62,11 @@ const createQuery = (type: 'author' | 'orcid', value: string): IADSApiSearchPara
   return { q: `${type}:"${value}"`, sort: ['score desc'] };
 };
 
-const AbstractPage: NextPage = () => {
+const AbstractPage: NextPage<InferGetServerSidePropsType<typeof getDetailsPageGSSP>> = ({ ssr }) => {
   const router = useRouter();
   const isClient = useIsClient();
   const { isAuthenticated } = useNectarSession();
-  const { data } = useGetAbstract({ id: router.query.id as string });
-  const doc = path<IDocsEntity>(['docs', 0], data);
+  const { doc, isLoading } = useGetAbstractDoc();
 
   // process authors from doc
   const authors = useGetAuthors({ doc, includeAff: false });
@@ -73,94 +76,104 @@ const AbstractPage: NextPage = () => {
     void router.push({ pathname: feedbackItems.record.path, query: { bibcode: doc.bibcode } });
   };
 
+  if (ssr.hasError) {
+    return <Alert status="error">{ssr.error}</Alert>;
+  }
+
+  if (isLoading) {
+    return <Spinner />;
+  }
+
+  if (!doc) {
+    return <Alert status="error">No data found</Alert>;
+  }
+
   return (
     <AbsLayout doc={doc} titleDescription={''}>
       <Head>
         <title>{getDetailsPageTitle(doc, 'Abstract')}</title>
       </Head>
       <Box as="article" aria-labelledby="title">
-        {doc && (
-          <Stack direction="column" gap={2}>
-            {isClient ? (
-              <Flex wrap="wrap" as="section" aria-labelledby="author-list">
-                <VisuallyHidden as="h2" id="author-list">
-                  Authors
-                </VisuallyHidden>
-                {authors.map(([, author, orcid], index) => (
-                  <Box mr={1} key={`${author}-${index}`}>
-                    <SearchQueryLink
-                      params={createQuery('author', author)}
-                      px={1}
-                      aria-label={`author "${author}", search by name`}
-                      flexShrink="0"
-                    >
-                      <>{author}</>
-                    </SearchQueryLink>
-                    {typeof orcid === 'string' && (
-                      <SearchQueryLink
-                        params={createQuery('orcid', orcid)}
-                        aria-label={`author "${author}", search by orKid`}
-                      >
-                        <OrcidActiveIcon fontSize={'large'} mx={1} />
-                      </SearchQueryLink>
-                    )}
-                    <>{index === MAX - 1 || index === doc.author_count - 1 ? '' : ';'}</>
-                  </Box>
-                ))}
-                {doc.author_count > MAX ? (
-                  <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
-                ) : (
-                  <>{doc.author_count > 0 && <AllAuthorsModal bibcode={doc.bibcode} label={'show details'} />}</>
-                )}
-              </Flex>
-            ) : (
-              <Flex wrap="wrap">
-                {doc?.author?.map((author, index) => (
+        <Stack direction="column" gap={2}>
+          {isClient ? (
+            <Flex wrap="wrap" as="section" aria-labelledby="author-list">
+              <VisuallyHidden as="h2" id="author-list">
+                Authors
+              </VisuallyHidden>
+              {authors.map(([, author, orcid], index) => (
+                <Box mr={1} key={`${author}-${index}`}>
                   <SearchQueryLink
                     params={createQuery('author', author)}
-                    key={`${author}-${index}`}
                     px={1}
                     aria-label={`author "${author}", search by name`}
                     flexShrink="0"
                   >
                     <>{author}</>
                   </SearchQueryLink>
-                ))}
-                {doc?.author_count > MAX ? <Text>{` and ${doc?.author_count - MAX} more`}</Text> : null}
-              </Flex>
-            )}
-
-            <Flex justifyContent="space-between">
-              <AbstractSources doc={doc} />
-              {isAuthenticated && (
-                <Tooltip label="add to library">
-                  <IconButton
-                    aria-label="Add to library"
-                    icon={<FolderPlusIcon />}
-                    variant="ghost"
-                    onClick={onOpenAddToLibrary}
-                  />
-                </Tooltip>
-              )}
-            </Flex>
-            <Box as="section" py="2" aria-labelledby="abstract">
-              <VisuallyHidden as="h2" id="abstract">
-                Abstract
-              </VisuallyHidden>
-              {isNil(doc?.abstract) ? (
-                <Text>No Abstract</Text>
+                  {typeof orcid === 'string' && (
+                    <SearchQueryLink
+                      params={createQuery('orcid', orcid)}
+                      aria-label={`author "${author}", search by orKid`}
+                    >
+                      <OrcidActiveIcon fontSize={'large'} mx={1} />
+                    </SearchQueryLink>
+                  )}
+                  <>{index === MAX - 1 || index === doc.author_count - 1 ? '' : ';'}</>
+                </Box>
+              ))}
+              {doc.author_count > MAX ? (
+                <AllAuthorsModal bibcode={doc.bibcode} label={`and ${doc.author_count - MAX} more`} />
               ) : (
-                <Text as={MathJax} dangerouslySetInnerHTML={{ __html: doc.abstract }} />
+                <>{doc.author_count > 0 && <AllAuthorsModal bibcode={doc.bibcode} label={'show details'} />}</>
               )}
-            </Box>
-            <Details doc={doc} />
-            <Flex justifyContent="end">
-              <Button variant="link" onClick={handleFeedback}>
-                <ChatIcon mr={2} /> Feedback/Corrections?
-              </Button>
             </Flex>
-          </Stack>
-        )}
+          ) : (
+            <Flex wrap="wrap">
+              {doc?.author?.map((author, index) => (
+                <SearchQueryLink
+                  params={createQuery('author', author)}
+                  key={`${author}-${index}`}
+                  px={1}
+                  aria-label={`author "${author}", search by name`}
+                  flexShrink="0"
+                >
+                  <>{author}</>
+                </SearchQueryLink>
+              ))}
+              {doc?.author_count > MAX ? <Text>{` and ${doc?.author_count - MAX} more`}</Text> : null}
+            </Flex>
+          )}
+
+          <Flex justifyContent="space-between">
+            <AbstractSources />
+            {isAuthenticated && (
+              <Tooltip label="add to library">
+                <IconButton
+                  aria-label="Add to library"
+                  icon={<FolderPlusIcon />}
+                  variant="ghost"
+                  onClick={onOpenAddToLibrary}
+                />
+              </Tooltip>
+            )}
+          </Flex>
+          <Box as="section" py="2" aria-labelledby="abstract">
+            <VisuallyHidden as="h2" id="abstract">
+              Abstract
+            </VisuallyHidden>
+            {isNil(doc?.abstract) ? (
+              <Text>No Abstract</Text>
+            ) : (
+              <Text as={MathJax} dangerouslySetInnerHTML={{ __html: doc.abstract }} />
+            )}
+          </Box>
+          <Details doc={doc} />
+          <Flex justifyContent="end">
+            <Button variant="link" onClick={handleFeedback}>
+              <ChatIcon mr={2} /> Feedback/Corrections?
+            </Button>
+          </Flex>
+        </Stack>
       </Box>
       <AddToLibraryModal isOpen={isAddToLibraryOpen} onClose={onCloseAddToLibrary} bibcodes={[doc?.bibcode]} />
     </AbsLayout>
@@ -364,3 +377,5 @@ export const getDetailsPageTitle = (doc: IDocsEntity, name: string): string => {
   const subTitle = `${name} - ${title}`;
   return `${isNil(title) ? name : subTitle} - ${NASA_SCIX_BRAND_NAME}`;
 };
+
+export { getDetailsPageGSSP as getServerSideProps } from '@/lib/getDetailsPageGSSP';
