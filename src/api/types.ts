@@ -43,6 +43,6 @@ export type QueryFunctionSsr<T = unknown, TQueryKey extends QueryKey = QueryKey>
   context: QueryFunctionContext<TQueryKey>,
   options?: {
     token: string;
-    req: GetServerSidePropsContext['req'];
+    headers: GetServerSidePropsContext['req']['headers'];
   },
 ) => T | Promise<T>;

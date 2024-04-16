@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useState } from 'react';
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import { logger } from '@/logger';
+import api from '@/api/api';
 
 export const useCreateQueryClient = () => {
   const queryCache = new QueryCache({
@@ -43,5 +44,7 @@ export const useCreateQueryClient = () => {
       }),
   );
 
+  // apply the queryclient to the api
+  api.setQueryClient(queryClient);
   return queryClient;
 };

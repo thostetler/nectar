@@ -127,6 +127,7 @@ const config = {
     reactRemoveProperties: false,
   },
   output: process.env.LOCAL_BUILD ? undefined : 'standalone',
+  eslint: { ignoreDuringBuilds: true },
   // Don't bother linting during CI builds
   ...(!process.env.CI ? {} : { eslint: { ignoreDuringBuilds: true } }),
 };

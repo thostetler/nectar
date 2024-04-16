@@ -37,7 +37,7 @@ export const verifyMiddleware = async (req: NextRequest, res: NextResponse) => {
     try {
       const url = `${process.env.API_HOST_SERVER}${ApiTargets.VERIFY}/${token}`;
       const headers = new Headers({
-        authorization: `Bearer ${session.token.access_token}`,
+        authorization: `Bearer ${session.auth.apiToken}`,
         cookie: `${process.env.ADS_SESSION_COOKIE_NAME}=${req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value}`,
       });
 

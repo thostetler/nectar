@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { IronSession } from 'iron-session';
 import { withIronSessionApiRoute } from 'iron-session/next';
 import { APP_DEFAULTS, sessionConfig } from '@/config';
-import { configWithCSRF, fetchUserData, hash, isValidToken, pickUserData } from '@/auth-utils';
+import { configWithCSRF, fetchUserData, isValidToken } from '@/auth-utils';
 import { defaultRequestConfig } from '@/api/config';
 import axios, { AxiosResponse } from 'axios';
 import setCookie from 'set-cookie-parser';
@@ -82,9 +82,11 @@ export const handleAuthentication = async (
 
         if (isValidToken(userData)) {
           // token is valid, we can save the session
-          session.token = pickUserData(userData);
-          session.isAuthenticated = true;
-          session.apiCookieHash = await hash(apiSessionCookie?.value);
+          session.auth = {
+            apiToken: userData.access_token,
+            isAuthenticated: !userData.anonymous,
+            expires: userData.expire_in,
+          };
           await session.save();
           log.info('session updated, success');
           return res.status(200).json({ success: true });

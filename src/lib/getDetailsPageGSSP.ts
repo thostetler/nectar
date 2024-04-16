@@ -15,8 +15,13 @@ import { GetServerSideProps } from 'next/types';
 import { fetchGraphics, graphicsKeys } from '@/api/graphics';
 import { fetchMetrics, getMetricsParams, metricsKeys } from '@/api/metrics';
 import { fetchLinks, resolverKeys } from '@/api/resolver';
+import { getIronSession } from 'iron-session/edge';
+import { getSessionConfig } from '@/auth';
 
 export const getDetailsPageGSSP = (async (context) => {
+  const session = await getIronSession(context.req, context.res, getSessionConfig());
+  const headers = context.req.headers;
+  const token = session.auth.apiToken;
   context.res.setHeader(
     'Cache-Control',
     'public, max-age=900, stale-while-revalidate=3600'
@@ -26,12 +31,11 @@ export const getDetailsPageGSSP = (async (context) => {
   const queryClient = new QueryClient();
 
   try {
-    const token = '';
     const pathname = context.resolvedUrl.split('?')[0];
 
     const res = await queryClient.fetchQuery({
       queryKey: searchKeys.abstract(id),
-      queryFn: (_) => fetchSearch(_, { token, req: context.req }),
+      queryFn: (_) => fetchSearch(_, { token, headers }),
       meta: { params: getAbstractParams(id) },
     });
     logger.debug({ msg: 'Abstract fetch response', res });
@@ -57,28 +61,28 @@ export const getDetailsPageGSSP = (async (context) => {
       // primary abstract data
       queryClient.fetchQuery({
         queryKey: searchKeys.abstract(id),
-        queryFn: (_) => fetchSearch(_, { token, req: context.req }),
+        queryFn: (_) => fetchSearch(_, { token, headers }),
         meta: { params: getAbstractParams(id) },
       }),
 
       // graphics
       queryClient.prefetchQuery({
         queryKey: graphicsKeys.primary(id),
-        queryFn: (_) => fetchGraphics(_, { token, req: context.req }),
+        queryFn: (_) => fetchGraphics(_, { token, headers }),
         meta: { params: { bibcode: id } },
       }),
 
       // metrics
       queryClient.prefetchQuery({
         queryKey: metricsKeys.primary([id]),
-        queryFn: (_) => fetchMetrics(_, { token, req: context.req }),
+        queryFn: (_) => fetchMetrics(_, { token, headers }),
         meta: { params: getMetricsParams([id]) },
       }),
 
       // associated works
       queryClient.prefetchQuery({
         queryKey: resolverKeys.links({ bibcode: id, link_type: 'associated' }),
-        queryFn: (_) => fetchLinks(_, { token, req: context.req }),
+        queryFn: (_) => fetchLinks(_, { token, headers }),
         meta: { params: { bibcode: id, link_type: 'associated' } },
       }),
 
@@ -86,7 +90,7 @@ export const getDetailsPageGSSP = (async (context) => {
       pathname.endsWith('/references')
         ? queryClient.prefetchQuery({
           queryKey: searchKeys.references({ bibcode: id, start: 0 }),
-          queryFn: (_) => fetchSearch(_, { token, req: context.req }),
+          queryFn: (_) => fetchSearch(_, { token, headers }),
           meta: { params: getReferencesParams(id, 0) },
         })
         : Promise.resolve(),
@@ -95,7 +99,7 @@ export const getDetailsPageGSSP = (async (context) => {
       pathname.endsWith('/citations')
         ? queryClient.prefetchQuery({
           queryKey: searchKeys.citations({ bibcode: id, start: 0 }),
-          queryFn: (_) => fetchSearch(_, { token, req: context.req }),
+          queryFn: (_) => fetchSearch(_, { token, headers }),
           meta: { params: getCitationsParams(id, 0) },
         })
         : Promise.resolve(),
@@ -104,7 +108,7 @@ export const getDetailsPageGSSP = (async (context) => {
       pathname.endsWith('/coreads')
         ? queryClient.prefetchQuery({
           queryKey: searchKeys.coreads({ bibcode: id, start: 0 }),
-          queryFn: (_) => fetchSearch(_, { token, req: context.req }),
+          queryFn: (_) => fetchSearch(_, { token, headers }),
           meta: { params: getCoreadsParams(id, 0) },
         })
         : Promise.resolve(),
@@ -113,7 +117,7 @@ export const getDetailsPageGSSP = (async (context) => {
       pathname.endsWith('/similar')
         ? queryClient.prefetchQuery({
           queryKey: searchKeys.similar({ bibcode: id, start: 0 }),
-          queryFn: (_) => fetchSearch(_, { token, req: context.req }),
+          queryFn: (_) => fetchSearch(_, { token, headers }),
           meta: { params: getSimilarParams(id, 0) },
         })
         : Promise.resolve(),
@@ -122,7 +126,7 @@ export const getDetailsPageGSSP = (async (context) => {
       pathname.endsWith('/toc')
         ? queryClient.prefetchQuery({
           queryKey: searchKeys.toc({ bibcode: id, start: 0 }),
-          queryFn: (_) => fetchSearch(_, { token, req: context.req }),
+          queryFn: (_) => fetchSearch(_, { token, headers }),
           meta: { params: getTocParams(id, 0) },
         })
         : Promise.resolve(),

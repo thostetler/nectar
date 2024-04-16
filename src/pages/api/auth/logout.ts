@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { APP_DEFAULTS, sessionConfig } from '@/config';
-import { configWithCSRF, fetchUserData, hash, isValidToken, pickUserData } from '@/auth-utils';
+import { configWithCSRF, fetchUserData, isValidToken } from '@/auth-utils';
 import { defaultRequestConfig } from '@/api/config';
 import axios, { AxiosResponse } from 'axios';
 import setCookie from 'set-cookie-parser';
@@ -58,9 +58,11 @@ async function logout(req: NextApiRequest, res: NextApiResponse<ILogoutResponse>
 
         if (isValidToken(userData)) {
           // token is valid, we can save the session
-          session.token = pickUserData(userData);
-          session.isAuthenticated = false;
-          session.apiCookieHash = await hash(apiSessionCookie?.value);
+          session.auth = {
+            apiToken: userData.access_token,
+            expires: userData.expire_in,
+            isAuthenticated: !userData.anonymous,
+          };
           await session.save();
           log.info('Logout successful');
           return res.status(200).json({ success: true });

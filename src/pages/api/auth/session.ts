@@ -1,10 +1,11 @@
 import { NextApiHandler } from 'next';
 import { HttpStatusCode } from 'axios';
-import { MethodNotAllowed, NoSession } from '@/error';
+import { NoSession } from '@/error';
 import { logger } from '@/logger';
 import { IronSession } from 'iron-session';
-import { bootstrapUser, getSession } from '@/auth';
+import { bootstrapUser, getSessionConfig } from '@/auth';
 import { isEmpty } from 'ramda';
+import { getIronSession } from 'iron-session/edge';
 
 export type AuthSession = Partial<{
   auth: {
@@ -23,8 +24,8 @@ const log = logger.child({}, { msgPrefix: '[auth/session] ' });
 const handler: NextApiHandler<AuthSession> = async (req, res) => {
   try {
     if (req.method === 'GET') {
-      const session = await getSession(req, res);
-      log.debug({ msg: 'Session', session });
+      const session = await getIronSession(req, res, getSessionConfig());
+      log.debug({ msg: 'GET Session', session });
 
       if (isEmpty(session)) {
         log.debug({ msg: 'Session not found', session });
@@ -46,8 +47,8 @@ const handler: NextApiHandler<AuthSession> = async (req, res) => {
         });
       }
 
-      const session = await getSession(req, res);
-      log.debug({ msg: 'Session', session });
+      const session = await getIronSession(req, res, getSessionConfig());
+      log.debug({ msg: 'POST Session', session });
       session.user = {
         email: user.username,
       };
@@ -87,6 +88,7 @@ const formatSession = (payload: IronSession) => {
     user: {
       email: payload.user.email,
     },
+    isOk: true,
   } as AuthSession;
 };
 

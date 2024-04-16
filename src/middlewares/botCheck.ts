@@ -31,25 +31,24 @@ const crawlerCheck = async (req: NextRequest, ip: string, ua: string) => {
   }
 };
 
-const baseToken: IronSessionData['token'] = {
-  anonymous: true,
-  expire_in: '9999-01-01T00:00:00',
-  username: 'anonymous',
-  access_token: 'no-token',
+const baseToken: IronSessionData['auth'] = {
+  expires: '9999-01-01T00:00:00',
+  apiToken: 'no-token',
+  isAuthenticated: false,
 };
 
 const log = edgeLogger.child({}, { msgPrefix: '[botCheck] ' });
-const getBotToken = (result: CRAWLER_RESULT): IronSessionData['token'] => {
+const getBotToken = (result: CRAWLER_RESULT): IronSessionData['auth'] => {
   switch (result) {
     case CRAWLER_RESULT.BOT:
       log.debug('Bot detected');
-      return { access_token: process.env.VERIFIED_BOTS_ACCESS_TOKEN, ...baseToken };
+      return { apiToken: process.env.VERIFIED_BOTS_ACCESS_TOKEN, ...baseToken };
     case CRAWLER_RESULT.UNVERIFIABLE:
       log.debug('Unverifiable bot detected');
-      return { access_token: process.env.UNVERIFIABLE_BOTS_ACCESS_TOKEN, ...baseToken };
+      return { apiToken: process.env.UNVERIFIABLE_BOTS_ACCESS_TOKEN, ...baseToken };
     case CRAWLER_RESULT.POTENTIAL_MALICIOUS_BOT:
       log.debug('Potentially malicious bot detected');
-      return { access_token: process.env.MALICIOUS_BOTS_ACCESS_TOKEN, ...baseToken };
+      return { apiToken: process.env.MALICIOUS_BOTS_ACCESS_TOKEN, ...baseToken };
     case CRAWLER_RESULT.HUMAN:
     default:
       log.debug('Human detected');
@@ -66,10 +65,7 @@ export const botCheck = async (req: NextRequest, res: NextResponse) => {
 
   // if token is set, then it's a bot of some kind
   if (token) {
-    session.token = token;
-    session.isAuthenticated = false;
-    session.apiCookieHash = '';
-    session.bot = true;
+    session.auth = token;
     await session.save();
   }
 };

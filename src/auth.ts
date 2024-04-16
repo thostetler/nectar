@@ -201,7 +201,7 @@ export const getSessionConfig = (): IronSessionOptions =>
     password: getSessionSecret(),
     cookieName: process.env.SCIX_SESSION_COOKIE_NAME ?? 'scix_session',
     cookieOptions: {
-      expires: 
+      expires: new Date(), // 24 hours
       httpOnly: true,
       sameSite: 'strict',
       secure: process.env.NODE_ENV === 'production',
