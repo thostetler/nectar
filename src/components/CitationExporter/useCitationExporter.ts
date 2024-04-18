@@ -1,7 +1,7 @@
 import { purifyString } from '@/utils';
 import { useMachine } from '@xstate/react/fsm';
 import { useEffect, useMemo } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQueryClient } from '@tanstack/react-query';
 import { generateMachine, ICitationExporterState } from './CitationExporter.machine';
 import {
   ExportApiFormatKey,
@@ -117,10 +117,10 @@ export const useCitationExporter = ({
   // main result fetcher, this will not run unless we're in the 'fetching' state
   const result = useGetExportCitation(params, {
     enabled: state.matches('fetching'),
-    keepPreviousData: state.matches('idle'),
+    placeholderData: state.matches('idle') ? keepPreviousData : undefined,
 
     // will re-throw error to allow error boundary to catch
-    useErrorBoundary: true,
+    throwOnError: true,
 
     // do not retry on fail
     retry: false,

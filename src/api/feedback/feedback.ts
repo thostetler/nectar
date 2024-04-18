@@ -12,7 +12,7 @@ export const useFeedback: ADSMutation<IADSApiFeedbackResponse, undefined, Partia
   return useMutation({
     mutationKey: feedbackKeys.general(),
     mutationFn: feedbackQueryFn,
-    cacheTime: 0,
+    gcTime: 0,
   });
 };
 

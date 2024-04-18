@@ -24,7 +24,6 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) 
   });
   const queryClient = useQueryClient();
   const { data: settings, ...getSettingsState } = useGetUserSettings({
-    suspense: true,
     retry: false,
     enabled: isAuthenticated,
     ...options,

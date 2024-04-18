@@ -12,31 +12,26 @@ interface IOrcidActionBtnProps extends ButtonProps {
 export const DeleteFromOrcidButton = forwardRef<IOrcidActionBtnProps, 'button'>((props, ref) => {
   const { identifier, ...buttonProps } = props;
   const toast = useToast(TOAST_DEFAULTS);
-  const { removeWorks, isLoading } = useRemoveWorks(
-    {
-      onError: (error) => {
-        toast({ status: 'error', title: 'Unable to delete claim', description: parseAPIError(error) });
-      },
-      onSettled: (data) => {
-        // should only be a single entry
-        const result = Object.values(data)[0];
+  const { removeWorks, isPending } = useRemoveWorks({
+    onError: (error) => {
+      toast({ status: 'error', title: 'Unable to delete claim', description: parseAPIError(error) });
+    },
+    onSettled: (data) => {
+      // should only be a single entry
+      const result = Object.values(data)[0];
 
-        if (result?.status === 'rejected') {
-          toast({ status: 'error', title: 'Unable to delete claim', description: parseAPIError(result?.reason) });
-        }
-      },
+      if (result?.status === 'rejected') {
+        toast({ status: 'error', title: 'Unable to delete claim', description: parseAPIError(result?.reason) });
+      }
     },
-    {
-      getProfileOptions: { suspense: true },
-    },
-  );
+  });
 
   return (
     <Button
       variant="outline"
       color="gray.500"
       onClick={() => removeWorks([identifier])}
-      isLoading={isLoading}
+      isLoading={isPending}
       ref={ref}
       w={28}
       {...buttonProps}

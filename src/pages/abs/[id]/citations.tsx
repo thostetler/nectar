@@ -8,13 +8,18 @@ import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 import { getCitationsParams, useGetCitations } from '@/api/search';
 import { getDetailsPageGSSP } from '@/lib/getDetailsPageGSSP';
 import { useGetAbstractDoc } from '@/lib';
+import { keepPreviousData } from '@tanstack/react-query';
 
 const CitationsPage: NextPage<InferGetServerSidePropsType<typeof getDetailsPageGSSP>> = () => {
   const { doc, error: abstractError } = useGetAbstractDoc();
   const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
 
   // get the primary response from server (or cache)
-  const { data, isSuccess, error: citationsError } = useGetCitations(getParams(), { keepPreviousData: true });
+  const {
+    data,
+    isSuccess,
+    error: citationsError,
+  } = useGetCitations(getParams(), { placeholderData: keepPreviousData });
   const citationsParams = getCitationsParams(doc?.bibcode, 0);
 
   return (

@@ -37,6 +37,7 @@ import { countOptions, NONESYMBOL } from './models';
 import { AuthorAffStoreProvider, useAuthorAffStore } from './store';
 import { IGroupedAuthorAffilationData } from './types';
 import { IADSApiSearchParams, IDocsEntity, useSearchInfinite } from '@/api/search';
+import { keepPreviousData } from '@tanstack/react-query';
 
 export type AuthorAffiliationsProps =
   | (BoxProps & { params: IAuthorAffiliationPayload; query?: IADSApiSearchParams })
@@ -56,14 +57,14 @@ export const AuthorAffiliations = (props: AuthorAffiliationsProps): ReactElement
     error,
   } = useAuthorAffiliationSearch(params, {
     enabled: !isNilOrEmpty(params.bibcode),
-    useErrorBoundary: true,
-    keepPreviousData: true,
+    throwOnError: true,
+    placeholderData: keepPreviousData,
   });
 
   // query for bibcodes, this will only run if we weren't passed params (and we have a query)
   const { data: queryData } = useSearchInfinite(query, {
     enabled: isIADSSearchParams(query) && isNilOrEmpty(params.bibcode),
-    useErrorBoundary: true,
+    throwOnError: true,
   });
 
   // extract the bibcodes from the search response

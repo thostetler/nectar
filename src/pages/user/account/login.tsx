@@ -25,22 +25,20 @@ export default function LoginPage() {
     mutate: submit,
     data,
     isError,
-    isLoading,
+    isPending,
     error,
-  } = useMutation<ILoginResponse, null, IUserCredentials>(
-    ['login'],
-    async (params) => {
+  } = useMutation<ILoginResponse, null, IUserCredentials>({
+    mutationKey: ['login'],
+    mutationFn: async (params) => {
       const { data } = await axios.post<ILoginResponse>('/api/auth/login', params);
       if (data?.error) {
         throw new Error(data.error);
       }
       return data;
     },
-    {
-      cacheTime: 0,
-      retry: false,
-    },
-  );
+    gcTime: 0,
+    retry: false,
+  });
 
   // redirect on successful login
   useEffect(() => {
@@ -105,10 +103,10 @@ export default function LoginPage() {
               Forgot password?
             </SimpleLink>
             {/* show loading indicator even after success, since we should be awaiting a page refresh */}
-            <Button type="submit" isLoading={isLoading}>
+            <Button type="submit" isLoading={isPending}>
               Submit
             </Button>
-            <LoginFormError error={error} isLoading={isLoading} />
+            <LoginFormError error={error} isLoading={isPending} />
           </Stack>
         </form>
       </Container>

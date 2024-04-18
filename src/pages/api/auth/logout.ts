@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { APP_DEFAULTS, sessionConfig } from '@/config';
+import { APP_DEFAULTS, getSessionConfig } from '@/config';
 import { configWithCSRF, fetchUserData, isValidToken } from '@/auth-utils';
 import { defaultRequestConfig } from '@/api/config';
 import axios, { AxiosResponse } from 'axios';
@@ -16,7 +16,7 @@ export interface ILogoutResponse {
 
 const log = logger.child({}, { msgPrefix: '[api/logout] ' });
 
-export default withIronSessionApiRoute(logout, sessionConfig);
+export default withIronSessionApiRoute(logout, getSessionConfig());
 
 async function logout(req: NextApiRequest, res: NextApiResponse<ILogoutResponse>) {
   if (req.method !== 'POST') {

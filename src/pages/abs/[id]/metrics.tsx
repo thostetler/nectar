@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 import { IDocsEntity, useGetAbstract } from '@/api/search';
 import { BasicStatsKey, CitationsStatsKey, MetricsResponseKey, useGetMetrics } from '@/api/metrics';
+import { keepPreviousData } from '@tanstack/react-query';
 
 const MetricsPage: NextPage = () => {
   const router = useRouter();
@@ -19,7 +20,7 @@ const MetricsPage: NextPage = () => {
     isError,
     isLoading,
     isSuccess,
-  } = useGetMetrics(doc?.bibcode, { enabled: !!doc?.bibcode, keepPreviousData: true });
+  } = useGetMetrics(doc?.bibcode, { enabled: !!doc?.bibcode, placeholderData: keepPreviousData });
 
   const hasCitations = isSuccess && metrics && metrics[MetricsResponseKey.CS][CitationsStatsKey.TNC] > 0;
   const hasReads = isSuccess && metrics && metrics[MetricsResponseKey.BS][BasicStatsKey.TNR] > 0;

@@ -3,6 +3,7 @@ import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import { MathJax } from 'better-react-mathjax';
 import { ReactElement, useState } from 'react';
 import { IDocsEntity, useGetAbstractPreview } from '@/api/search';
+import { keepPreviousData } from '@tanstack/react-query';
 
 export interface IAbstractPreviewProps {
   bibcode: IDocsEntity['bibcode'];
@@ -23,7 +24,7 @@ export const AbstractPreview = ({ bibcode }: IAbstractPreviewProps): ReactElemen
     { bibcode },
     {
       enabled: show,
-      keepPreviousData: true,
+      placeholderData: keepPreviousData,
       onError: () => {
         // show toast notification on error, and close drawer
         toast({ status: 'error', description: text.error });

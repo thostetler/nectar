@@ -218,7 +218,7 @@ export const deleteUserAccount: MutationFunction<IBasicAccountsResponse, unknown
   throw new Error('delete-account-failed');
 };
 
-export const useGetUserApiToken = (options?: UseQueryOptions<IBootstrapPayload>) => {
+export const useGetUserApiToken = (options?: Partial<UseQueryOptions<IBootstrapPayload>>) => {
   return useQuery({
     queryKey: userKeys.userApiToken(),
     queryFn: fetchUserApiToken,
@@ -264,7 +264,7 @@ export const useChangeUserEmail = (
   });
 };
 
-export const useGetUserSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>) => {
+export const useGetUserSettings = (options?: Partial<UseQueryOptions<IADSApiUserDataResponse>>) => {
   return useQuery({
     queryKey: userKeys.getUserSettings(),
     queryFn: fetchUserSettings,

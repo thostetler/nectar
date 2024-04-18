@@ -8,6 +8,7 @@ import { isEmpty, omit } from 'ramda';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { isNonEmptyArray, isNonEmptyString } from 'ramda-adjunct';
 import { FacetField, IADSApiSearchParams, IBucket, useGetSearchFacetJSON } from '@/api/search';
+import { keepPreviousData } from '@tanstack/react-query';
 
 export interface IUseGetFacetDataProps {
   field: FacetField;
@@ -69,7 +70,7 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
     },
     {
       enabled,
-      keepPreviousData: true,
+      placeholderData: keepPreviousData,
     },
   );
 

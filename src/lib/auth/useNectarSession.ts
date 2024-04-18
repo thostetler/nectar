@@ -1,5 +1,5 @@
 import { logger } from '@/logger';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import axios, { HttpStatusCode } from 'axios';
 import { AuthSession } from '@/pages/api/auth/session';
 import { pick } from 'ramda';
@@ -42,7 +42,7 @@ export const useNectarSession = () => {
     queryKey: ['session'],
     queryFn: fetchSession,
     retry: false,
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 
   useEffect(() => {

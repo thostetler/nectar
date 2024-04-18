@@ -53,7 +53,7 @@ export const CustomFormatsTabPanel = ({ sampleBib, dispatch }: ICustomFormatsTab
       customFormat: selectedFormat?.code ?? '',
       bibcode: [sampleBib],
     },
-    { enabled: !!sampleBib && selectedFormat !== null, cacheTime: 0 },
+    { enabled: !!sampleBib && selectedFormat !== null, gcTime: 0 },
   );
 
   useEffect(() => {

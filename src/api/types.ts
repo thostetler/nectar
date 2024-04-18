@@ -8,6 +8,8 @@ import {
   UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
+  UseSuspenseQueryOptions,
+  UseSuspenseQueryResult,
 } from '@tanstack/react-query';
 import { GetServerSidePropsContext } from 'next';
 
@@ -17,7 +19,18 @@ export type ADSQuery<
   TData = TQueryFnData,
   TResult = UseQueryResult<TData, Error | AxiosError>,
   TQueryKey extends QueryKey = QueryKey,
-> = (props: TProps, options?: UseQueryOptions<TQueryFnData, Error | AxiosError, TData, TQueryKey>) => TResult;
+> = (props: TProps, options?: Partial<UseQueryOptions<TQueryFnData, Error | AxiosError, TData, TQueryKey>>) => TResult;
+
+export type ADSSuspenseQuery<
+  TProps,
+  TQueryFnData = unknown,
+  TData = TQueryFnData,
+  TResult = UseSuspenseQueryResult<TData, Error | AxiosError>,
+  TQueryKey extends QueryKey = QueryKey,
+> = (
+  props: TProps,
+  options?: Partial<UseSuspenseQueryOptions<TQueryFnData, Error | AxiosError, TData, TQueryKey>>,
+) => TResult;
 
 export type InfiniteADSQuery<
   TProps,
@@ -28,7 +41,7 @@ export type InfiniteADSQuery<
   TQueryKey extends QueryKey = QueryKey,
 > = (
   props: TProps,
-  options?: UseInfiniteQueryOptions<TQueryFnData, Error | AxiosError, TData, TQueryData, TQueryKey>,
+  options?: Partial<UseInfiniteQueryOptions<TQueryFnData, Error | AxiosError, TData, TQueryData, TQueryKey, string>>,
 ) => TResult;
 
 export type ADSMutation<
@@ -37,7 +50,7 @@ export type ADSMutation<
   TVariables,
   TError = Error | AxiosError,
   TResult = UseMutationResult<TData, TError, TVariables>,
-> = (params?: TParams, options?: UseMutationOptions<TData, TError, TVariables>) => TResult;
+> = (params?: TParams, options?: Partial<UseMutationOptions<TData, TError, TVariables>>) => TResult;
 
 export type QueryFunctionSsr<T = unknown, TQueryKey extends QueryKey = QueryKey> = (
   context: QueryFunctionContext<TQueryKey>,

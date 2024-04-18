@@ -1,14 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { omit } from 'ramda';
-import {
-  MutationFunction,
-  QueryFunction,
-  QueryFunctionContext,
-  QueryKey,
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-} from '@tanstack/react-query';
+import { MutationFunction, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 import {
   defaultParams,
   getAbstractParams,
@@ -323,20 +315,17 @@ export const useGetSearchFacetJSON: SearchADSQuery<IADSApiSearchParams, IADSApiS
   });
 };
 
-export const useSearchInfinite: InfiniteADSQuery<IADSApiSearchParams, IADSApiSearchResponse & { pageParam: string }> = (
-  params,
-  options,
-) => {
+export const useSearchInfinite: InfiniteADSQuery<IADSApiSearchParams, IADSApiSearchResponse> = (params, options) => {
   return useInfiniteQuery({
     queryKey: searchKeys.infinite(params),
-    queryFn: fetchSearchInfinite,
-    getNextPageParam: (lastPage) => {
+    initialPageParam: '*',
+    queryFn: ({ pageParam }) => fetchSearchInfinite(params, pageParam),
+    getNextPageParam: (lastPage, allPages, lastPageParam) => {
       // check if cursormark is same as we sent and that we didn't receive all of them in the first request
-      return lastPage.response.numFound > params.rows && lastPage.nextCursorMark !== lastPage.pageParam
+      return lastPage.response.numFound > params.rows && lastPage.nextCursorMark !== lastPageParam
         ? lastPage.nextCursorMark
-        : false;
+        : null;
     },
-    meta: { ...options?.meta, params },
     ...options,
   });
 };
@@ -403,16 +392,17 @@ export const fetchSearch: QueryFunctionSsr<IADSApiSearchResponse> = async ({ met
   return data;
 };
 
-export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pageParam: string }> = async ({
-  meta,
-  pageParam = '*',
-}: QueryFunctionContext<QueryKey, string>) => {
-  const { params } = meta as { params: IADSApiSearchParams };
-
+export const fetchSearchInfinite = async (params: IADSApiSearchParams, pageParam: string) => {
   const finalParams = { ...params };
   if (isString(params.q) && params.q.includes('object:')) {
     const { query } = await resolveObjectQuery({ query: params.q });
     finalParams.q = query;
+  }
+
+  // If the sort is by citation count, then add stats field
+  if (/^citation_count(_norm)?/.test(params.sort[0])) {
+    finalParams.stats = true;
+    finalParams['stats.field'] = params.sort[0].replace(/\s(asc|desc)$/, '');
   }
 
   const config: ApiRequestConfig = {
@@ -425,5 +415,5 @@ export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pagePa
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
 
-  return { ...data, pageParam };
+  return data;
 };

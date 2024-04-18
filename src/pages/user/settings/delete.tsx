@@ -20,7 +20,7 @@ const DeleteAccountPage = () => {
     mutate: deleteAccount,
     error,
     isError,
-    isLoading,
+    isPending,
   } = useDeleteAccount({
     onSuccess: () => logout(),
   });
@@ -47,7 +47,7 @@ const DeleteAccountPage = () => {
           <Text>
             Your current email is: <chakra.span fontWeight="bold">{storeEmail}</chakra.span>
           </Text>
-          <FormControl isRequired isInvalid={formError?.param === 'email'} isDisabled={isLoading}>
+          <FormControl isRequired isInvalid={formError?.param === 'email'} isDisabled={isPending}>
             <FormLabel>Confirm your email</FormLabel>
             <Input
               type="email"
@@ -63,7 +63,7 @@ const DeleteAccountPage = () => {
             title="This action cannot be reversed"
             description="You will lose access to saved libraries"
           />
-          <Button variant="warning" size="md" type="submit" isLoading={isLoading}>
+          <Button variant="warning" size="md" type="submit" isLoading={isPending}>
             Delete My Account
           </Button>
           {isError ? (

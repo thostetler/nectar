@@ -22,7 +22,7 @@ const ForgotPassword: NextPage = () => {
   const { ref, ...registerEmail } = register('email', { required: true });
   const [emailRef] = useFocus();
 
-  const { mutate: submit, data, isError, isLoading, error } = useForgotPassword();
+  const { mutate: submit, data, isError, isPending, error } = useForgotPassword();
 
   const onFormSubmit: SubmitHandler<IUserForgotPasswordCredentials> = useCallback(
     async (params) => {
@@ -67,7 +67,7 @@ const ForgotPassword: NextPage = () => {
                 {...registerEmail}
               />
             </FormControl>
-            <Button type="submit" isLoading={isLoading}>
+            <Button type="submit" isLoading={isPending}>
               Submit
             </Button>
             {isError && (

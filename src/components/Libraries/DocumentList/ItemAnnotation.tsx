@@ -97,11 +97,11 @@ const Annotation = ({
   onUpdate: () => void;
   canEdit: boolean;
 }) => {
-  const { mutate: deleteNote, isLoading: isDeleting } = useDeleteAnnotation();
+  const { mutate: deleteNote, isPending: isDeleting } = useDeleteAnnotation();
 
-  const { mutate: addNote, isLoading: isAdding } = useAddAnnotation();
+  const { mutate: addNote, isPending: isAdding } = useAddAnnotation();
 
-  const { mutate: updateNode, isLoading: isUpdating } = useUpdateAnnotation();
+  const { mutate: updateNode, isPending: isUpdating } = useUpdateAnnotation();
 
   const [noteValue, setNoteValue] = useState(note);
 

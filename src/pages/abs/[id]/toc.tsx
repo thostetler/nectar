@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { path } from 'ramda';
 import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 import { getTocParams, IDocsEntity, useGetAbstract, useGetToc } from '@/api/search';
+import { keepPreviousData } from '@tanstack/react-query';
 
 const VolumePage: NextPage = () => {
   const router = useRouter();
@@ -18,7 +19,7 @@ const VolumePage: NextPage = () => {
 
   const { data, isSuccess } = useGetToc(getParams(), {
     enabled: !!getParams && !!doc?.bibcode,
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 
   const tocParams = useMemo(() => {

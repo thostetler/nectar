@@ -47,7 +47,7 @@ export const useRemoveWorks = (
         const deleted = getFulfilled(data);
 
         if (deleted.length > 0 && isValidIOrcidUser(user)) {
-          const match = qc.getQueryCache().find(queryKey, { type: 'active' });
+          const match = qc.getQueryCache().find({ queryKey, type: 'active' });
           let invalidate = false;
           if (match) {
             qc.setQueryData<IOrcidProfile>(queryKey, (currentProfile) => {
@@ -89,10 +89,10 @@ export const useRemoveWorks = (
   );
 
   useEffect(() => {
-    if (putcodesToRemove.length > 0 && !result.isLoading) {
+    if (putcodesToRemove.length > 0 && !result.isPending) {
       mutate({ putcodes: putcodesToRemove }, mutationOptions);
     }
-  }, [putcodesToRemove, mutate, mutationOptions, result.isLoading]);
+  }, [putcodesToRemove, mutate, mutationOptions, result.isPending]);
 
   return {
     removeWorks,

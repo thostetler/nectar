@@ -1,14 +1,14 @@
 import { AxiosError } from 'axios';
 import { chain } from 'ramda';
 import { useEffect, useState } from 'react';
-import { InfiniteData, UseInfiniteQueryOptions, useQueryClient } from '@tanstack/react-query';
+import { InfiniteData, keepPreviousData, UseInfiniteQueryOptions, useQueryClient } from '@tanstack/react-query';
 import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, searchKeys, useSearchInfinite } from '@/api/search';
 
 const DELAY_BETWEEN_REQUESTS = 500;
 
 export interface IUseBatchedSearchProps<T> {
   batches: number;
-  transformResponses?: (res: IADSApiSearchResponse & { pageParam: string }) => T[];
+  transformResponses?: (res: IADSApiSearchResponse) => T[];
   intervalDelay?: number;
 }
 
@@ -22,7 +22,7 @@ const defaultTransformer: IUseBatchedSearchProps<IDocsEntity>['transformResponse
 export const useBatchedSearch = <T = unknown>(
   params: IADSApiSearchParams & Required<Pick<IADSApiSearchParams, 'q' | 'rows'>>,
   props: IUseBatchedSearchProps<T>,
-  options?: UseInfiniteQueryOptions<IADSApiSearchResponse & { pageParam: string }, Error | AxiosError>,
+  options?: Partial<UseInfiniteQueryOptions<IADSApiSearchResponse, Error | AxiosError>>,
 ) => {
   const { batches, transformResponses = defaultTransformer, intervalDelay = DELAY_BETWEEN_REQUESTS } = props;
   const queryClient = useQueryClient();
@@ -30,13 +30,9 @@ export const useBatchedSearch = <T = unknown>(
 
   const [count, setCount] = useState(() => {
     // check cache on mount to see if we find any data
-    const cachedSearchTuple = queryClient.getQueryData<
-      InfiniteData<
-        IADSApiSearchResponse & {
-          pageParam: string;
-        }
-      >
-    >(searchKeys.infinite(params));
+    const cachedSearchTuple = queryClient.getQueryData<InfiniteData<IADSApiSearchResponse>>(
+      searchKeys.infinite(params),
+    );
 
     // if found then set our count with the updated value,
     // otherwise the page will continue from where it left off
@@ -49,7 +45,7 @@ export const useBatchedSearch = <T = unknown>(
 
   const { data, isFetchingNextPage, fetchNextPage, hasNextPage, status, ...rest } = useSearchInfinite(params, {
     ...options,
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
     enabled: count > 0,
   });
 

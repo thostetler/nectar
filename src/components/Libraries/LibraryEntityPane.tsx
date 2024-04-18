@@ -106,7 +106,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
       rows: pageSize,
       sort: sort,
     },
-    { cacheTime: 0, staleTime: 0 },
+    { gcTime: 0, staleTime: 0 },
   );
 
   const colors = useColorModeColors();
@@ -115,7 +115,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
 
   const canWrite = ['owner', 'admin', 'write'].includes(library?.metadata.permission);
 
-  const { mutate: fetchDocuments, isLoading: isLoadingDocs, error: errorFetchingDocs } = useBigQuerySearch();
+  const { mutate: fetchDocuments, isPending: isLoadingDocs, error: errorFetchingDocs } = useBigQuerySearch();
 
   useEffect(() => {
     if (documents?.documents) {

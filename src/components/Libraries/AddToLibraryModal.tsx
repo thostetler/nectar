@@ -48,9 +48,9 @@ export const AddToLibraryModal = ({
 
   const clearSelections = useStore((state) => state.clearSelected);
 
-  const { mutate: editDocs, isLoading: isEditingDocs } = useEditLibraryDocuments();
+  const { mutate: editDocs, isPending: isEditingDocs } = useEditLibraryDocuments();
 
-  const { mutate: addDocsByQuery, isLoading: isAddingDocs } = useAddDocumentsByQuery();
+  const { mutate: addDocsByQuery, isPending: isAddingDocs } = useAddDocumentsByQuery();
 
   const toast = useToast({
     duration: 2000,
@@ -229,7 +229,7 @@ const AddToNewLibraryPane = ({
     handleSubmit,
   } = formMethods;
 
-  const { mutate: addLibrary, isLoading: isAddingLib } = useAddLibrary();
+  const { mutate: addLibrary, isPending: isAddingLib } = useAddLibrary();
 
   const toast = useToast({
     duration: 2000,

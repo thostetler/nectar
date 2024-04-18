@@ -32,7 +32,7 @@ export const LibrarySelector = ({
       sort: sort.col,
       order: sort.dir,
     },
-    { cacheTime: 0, staleTime: 0 },
+    { gcTime: 0, staleTime: 0 },
   );
 
   const libraries = useMemo(() => {
@@ -42,7 +42,7 @@ export const LibrarySelector = ({
   }, [librariesData]);
 
   // TODO: temp query to get all libraries so we can get count
-  const { data: all } = useGetLibraries({}, { cacheTime: 0, staleTime: 0 });
+  const { data: all } = useGetLibraries({}, { gcTime: 0, staleTime: 0 });
 
   const entries = useMemo(() => {
     return all?.libraries ? all.libraries.length : 0;

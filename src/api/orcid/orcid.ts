@@ -48,7 +48,7 @@ export const useOrcidExchangeToken: OrcidQuery<'exchangeToken'> = (params, optio
     queryKey: orcidKeys.exchangeToken(params),
     queryFn: fetchExchangeToken,
     meta: { params },
-    cacheTime: 0,
+    gcTime: 0,
     staleTime: 0,
     ...options,
   });

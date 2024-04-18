@@ -83,7 +83,7 @@ const General: NextPage = () => {
     handleSubmit,
   } = formMethods;
 
-  const { mutate, isLoading } = useFeedback();
+  const { mutate, isPending } = useFeedback();
 
   const router = useRouter();
 
@@ -212,10 +212,10 @@ const General: NextPage = () => {
           </FormControl>
 
           <HStack mt={2}>
-            <Button type="submit" isLoading={isLoading}>
+            <Button type="submit" isLoading={isPending}>
               Submit
             </Button>
-            <Button type="reset" variant="outline" isDisabled={isLoading} onClick={handleReset}>
+            <Button type="reset" variant="outline" isDisabled={isPending} onClick={handleReset}>
               Reset
             </Button>
           </HStack>

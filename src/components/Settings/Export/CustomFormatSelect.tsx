@@ -3,7 +3,7 @@ import { Select } from '@/components';
 import { useSettings } from '@/lib/useSettings';
 
 export const CustomFormatSelect = ({ onChange }: { onChange: (id: string) => void }) => {
-  const { settings } = useSettings({ cacheTime: 0 });
+  const { settings } = useSettings({ gcTime: 0 });
   const customFormats = settings.customFormats;
 
   // custom formats to options

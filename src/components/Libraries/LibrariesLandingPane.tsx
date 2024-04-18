@@ -13,12 +13,14 @@ import { OperationModal } from './OperationModal';
 import { TableSkeleton } from './TableSkeleton';
 import {
   IADSApiLibraryOperationParams,
+  librariesKeys,
   LibraryIdentifier,
   LibraryType,
   useAddLibrary,
   useGetLibraries,
   useLibraryOperation,
 } from '@/api/biblib';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const LibrariesLandingPane = () => {
   const router = useRouter();
@@ -41,33 +43,31 @@ export const LibrariesLandingPane = () => {
 
   const { isOpen: isOperationOpen, onOpen: onOperationOpen, onClose: onOperationClose } = useDisclosure();
 
-  // query all libraries
-  const {
-    data: librariesData,
-    isLoading,
-    refetch,
-    remove,
-  } = useGetLibraries({
+  const librariesParams = {
     start: pageIndex * pageSize,
     rows: pageSize,
     sort: sort.col,
     order: sort.dir,
     access_type: libraryType,
-  });
+  };
+
+  // query all libraries
+  const { data: librariesData, isLoading, refetch } = useGetLibraries(librariesParams);
 
   const libraries = librariesData?.libraries ?? [];
 
   const count = librariesData?.count ?? 0;
 
   // add library
-  const { mutate: addLibrary, isLoading: isAddingLibrary } = useAddLibrary();
+  const { mutate: addLibrary, isPending: isAddingLibrary } = useAddLibrary();
 
   // library operation
-  const { mutate: operateLibrary, isLoading: isOperatingLibrary } = useLibraryOperation();
+  const { mutate: operateLibrary, isPending: isOperatingLibrary } = useLibraryOperation();
 
   // only if libraries updated and need to clear cache
+  const qc = useQueryClient();
   const refresh = () => {
-    remove();
+    qc.removeQueries({ queryKey: librariesKeys.libraries(librariesParams) });
     void refetch();
   };
 

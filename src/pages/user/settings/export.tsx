@@ -147,7 +147,7 @@ const ExportSettings = () => {
 
   // fetch the sample bibcode
   const sampleBibParams = getSearchParams({ q: 'bibstem:ApJ author_count:[10 TO 20]', rows: 1 });
-  const { data } = useSearch(sampleBibParams, { suspense: true });
+  const { data } = useSearch(sampleBibParams);
   const sampleBib = pathOr<string>(null, ['docs', '0', 'bibcode'], data);
 
   return (

@@ -22,7 +22,7 @@ const ChangePasswordPage = () => {
   } = useForm({
     defaultValues: initialParams,
   });
-  const { mutate: submit, isLoading, isError, error, data } = useChangeUserPassword();
+  const { mutate: submit, isPending, isError, error, data } = useChangeUserPassword();
   const { ref, ...registerProps } = register('currentPassword', { required: true });
   const [currentPasswordRef] = useFocus();
 
@@ -72,7 +72,7 @@ const ChangePasswordPage = () => {
             />
             {!!errors.confirmPassword && <FormErrorMessage>Passwords do not match</FormErrorMessage>}
           </FormControl>
-          <Button type="submit" isLoading={isLoading}>
+          <Button type="submit" isLoading={isPending}>
             Submit
           </Button>
         </Stack>

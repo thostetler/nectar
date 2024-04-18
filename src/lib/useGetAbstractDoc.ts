@@ -1,6 +1,7 @@
 import { useGetAbstract } from '@/api/search';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import { keepPreviousData } from '@tanstack/react-query';
 
 /**
  * helper hook for getting hold of the primary doc
@@ -10,7 +11,7 @@ export const useGetAbstractDoc = (id?: string) => {
   const docId = typeof id === 'string' ? id : Array.isArray(router.query.id) ? router.query.id[0] : router.query.id;
 
   // this *should* only ever fetch from pre-filled cache
-  const { data, ...res } = useGetAbstract({ id: docId }, { keepPreviousData: true });
+  const { data, ...res } = useGetAbstract({ id: docId }, { placeholderData: keepPreviousData });
 
   const doc = data?.docs?.[0] ?? {};
 

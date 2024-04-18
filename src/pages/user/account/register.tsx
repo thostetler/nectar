@@ -33,7 +33,7 @@ const initialParams: IUserRegistrationCredentials = { email: '', password: '', c
 const Register: NextPage = () => {
   const { executeRecaptcha } = useGoogleReCaptcha();
   const redirect = useRedirectWithNotification();
-  const { mutate: submit, data, isError, isLoading, error } = useRegisterUser();
+  const { mutate: submit, data, isError, isPending, error } = useRegisterUser();
   const {
     register,
     handleSubmit,
@@ -125,7 +125,7 @@ const Register: NextPage = () => {
               />
               {!!errors.confirmPassword && <FormErrorMessage>Passwords do not match</FormErrorMessage>}
             </FormControl>
-            <Button type="submit" isLoading={isLoading}>
+            <Button type="submit" isLoading={isPending}>
               Submit
             </Button>
             <Text alignSelf="center">

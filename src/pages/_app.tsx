@@ -11,7 +11,7 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
 import { FC, memo, ReactElement, useEffect, useMemo } from 'react';
-import { DehydratedState, Hydrate } from '@tanstack/react-query';
+import { DehydratedState, HydrationBoundary } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
@@ -64,7 +64,7 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
           <ChakraProvider theme={theme}>
             <StoreProvider createStore={createStore}>
               <QCProvider>
-                <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
+                <HydrationBoundary state={pageProps.dehydratedState}>{children}</HydrationBoundary>
                 <ReactQueryDevtools />
               </QCProvider>
             </StoreProvider>

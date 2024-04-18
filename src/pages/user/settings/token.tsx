@@ -35,7 +35,7 @@ const ApiTokenPage = () => {
   const {
     mutate: generateToken,
     isError,
-    isLoading,
+    isPending,
   } = useGenerateNewApiToken({
     onSuccess: (data) => {
       // update the query cache
@@ -92,7 +92,7 @@ const ApiTokenPage = () => {
             })}
           >
             <Suspense fallback={<Spinner />}>
-              <TokenArea onGenerate={onOpen} isLoading={isLoading} />
+              <TokenArea onGenerate={onOpen} isLoading={isPending} />
             </Suspense>
           </ErrorBoundary>
         )}
@@ -103,7 +103,7 @@ const ApiTokenPage = () => {
 
 const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
   const { isLoading, onGenerate } = props;
-  const { data } = useGetUserApiToken({ suspense: true, retry: false });
+  const { data } = useGetUserApiToken({ retry: false });
 
   if (data && data?.message === 'no ADS API client found') {
     return (

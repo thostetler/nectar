@@ -48,6 +48,7 @@ import {
 import { useGetAuthors } from './useGetAuthors';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { IADSApiSearchParams, IDocsEntity, useGetAffiliations } from '@/api/search';
+import { keepPreviousData } from '@tanstack/react-query';
 
 export interface IAllAuthorsModalProps {
   bibcode: IDocsEntity['bibcode'];
@@ -82,21 +83,24 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
   };
 
   // get list of authors/affiliations
-  const { data, isSuccess, isFetching } = useGetAffiliations(
+  const { data, isSuccess, isFetching, isError } = useGetAffiliations(
     { bibcode },
     {
       enabled: isOpen,
-      keepPreviousData: true,
-      onError: () => {
-        toast({
-          title: 'Error',
-          description: 'Could not fetch author information, please try again',
-          status: 'error',
-        });
-        onClose();
-      },
+      placeholderData: keepPreviousData,
     },
   );
+
+  useEffect(() => {
+    if (isError) {
+      toast({
+        title: 'Error',
+        description: 'Could not fetch author information, please try again',
+        status: 'error',
+      });
+      onClose();
+    }
+  }, [isError]);
 
   return (
     <>

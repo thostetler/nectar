@@ -5,10 +5,10 @@ import { useIsClient } from '@/lib/useIsClient';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { last } from 'ramda';
-import { useSettings } from '@/lib/useSettings';
 import { useBackToSearchResults } from '@/lib/useBackToSearchResults';
 import { ExportApiFormatKey } from '@/api/export';
 import { IADSApiSearchParams, useSearchInfinite } from '@/api/search';
+import { useSettings } from '@/lib/useSettings';
 
 interface IExportCitationPageProps {
   format: ExportApiFormatKey;
@@ -24,9 +24,7 @@ const ExportCitationPage: NextPage<IExportCitationPageProps> = (props) => {
   const isClient = useIsClient();
 
   // get export related user settings
-  const { settings } = useSettings({
-    suspense: false,
-  });
+  const { settings } = useSettings();
 
   const { keyformat, journalformat, authorcutoff, maxauthor } =
     format === ExportApiFormatKey.bibtexabs

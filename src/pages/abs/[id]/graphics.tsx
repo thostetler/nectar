@@ -9,6 +9,7 @@ import { path } from 'ramda';
 import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 import { IDocsEntity, useGetAbstract } from '@/api/search';
 import { useGetGraphics } from '@/api/graphics';
+import { keepPreviousData } from '@tanstack/react-query';
 
 const GraphicsPage: NextPage = () => {
   const router = useRouter();
@@ -20,7 +21,7 @@ const GraphicsPage: NextPage = () => {
     isLoading,
     isError,
     isSuccess,
-  } = useGetGraphics(doc?.bibcode, { enabled: !!doc?.bibcode, keepPreviousData: true, retry: false });
+  } = useGetGraphics(doc?.bibcode, { enabled: !!doc?.bibcode, placeholderData: keepPreviousData, retry: false });
   return (
     <AbsLayout doc={doc} titleDescription="Graphics from">
       <Head>

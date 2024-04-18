@@ -78,7 +78,7 @@ class Api {
           queryKey: ['session'],
           queryFn: fetchSession,
           retry: false,
-          cacheTime: 24 * 60 * 60 * 1000, // 24 hours
+          gcTime: 24 * 60 * 60 * 1000, // 24 hours
         });
       }
     } catch (error) {
@@ -98,7 +98,7 @@ class Api {
             queryKey: ['session'],
             queryFn: fetchSession,
             retry: false,
-            cacheTime: 24 * 60 * 60 * 1000, // 24 hours
+            gcTime: 24 * 60 * 60 * 1000, // 24 hours
           });
         } catch (error) {
           log.error({ msg: 'Error fetching session', error });

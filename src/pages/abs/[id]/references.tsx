@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { path } from 'ramda';
 import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 import { getReferencesParams, IDocsEntity, useGetAbstract, useGetReferences } from '@/api/search';
+import { keepPreviousData } from '@tanstack/react-query';
 
 const ReferencesPage: NextPage = () => {
   const router = useRouter();
@@ -15,7 +16,11 @@ const ReferencesPage: NextPage = () => {
   const doc = path<IDocsEntity>(['docs', 0], abstractDoc);
 
   const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
-  const { data, isSuccess, error: referencesError } = useGetReferences(getParams(), { keepPreviousData: true });
+  const {
+    data,
+    isSuccess,
+    error: referencesError,
+  } = useGetReferences(getParams(), { placeholderData: keepPreviousData });
   const referencesParams = getReferencesParams(doc?.bibcode, 0);
 
   return (

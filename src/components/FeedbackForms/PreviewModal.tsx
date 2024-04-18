@@ -37,7 +37,7 @@ export const PreviewModal = (props: IPreviewProps) => {
   const { executeRecaptcha } = useGoogleReCaptcha();
   const [formError, setFormError] = useState<Error | string | null>(null);
 
-  const { mutate, isLoading } = useFeedback();
+  const { mutate, isPending } = useFeedback();
 
   const colors = useColorModeColors();
 
@@ -70,7 +70,7 @@ export const PreviewModal = (props: IPreviewProps) => {
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>{title}</ModalHeader>
-        <ModalCloseButton isDisabled={isLoading} />
+        <ModalCloseButton isDisabled={isPending} />
         <ModalBody>
           <Flex direction="column" gap={4}>
             <Text fontWeight="semibold">Submitter:</Text>
@@ -90,10 +90,10 @@ export const PreviewModal = (props: IPreviewProps) => {
         <ModalFooter backgroundColor="transparent" justifyContent="start" gap={1}>
           <Flex direction={{ base: 'column' }}>
             <HStack>
-              <Button onClick={handleSubmit} isLoading={isLoading}>
+              <Button onClick={handleSubmit} isLoading={isPending}>
                 Submit
               </Button>
-              <Button onClick={onClose} variant="outline" isDisabled={isLoading}>
+              <Button onClick={onClose} variant="outline" isDisabled={isPending}>
                 Back
               </Button>
             </HStack>

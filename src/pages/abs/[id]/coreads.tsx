@@ -6,6 +6,7 @@ import Head from 'next/head';
 import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 import { useRouter } from 'next/router';
 import { getCoreadsParams, useGetAbstract, useGetCoreads } from '@/api/search';
+import { keepPreviousData } from '@tanstack/react-query';
 
 const CoreadsPage: NextPage = () => {
   const router = useRouter();
@@ -14,7 +15,7 @@ const CoreadsPage: NextPage = () => {
 
   const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
 
-  const { data, isSuccess } = useGetCoreads(getParams(), { keepPreviousData: true });
+  const { data, isSuccess } = useGetCoreads(getParams(), { placeholderData: keepPreviousData });
   const coreadsParams = getCoreadsParams(doc?.bibcode, 0);
 
   return (

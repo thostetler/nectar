@@ -7,6 +7,7 @@ import { path } from 'ramda';
 import { useRouter } from 'next/router';
 import { getDetailsPageTitle } from '@/pages/abs/[id]/abstract';
 import { getSimilarParams, IDocsEntity, useGetAbstract, useGetSimilar } from '@/api/search';
+import { keepPreviousData } from '@tanstack/react-query';
 
 const SimilarPage: NextPage = () => {
   const router = useRouter();
@@ -14,7 +15,7 @@ const SimilarPage: NextPage = () => {
   const doc = path<IDocsEntity>(['docs', 0], abstractResult);
 
   const { getParams, onPageChange } = useGetAbstractParams(doc?.bibcode);
-  const { data, isSuccess } = useGetSimilar(getParams(), { keepPreviousData: true });
+  const { data, isSuccess } = useGetSimilar(getParams(), { placeholderData: keepPreviousData });
   const similarParams = getSimilarParams(doc?.bibcode, 0);
 
   return (

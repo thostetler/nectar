@@ -17,9 +17,7 @@ const ExportCitationPage: NextPage = () => {
   const doc = path<IDocsEntity>(['docs', 0], data);
 
   // get export related user settings
-  const { settings } = useSettings({
-    suspense: false,
-  });
+  const { settings } = useSettings();
 
   const { keyformat, journalformat, authorcutoff, maxauthor } =
     format === ExportApiFormatKey.bibtexabs

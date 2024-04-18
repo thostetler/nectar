@@ -9,7 +9,7 @@ export interface IResourceUrl {
 }
 interface IUseResourceLinksProps {
   identifier: string;
-  options?: UseQueryOptions<IResourceUrl[]>;
+  options?: Partial<UseQueryOptions<IResourceUrl[]>>;
 }
 
 const SKIP_URLS = [
@@ -25,9 +25,9 @@ export const useGetResourceLinks = ({ identifier, options }: IUseResourceLinksPr
   // url regex, skip internal links
   const reg = /href="(https?:\/\/[^"]*)"/gi;
 
-  const data = useQuery<IResourceUrl[]>(
-    ['resourceLink', identifier],
-    async () => {
+  const data = useQuery<IResourceUrl[]>({
+    queryKey: ['resourceLink', identifier],
+    queryFn: async () => {
       const res = await fetch(url);
       const raw = await res.text();
       if (!!raw) {
@@ -54,7 +54,7 @@ export const useGetResourceLinks = ({ identifier, options }: IUseResourceLinksPr
       }
       return [] as IResourceUrl[];
     },
-    options,
-  );
+    ...options,
+  });
   return data;
 };

@@ -1,6 +1,6 @@
 import { AppState } from '@/store';
 import { withIronSessionSsr } from 'iron-session/next';
-import { sessionConfig } from '@/config';
+import { getSessionConfig } from '@/config';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { parseAPIError } from '@/utils';
 import { logger } from '@/logger';
@@ -77,4 +77,4 @@ export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
       ssrProps = { ...ssrProps, ...result, props };
     }
     return ssrProps;
-  }, sessionConfig);
+  }, getSessionConfig());

@@ -13,7 +13,7 @@ const UpdateEmailPage = () => {
     defaultValues: { email: '', password: '' },
   });
   const { ref: emailRef, ...emailRegisterProps } = register('email', { required: true });
-  const { mutate: submit, error, isError, isLoading, data } = useChangeUserEmail();
+  const { mutate: submit, error, isError, isPending, data } = useChangeUserEmail();
   const [mainInputRef] = useFocus();
 
   const onFormSubmit: SubmitHandler<IUserChangeEmailCredentials> = (params) => {
@@ -48,7 +48,7 @@ const UpdateEmailPage = () => {
             <PasswordTextInput name="password" id="password" {...register('password', { required: true })} />
           </FormControl>
 
-          <Button type="submit" isLoading={isLoading}>
+          <Button type="submit" isLoading={isPending}>
             Submit
           </Button>
           {isError && (
