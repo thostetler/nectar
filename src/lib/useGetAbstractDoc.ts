@@ -1,7 +1,6 @@
 import { useGetAbstract } from '@/api/search';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { logger } from '@/logger';
 
 /**
  * helper hook for getting hold of the primary doc
@@ -10,19 +9,18 @@ export const useGetAbstractDoc = (id?: string) => {
   const router = useRouter();
   const docId = typeof id === 'string' ? id : Array.isArray(router.query.id) ? router.query.id[0] : router.query.id;
 
-  logger.debug({ msg: 'useGetAbstractDoc', docId });
   // this *should* only ever fetch from pre-filled cache
   const { data, ...res } = useGetAbstract({ id: docId }, { keepPreviousData: true });
 
-  logger.debug({ msg: 'useGetAbstractDoc', data, ...res });
-
   const doc = data?.docs?.[0] ?? {};
 
+  // If the url has a non-bibcode identifier, then update with the correct bibcode
   useEffect(() => {
-    if (doc?.bibcode) {
-      void router.replace(`/abs/${doc.bibcode}/abstract`, null, { shallow: true });
+    if (doc?.bibcode && docId !== doc.bibcode) {
+      const newUrl = router.pathname.replace('[id]', doc.bibcode);
+      void router.replace(newUrl, newUrl, { shallow: true });
     }
-  }, [doc?.bibcode]);
+  }, [doc?.bibcode, docId, router.pathname]);
 
   return { doc, data, ...res };
 };

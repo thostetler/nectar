@@ -1,6 +1,7 @@
 import { edgeLogger } from 'logger/logger';
 // eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
+import { botCheck } from '@/middlewares/botCheck';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
@@ -82,16 +83,16 @@ const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
 const PROTECTED_ROUTES = ['/user/settings', '/user/libraries'];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   log.info({
     msg: 'Request',
     method: request.method,
     url: request.nextUrl.toString(),
   });
 
-  // const res = await initSession(req, NextResponse.next());
-
   const res = NextResponse.next({ request });
+
+  await botCheck(request, res);
 
   return res;
 

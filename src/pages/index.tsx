@@ -1,6 +1,6 @@
 import { IADSApiSearchParams } from '@/api/search/types';
 import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
-import { Box, Center, Flex, Heading, Spinner, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
+import { Box, Center, Flex, Heading, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
 import { IPagerProps, ISearchExamplesProps, SearchBar, SearchExamplesPlaceholder, SimpleLink } from '@/components';
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
@@ -20,11 +20,7 @@ const SearchExamples = dynamic<ISearchExamplesProps>(
 );
 const Pager = dynamic<IPagerProps>(() => import('@/components/Pager').then((m) => m.Pager), {
   ssr: false,
-  loading: () => (
-    <Center>
-      <Spinner />
-    </Center>
-  ),
+  loading: () => <SearchExamplesPlaceholder />,
 });
 
 const HomePage: NextPage = () => {

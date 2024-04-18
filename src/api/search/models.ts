@@ -30,10 +30,12 @@ export const defaultParams: IADSApiSearchParams = {
   rows: APP_DEFAULTS.RESULT_PER_PAGE,
 };
 
-export const getSearchParams = (params: IADSApiSearchParams): IADSApiSearchParams => ({
-  ...defaultParams,
-  ...params,
-});
+export const getSearchParams = (params: IADSApiSearchParams): IADSApiSearchParams => {
+  return {
+    ...defaultParams,
+    ...params,
+  };
+};
 
 export const getCitationsParams = (bibcode: IDocsEntity['bibcode'], start: number): IADSApiSearchParams => ({
   ...defaultParams,

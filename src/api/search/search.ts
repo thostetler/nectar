@@ -21,7 +21,6 @@ import {
   getSearchFacetJSONParams,
   getSearchFacetParams,
   getSearchParams,
-  getSearchStatsParams,
   getSimilarParams,
   getSingleRecordParams,
   getTocParams,
@@ -42,7 +41,6 @@ type SearchADSQuery<P = IADSApiSearchParams, R = IADSApiSearchResponse['response
 >;
 
 export const responseSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['response'] => data.response;
-export const statsSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['stats'] => data.stats;
 export const facetCountSelector = (data: IADSApiSearchResponse): IADSApiSearchResponse['facet_counts'] =>
   data.facet_counts;
 export const highlightingSelector = (
@@ -100,6 +98,27 @@ export const useSearch: SearchADSQuery = (params, options) => {
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
+    retry: (failCount, error): boolean => {
+      return axios.isAxiosError(error) && error.response?.status !== 400;
+    },
+    ...options,
+  });
+};
+
+export const useCitationStats: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse['stats']> = (
+  params,
+  options,
+) => {
+  // omit fields from queryKey
+  const cleanParams = omitParams(getSearchParams(params));
+
+  // stats are added to the query depending on sort type, so we can just use the primary
+  return useQuery({
+    queryKey: searchKeys.primary(cleanParams),
+    queryHash: JSON.stringify(searchKeys.primary(cleanParams)),
+    queryFn: fetchSearch,
+    meta: { params },
+    select: (data) => data.stats,
     retry: (failCount, error): boolean => {
       return axios.isAxiosError(error) && error.response?.status !== 400;
     },
@@ -253,36 +272,6 @@ export const useGetSingleRecord: SearchADSQuery<{ id: string }> = ({ id }, optio
   });
 };
 
-/**
- * Get search stats based on a solr query
- *
- * *only runs if sort is `citation_count` or `citation_count_norm`*
- */
-export const useGetSearchStats: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse['stats']> = (
-  params,
-  options,
-) => {
-  const isCitationSort =
-    Array.isArray(params.sort) && params.sort.length > 0 && /^citation_count(_norm)?/.test(params.sort[0]);
-
-  const searchParams = getSearchStatsParams(
-    params,
-    params['stats.field'] ? params['stats.field'] : isCitationSort ? params.sort[0] : '',
-  );
-
-  // omit fields from queryKey
-  const { fl, ...cleanParams } = searchParams;
-
-  return useQuery({
-    queryKey: searchKeys.stats(cleanParams),
-    queryFn: fetchSearch,
-    meta: { params: searchParams },
-    enabled: isCitationSort,
-    select: statsSelector,
-    ...options,
-  });
-};
-
 export const useGetSearchFacetCounts: SearchADSQuery<IADSApiSearchParams, IADSApiSearchResponse['facet_counts']> = (
   params,
   options,
@@ -392,6 +381,12 @@ export const fetchSearch: QueryFunctionSsr<IADSApiSearchResponse> = async ({ met
   if (isString(params.q) && params.q.includes('object:')) {
     const { query } = await resolveObjectQuery({ query: params.q });
     finalParams.q = query;
+  }
+
+  // If the sort is by citation count, then add stats field
+  if (/^citation_count(_norm)?/.test(params.sort[0])) {
+    finalParams.stats = true;
+    finalParams['stats.field'] = params.sort[0].replace(/\s(asc|desc)$/, '');
   }
 
   const config: ApiRequestConfig = {

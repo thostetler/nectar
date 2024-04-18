@@ -3,9 +3,10 @@ import { HttpStatusCode } from 'axios';
 import { NoSession } from '@/error';
 import { logger } from '@/logger';
 import { IronSession } from 'iron-session';
-import { bootstrapUser, getSessionConfig } from '@/auth';
+import { getSessionConfig } from '@/config';
 import { isEmpty } from 'ramda';
 import { getIronSession } from 'iron-session/edge';
+import { bootstrapUser } from '@/auth';
 
 export type AuthSession = Partial<{
   auth: {

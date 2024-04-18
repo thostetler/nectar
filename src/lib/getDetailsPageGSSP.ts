@@ -16,133 +16,123 @@ import { fetchGraphics, graphicsKeys } from '@/api/graphics';
 import { fetchMetrics, getMetricsParams, metricsKeys } from '@/api/metrics';
 import { fetchLinks, resolverKeys } from '@/api/resolver';
 import { getIronSession } from 'iron-session/edge';
-import { getSessionConfig } from '@/auth';
+import { getSessionConfig } from '@/config';
+import { isEmpty } from 'ramda';
+import axios from 'axios';
 
-export const getDetailsPageGSSP = (async (context) => {
-  const session = await getIronSession(context.req, context.res, getSessionConfig());
-  const headers = context.req.headers;
+export const getDetailsPageGSSP = (async (ctx) => {
+  let session = await getIronSession(ctx.req, ctx.res, getSessionConfig());
+  const headers = ctx.req.headers;
   const token = session.auth.apiToken;
-  context.res.setHeader(
-    'Cache-Control',
-    'public, max-age=900, stale-while-revalidate=3600'
-  );
 
-  const { id } = context.params;
-  const queryClient = new QueryClient();
-
-  try {
-    const pathname = context.resolvedUrl.split('?')[0];
-
-    const res = await queryClient.fetchQuery({
-      queryKey: searchKeys.abstract(id),
-      queryFn: (_) => fetchSearch(_, { token, headers }),
-      meta: { params: getAbstractParams(id) },
-    });
-    logger.debug({ msg: 'Abstract fetch response', res });
-
-    if (res) {
-      if (res.response.numFound === 0) {
-        return {
-          notFound: true,
-        };
-      }
-
+  if (isEmpty(session)) {
+    try {
+      await axios.post('/api/auth/session', null, { headers });
+      session = await getIronSession(ctx.req, ctx.res, getSessionConfig());
+    } catch (error) {
+      logger.error({ msg: 'Failed to bootstrap user', error });
       return {
         props: {
-          dehydratedState: dehydrate(queryClient),
           ssr: {
-            hasError: false,
+            hasError: true,
+            error: 'NoSession',
           },
         },
       };
     }
+  }
 
-    await Promise.allSettled([
-      // primary abstract data
-      queryClient.fetchQuery({
-        queryKey: searchKeys.abstract(id),
-        queryFn: (_) => fetchSearch(_, { token, headers }),
-        meta: { params: getAbstractParams(id) },
-      }),
+  ctx.res.setHeader(
+    'Cache-Control',
+    'max-age=3600, stale-while-revaluate=86400',
+  );
 
-      // graphics
-      queryClient.prefetchQuery({
-        queryKey: graphicsKeys.primary(id),
-        queryFn: (_) => fetchGraphics(_, { token, headers }),
-        meta: { params: { bibcode: id } },
-      }),
+  const { id } = ctx.params;
+  const queryClient = new QueryClient();
 
-      // metrics
-      queryClient.prefetchQuery({
-        queryKey: metricsKeys.primary([id]),
-        queryFn: (_) => fetchMetrics(_, { token, headers }),
-        meta: { params: getMetricsParams([id]) },
-      }),
+  try {
+    const pathname = ctx.resolvedUrl.split('?')[0];
 
-      // associated works
-      queryClient.prefetchQuery({
-        queryKey: resolverKeys.links({ bibcode: id, link_type: 'associated' }),
-        queryFn: (_) => fetchLinks(_, { token, headers }),
-        meta: { params: { bibcode: id, link_type: 'associated' } },
-      }),
+    switch (true) {
+      case pathname.endsWith('/abstract'):
+        await queryClient.fetchQuery({
+          queryKey: searchKeys.abstract(id),
+          queryFn: (_) => fetchSearch(_, { token, headers }),
+          meta: { params: getAbstractParams(id) },
+        });
 
-      // references (only if we're on the references page)
-      pathname.endsWith('/references')
-        ? queryClient.prefetchQuery({
+        await queryClient.prefetchQuery({
+          queryKey: resolverKeys.links({ bibcode: id, link_type: 'associated' }),
+          queryFn: (_) => fetchLinks(_, { token, headers }),
+          meta: { params: { bibcode: id, link_type: 'associated' } },
+        });
+        break;
+
+      case pathname.endsWith('/graphics'):
+        await queryClient.prefetchQuery({
+          queryKey: graphicsKeys.primary(id),
+          queryFn: (_) => fetchGraphics(_, { token, headers }),
+          meta: { params: { bibcode: id } },
+        });
+        break;
+
+      case pathname.endsWith('/metrics'):
+        await queryClient.prefetchQuery({
+          queryKey: metricsKeys.primary([id]),
+          queryFn: (_) => fetchMetrics(_, { token, headers }),
+          meta: { params: getMetricsParams([id]) },
+        });
+        break;
+
+      case pathname.endsWith('/references'):
+        await queryClient.prefetchQuery({
           queryKey: searchKeys.references({ bibcode: id, start: 0 }),
           queryFn: (_) => fetchSearch(_, { token, headers }),
           meta: { params: getReferencesParams(id, 0) },
-        })
-        : Promise.resolve(),
+        });
+        break;
 
-      // citations (only if we're on the citations page)
-      pathname.endsWith('/citations')
-        ? queryClient.prefetchQuery({
+      case pathname.endsWith('/citations'):
+        await queryClient.prefetchQuery({
           queryKey: searchKeys.citations({ bibcode: id, start: 0 }),
           queryFn: (_) => fetchSearch(_, { token, headers }),
           meta: { params: getCitationsParams(id, 0) },
-        })
-        : Promise.resolve(),
+        });
+        break;
 
-      // coreads (only if we're on the coreads page)
-      pathname.endsWith('/coreads')
-        ? queryClient.prefetchQuery({
+      case pathname.endsWith('/coreads'):
+        await queryClient.prefetchQuery({
           queryKey: searchKeys.coreads({ bibcode: id, start: 0 }),
           queryFn: (_) => fetchSearch(_, { token, headers }),
           meta: { params: getCoreadsParams(id, 0) },
-        })
-        : Promise.resolve(),
+        });
+        break;
 
-      // similar (only if we're on the similar page)
-      pathname.endsWith('/similar')
-        ? queryClient.prefetchQuery({
+      case pathname.endsWith('/similar'):
+        await queryClient.prefetchQuery({
           queryKey: searchKeys.similar({ bibcode: id, start: 0 }),
           queryFn: (_) => fetchSearch(_, { token, headers }),
           meta: { params: getSimilarParams(id, 0) },
-        })
-        : Promise.resolve(),
+        });
+        break;
 
-      // toc (only if we're on the toc page)
-      pathname.endsWith('/toc')
-        ? queryClient.prefetchQuery({
+      case pathname.endsWith('/toc'):
+        await queryClient.prefetchQuery({
           queryKey: searchKeys.toc({ bibcode: id, start: 0 }),
           queryFn: (_) => fetchSearch(_, { token, headers }),
           meta: { params: getTocParams(id, 0) },
-        })
-        : Promise.resolve(),
-    ]);
+        });
+        break;
+    }
 
-
-
-
-
-
-
-
-
-
-
-
+    return {
+      props: {
+        dehydratedState: dehydrate(queryClient),
+        ssr: {
+          hasError: false,
+        },
+      },
+    };
 
   } catch (error) {
     logger.error({ msg: 'Failed to fetch abstract', error });
@@ -155,4 +145,6 @@ export const getDetailsPageGSSP = (async (context) => {
       },
     });
   }
-}) satisfies GetServerSideProps<{ ssr: { hasError: boolean; error?: string}, dehydratedState?: DehydratedState }, { id: string }>;
+}) satisfies GetServerSideProps<{ ssr: { hasError: boolean; error?: string }, dehydratedState?: DehydratedState }, {
+  id: string
+}>;

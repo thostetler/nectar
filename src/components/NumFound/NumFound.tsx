@@ -1,8 +1,9 @@
 import { Box, SkeletonText, Text } from '@chakra-ui/react';
-import { useStore } from '@/store';
 import { truncateDecimal } from '@/utils';
 import { ReactElement } from 'react';
-import { useGetSearchStats } from '@/api/search';
+import { logger } from '@/logger';
+import { useSearchPageQueryParams } from '@/pages/search';
+import { useCitationStats } from '@/api/search';
 
 export interface INumFoundProps {
   count?: number;
@@ -41,11 +42,17 @@ export const NumFound = (props: INumFoundProps): ReactElement => {
 };
 
 const SortStats = () => {
-  const latestQuery = useStore((state) => state.latestQuery);
-  const { data, isSuccess } = useGetSearchStats(latestQuery);
+  const params = useSearchPageQueryParams();
+  const { data: stats } = useCitationStats(params);
 
-  if (isSuccess && 'citation_count' in data.stats_fields) {
-    const count = sanitizeNum(data.stats_fields.citation_count.sum);
+  if (!stats) {
+    return null;
+  }
+
+  logger.debug({ msg: 'SortStats', stats });
+
+  if ('citation_count' in stats.stats_fields) {
+    const count = sanitizeNum(stats.stats_fields?.citation_count.sum);
     return (
       <>
         with{' '}
@@ -57,8 +64,8 @@ const SortStats = () => {
     );
   }
 
-  if (isSuccess && 'citation_count_norm' in data.stats_fields) {
-    const count = sanitizeNum(truncateDecimal(data.stats_fields.citation_count_norm.sum, 2));
+  if ('citation_count_norm' in stats.stats_fields) {
+    const count = sanitizeNum(truncateDecimal(stats.stats_fields.citation_count_norm.sum, 2));
     return (
       <>
         with{' '}

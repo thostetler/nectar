@@ -19,12 +19,16 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
 export default ClassicFormPage;
 
 type ReqWithBody = GetServerSidePropsContext['req'] & { body: IClassicFormState };
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
+export const getServerSideProps = (async (ctx) => {
   if (ctx.req.method == 'POST') {
     const body = (ctx.req as ReqWithBody).body;
     try {
       return Promise.resolve({
-        props: {},
+        props: {
+          ssr: {
+            hasError: false,
+          },
+        },
         redirect: {
           destination: `/search?${getSearchQuery(body)}`,
           permanent: false,
@@ -34,11 +38,14 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
       logger.error({ msg: 'GSSP error on classic form page', error });
       return Promise.resolve({
         props: {
-          pageError: parseAPIError(error),
+          ssr: {
+            hasError: true,
+            error: parseAPIError(error),
+          },
         },
       });
     }
   }
 
   return Promise.resolve({ props: {} });
-};
+}) satisfies GetServerSideProps;

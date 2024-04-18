@@ -52,7 +52,7 @@ interface IProviderOptions {
 }
 
 export const DefaultProviders = ({ children, options }: { children: ReactElement | ReactNode, options: IProviderOptions }) => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, cacheTime: 0, staleTime: 0 },  } });
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 0, gcTime: 0 } } });
 
   const store = isObject(options?.initialStore) ?
     options.initialStore :

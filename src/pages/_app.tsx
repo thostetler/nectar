@@ -11,13 +11,15 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import 'nprogress/nprogress.css';
 import { FC, memo, ReactElement, useEffect, useMemo } from 'react';
-import { DehydratedState, Hydrate, QueryClientProvider } from '@tanstack/react-query';
+import { DehydratedState, Hydrate } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import '../styles/styles.css';
 import { GoogleTagManager, sendGTMEvent } from '@next/third-parties/google';
 import { logger } from '@/logger';
 import { SessionProvider } from '@/lib/auth/SessionProvider';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { createIDBPersister } from '@/lib/queryPersist';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   require('../mocks');
@@ -75,7 +77,13 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
 
 const QCProvider: FC = ({ children }) => {
   const queryClient = useCreateQueryClient();
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  const persister = createIDBPersister();
+
+  return (
+    <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
+      {children}
+    </PersistQueryClientProvider>
+  );
 };
 
 const AppModeRouter = (): ReactElement => {

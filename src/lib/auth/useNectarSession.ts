@@ -54,7 +54,7 @@ export const useNectarSession = () => {
 
       if (!toast.isActive('session-api-error')) {
         toast({
-          title: 'Having trouble connecting to the API, please try reloading the page.',
+          title: 'Having trouble connecting to the API.',
           status: 'error',
           duration: 5000,
           isClosable: true,
@@ -62,7 +62,23 @@ export const useNectarSession = () => {
         });
       }
     }
-  }, [result.error]);
+
+    if (result.isFetching) {
+      logger.debug({
+        msg: 'Fetching session',
+      });
+
+      if (!toast.isActive('session-api-connecting')) {
+        toast({
+          title: 'Connecting to API...',
+          status: 'info',
+          duration: 5000,
+          isClosable: true,
+          id: 'session-api-connecting',
+        });
+      }
+    }
+  }, [result.error, result.isFetching]);
 
   return {
     ...result,

@@ -1,5 +1,6 @@
 import { IronSessionOptions } from 'iron-session';
 import { SolrSort } from '@/api/models';
+import { add } from 'date-fns';
 
 export const APP_DEFAULTS = {
   DETAILS_MAX_AUTHORS: 50,
@@ -22,15 +23,24 @@ export const APP_DEFAULTS = {
 
 export const GOOGLE_RECAPTCHA_KEY = '6Lex_aQUAAAAAMwJFbdGFeigshN7mRQdbXoGQ7-N';
 
-export const sessionConfig: IronSessionOptions = {
-  password: process.env.COOKIE_SECRET,
-  cookieName: process.env.SCIX_SESSION_COOKIE_NAME,
-  // secure: true should be used in production () but can't be used in development (HTTP)
-  cookieOptions: {
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-  },
+const getSessionSecret = () => {
+  const secret = process.env.COOKIE_SECRET;
+  if (!secret) {
+    throw new Error('No cookie secret found');
+  }
+  return secret;
 };
+
+export const getSessionConfig = (): IronSessionOptions => ({
+  password: getSessionSecret(),
+  cookieName: process.env.SCIX_SESSION_COOKIE_NAME ?? 'scix_session',
+  cookieOptions: {
+    expires: add(new Date(), { hours: 24 }),
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'production',
+  },
+});
 
 // Route prefixes that require authentication
 export const PROTECTED_ROUTES = ['/user/libraries', '/user/settings'];

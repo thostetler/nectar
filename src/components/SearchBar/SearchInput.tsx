@@ -41,6 +41,8 @@ import { getFocusedItemValue, getPreview } from '@/components/SearchBar/helpers'
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { useFocus } from '@/lib/useFocus';
 import { useColorModeColors } from '@/lib';
+import { useRouter } from 'next/router';
+import { parseQueryFromUrl } from '@/utils';
 
 const SEARCHBAR_MAX_LENGTH = 2048 as const;
 
@@ -53,7 +55,9 @@ const ClearInputButton = (props: ButtonProps) => {
 };
 
 export const SearchInput = forwardRef<ISearchInputProps, 'input'>((props, ref) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const router = useRouter();
+  const params = parseQueryFromUrl(router.asPath);
+  const [state, dispatch] = useReducer(reducer, { ...initialState, searchTerm: params.q });
   const { isLoading, ...inputProps } = props;
   const [input, focus] = useFocus({ selectTextOnFocus: false });
   const refs = useMergeRefs(ref, input);

@@ -64,9 +64,9 @@ export const calculateStartIndex = (page: number, numPerPage: number, numFound: 
   // on last page
   if (page * numPerPage >= results) {
     if (results % numPerPage === 0) {
-      return results - numPerPage;
+      return cleanClamp(results - numPerPage, 0);
     } else {
-      return results - (results % numPerPage);
+      return cleanClamp(results - (results % numPerPage), 0);
     }
   }
 

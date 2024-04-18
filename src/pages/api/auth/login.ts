@@ -1,15 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { z } from 'zod';
 import { IronSession } from 'iron-session';
-import { withIronSessionApiRoute } from 'iron-session/next';
-import { APP_DEFAULTS, sessionConfig } from '@/config';
+import { APP_DEFAULTS, getSessionConfig } from '@/config';
 import { configWithCSRF, fetchUserData, isValidToken } from '@/auth-utils';
 import { defaultRequestConfig } from '@/api/config';
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, HttpStatusCode } from 'axios';
 import setCookie from 'set-cookie-parser';
 import { IBasicAccountsResponse, IUserCredentials } from '@/api/user';
 import { ApiTargets } from '@/api/models';
 import { logger } from '@/logger';
+import { loginUser } from '@/auth';
+import { getIronSession } from 'iron-session/edge';
 
 const log = logger.child({}, { msgPrefix: '[api/login] ' });
 
@@ -18,19 +19,34 @@ export interface ILoginResponse {
   error?: 'invalid-credentials' | 'login-failed' | 'failed-userdata-request' | 'invalid-token' | 'method-not-allowed';
 }
 
-export default withIronSessionApiRoute(login, sessionConfig);
-
 async function login(req: NextApiRequest, res: NextApiResponse<ILoginResponse>) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, error: 'method-not-allowed' });
+    return res.status(HttpStatusCode.MethodNotAllowed).json({ success: false, error: 'method-not-allowed' });
   }
+  const session = await getIronSession(req, res, getSessionConfig());
 
-  const session = req.session;
   const creds = schema.safeParse(req.body);
   if (creds.success) {
-    return await handleAuthentication(creds.data, res, session);
+    try {
+      const user = await loginUser(creds.data, req, res);
+      if (user) {
+        session.auth = {
+          apiToken: user.access_token,
+          isAuthenticated: !user.anonymous,
+          expires: user.expire_in,
+        };
+        session.user = {
+          email: user.username,
+        };
+        await session.save();
+
+        return res.status(HttpStatusCode.Ok).json({ success: true });
+      }
+    } catch (error) {
+      log.error('Login failed', { error });
+    }
   }
-  return res.status(401).json({ success: false, error: 'invalid-credentials' });
+  return res.status(HttpStatusCode.Unauthorized).json({ success: false, error: 'invalid-credentials' });
 }
 
 const schema = z

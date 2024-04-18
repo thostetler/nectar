@@ -1,4 +1,4 @@
-import { sessionConfig } from '@/config';
+import { getSessionConfig } from '@/config';
 import { getIronSession } from 'iron-session/edge';
 // eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse, userAgent } from 'next/server';
@@ -57,7 +57,13 @@ const getBotToken = (result: CRAWLER_RESULT): IronSessionData['auth'] => {
 };
 
 export const botCheck = async (req: NextRequest, res: NextResponse) => {
-  const session = await getIronSession(req, res, sessionConfig);
+  const session = await getIronSession(req, res, getSessionConfig());
+
+  if (session?.auth) {
+    // if the session is already authenticated, we don't need to check for bots
+    return;
+  }
+
   const ua = userAgent(req).ua;
   const ip = getIp(req);
   const crawlerResult = await crawlerCheck(req, ip, ua);

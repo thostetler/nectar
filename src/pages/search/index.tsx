@@ -34,26 +34,28 @@ import {
   SimpleLink,
   SimpleResultList,
 } from '@/components';
-import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
 import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
 import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { useIsClient } from 'src/lib';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { NumPerPageType } from '@/types';
-import { makeSearchParams, parseQueryFromUrl } from '@/utils';
-import { NextPage } from 'next';
+import { makeSearchParams, parseAPIError, parseQueryFromUrl } from '@/utils';
+import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { last, omit, path } from 'ramda';
+import { isEmpty, omit } from 'ramda';
 import { FormEventHandler, useCallback, useEffect, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { dehydrate, DehydratedState, QueryClient } from '@tanstack/react-query';
 import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
-import { AxiosError } from 'axios';
+import axios, { AxiosError } from 'axios';
 import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
-import { defaultParams, SEARCH_API_KEYS, useSearch } from '@/api/search';
+import { fetchSearch, getSearchParams, searchKeys, useSearch } from '@/api/search';
 import { SolrSort } from '@/api/models';
+import { APP_DEFAULTS, getSessionConfig } from '@/config';
+import { logger } from '@/logger';
+import { getIronSession } from 'iron-session/edge';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
@@ -64,6 +66,19 @@ const SearchFacets = dynamic<ISearchFacetsProps>(
   () => import('@/components/SearchFacet').then((mod) => mod.SearchFacets),
   { ssr: false },
 );
+
+export const useSearchPageQueryParams = () => {
+  const router = useRouter();
+  const storeNumPerPage = useStore(selectors.numPerPage);
+
+  // parse the query params from the URL, this should match what the server parsed
+  const parsedParams = parseQueryFromUrl(router.asPath);
+  return getSearchParams({
+    ...parsedParams,
+    rows: storeNumPerPage,
+    start: (parsedParams.p - 1) * storeNumPerPage,
+  });
+};
 
 const selectors = {
   setQuery: (state: AppState) => state.setQuery,
@@ -79,32 +94,19 @@ const selectors = {
 
 const omitP = omit(['p']);
 
-const SearchPage: NextPage = () => {
-  const router = useRouter();
-
+const SearchPage: NextPage<InferGetServerSidePropsType<typeof getServerSideProps>> = ({ ssr }) => {
   const store = useStoreApi();
-  const storeNumPerPage = useStore(selectors.numPerPage);
   const setQuery = useStore(selectors.setQuery);
+  const storeNumPerPage = useStore(selectors.numPerPage);
   const updateQuery = useStore(selectors.updateQuery);
   const submitQuery = useStore(selectors.submitQuery);
   const setNumPerPage = useStore(selectors.setNumPerPage);
   const setDocs = useStore(selectors.setDocs);
-
-  const queryClient = useQueryClient();
-  const queries = queryClient.getQueriesData<IADSApiSearchResponse>([SEARCH_API_KEYS.primary]);
-  const numFound = queries.length > 1 ? path<number>(['1', 'response', 'numFound'], last(queries)) : null;
   const [isPrint] = useMediaQuery('print'); // use to hide elements when printing
+  const router = useRouter();
 
-  // parse the query params from the URL, this should match what the server parsed
-  const parsedParams = parseQueryFromUrl(router.asPath);
-  const params = {
-    ...defaultParams,
-    ...parsedParams,
-    rows: storeNumPerPage,
-    start: calculateStartIndex(parsedParams.p, storeNumPerPage, numFound),
-  };
-
-  const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(omitP(params));
+  const params = useSearchPageQueryParams();
+  const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(params);
 
   // needed by histogram for positioning and styling
   const [histogramExpanded, setHistogramExpanded] = useState(false);
@@ -154,7 +156,7 @@ const SearchPage: NextPage = () => {
   useEffect(() => {
     if (data?.docs.length > 0) {
       setDocs(data.docs.map((d) => d.bibcode));
-      setQuery(omitP(params));
+      setQuery(omitP(params) as IADSApiSearchParams);
       submitQuery();
     }
   }, [data]);
@@ -384,85 +386,79 @@ const NoResultsMsg = () => (
     }
   />
 );
-// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-//   try {
-//     const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.req.url);
-//     const queryClient = new QueryClient();
-//
-//     // prime the search with a small query to get the current numFound
-//     let primer = null;
-//     if (page > 1) {
-//       const primerParams = getSearchParams({ ...query, start: 0, rows: 1, fl: ['id'] });
-//       primer = await queryClient.fetchQuery({
-//         queryKey: searchKeys.primary(primerParams),
-//         queryFn: fetchSearch,
-//         meta: { params: primerParams },
-//       });
-//     }
-//
-//     const params: IADSApiSearchParams = getSearchParams({
-//       ...query,
-//       q: query.q.length === 0 ? '*:*' : query.q,
-//       start: calculateStartIndex(page, APP_DEFAULTS.RESULT_PER_PAGE, primer?.response.numFound),
-//     });
-//
-//     // omit fields from queryKey
-//     const { fl, ...cleanedParams } = params;
-//
-//     // prefetch the citation counts for this query
-//     if (/^citation_count(_norm)?/.test(params.sort[0])) {
-//       await queryClient.prefetchQuery({
-//         queryKey: searchKeys.stats(cleanedParams),
-//         queryFn: fetchSearch,
-//         meta: { params: getSearchStatsParams(params, params.sort[0]) },
-//       });
-//     }
-//     const initialState = createStore().getState();
-//
-//     try {
-//       // primary query prefetch
-//       const primaryResult = await queryClient.fetchQuery({
-//         queryKey: [SEARCH_API_KEYS.primary],
-//         queryFn: fetchSearch,
-//         queryHash: JSON.stringify(searchKeys.primary(omit(['fl'], params) as IADSApiSearchParams)),
-//         meta: { params },
-//       });
-//
-//       return {
-//         props: {
-//           dehydratedState: dehydrate(queryClient),
-//           dehydratedAppState: {
-//             query: params,
-//             latestQuery: params,
-//             docs: {
-//               ...initialState.docs,
-//               current: primaryResult.response.docs.map((d) => d.bibcode),
-//             },
-//           } as AppState,
-//         },
-//       };
-//     } catch (error) {
-//       logger.error({ msg: 'error fetching search results', error: error });
-//       return {
-//         props: {
-//           dehydratedState: dehydrate(queryClient),
-//           dehydratedAppState: {
-//             query: params,
-//             latestQuery: params,
-//           } as AppState,
-//           pageError: parseAPIError(error),
-//         },
-//       };
-//     }
-//   } catch (e) {
-//     logger.error({ msg: 'Search Page Error', error: e });
-//     return {
-//       props: {
-//         pageError: parseAPIError(e),
-//       },
-//     };
-//   }
-// });
+
+export const getServerSideProps = (async (ctx) => {
+  let session = await getIronSession(ctx.req, ctx.res, getSessionConfig());
+  const headers = ctx.req.headers;
+  const queryClient = new QueryClient();
+
+  if (isEmpty(session)) {
+    try {
+      await axios.post('/api/auth/session', null, { headers });
+      session = await getIronSession(ctx.req, ctx.res, getSessionConfig());
+    } catch (error) {
+      logger.error({ msg: 'Failed to bootstrap user', error });
+      return {
+        props: {
+          ssr: {
+            hasError: true,
+            error: 'NoSession',
+          },
+        },
+      };
+    }
+  }
+
+  try {
+    const token = session.auth.apiToken;
+    const { p: page, ...query } = parseQueryFromUrl<{ p: string }>(ctx.req.url);
+    const params: IADSApiSearchParams = getSearchParams({
+      ...query,
+      q: typeof query.q === 'string' && query.q.length > 0 ? query.q : '*:*',
+      start: (page - 1) * APP_DEFAULTS.RESULT_PER_PAGE,
+    });
+
+    logger.debug({
+      msg: 'search SSR',
+      params,
+      query,
+    });
+
+    await queryClient.prefetchQuery({
+      queryKey: searchKeys.primary(params),
+      queryFn: (_) => fetchSearch(_, { token, headers }),
+      queryHash: JSON.stringify(searchKeys.primary(omit(['fl', 'p'], params) as IADSApiSearchParams)),
+      meta: { params },
+    });
+
+    return {
+      props: {
+        ssr: {
+          hasError: false,
+        },
+        dehydratedState: dehydrate(queryClient),
+        dehydratedAppState: {
+          query: params,
+          latestQuery: params,
+        } as AppState,
+      },
+    };
+  } catch (error) {
+    logger.error({ msg: 'Search page SSR Error', error });
+    return {
+      props: {
+        ssr: {
+          hasError: true,
+          error: parseAPIError(error),
+        },
+      },
+    };
+  }
+}) satisfies GetServerSideProps<{
+  ssr: { hasError: boolean; error?: string },
+  dehydratedState?: DehydratedState,
+  dehydratedAppState?: AppState
+}>;
 
 export default SearchPage;
 

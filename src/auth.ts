@@ -1,22 +1,13 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosResponse, HttpStatusCode } from 'axios';
 import { IBootstrapPayload, ICSRFResponse } from '@/api/user';
 import { ApiTargets } from '@/api/models';
 import { defaultRequestConfig } from '@/api/config';
 import { ApiRequestConfig } from '@/api/api';
 import { z } from 'zod';
-import {
-  AccountNotVerified,
-  InvalidCredentials,
-  InvalidCSRF,
-  MethodNotAllowed,
-  UnableToValidateAccount,
-  UserNotFound,
-} from '@/error';
+import { AccountNotVerified, InvalidCredentials, InvalidCSRF, UnableToValidateAccount, UserNotFound } from '@/error';
 import { logger } from '@/logger';
 import { isPast, parseISO } from 'date-fns';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { IronSessionOptions } from 'iron-session';
-import { getIronSession } from 'iron-session/edge';
 
 const HEADERS_TO_FORWARD = [
   'X-Original-Url',
@@ -67,12 +58,8 @@ export const bootstrapUser = async (req: NextApiRequest, res: NextApiResponse) =
   return data;
 };
 
-export const loginUser = async (creds: LoginCreds, req: NextApiRequest) => {
+export const loginUser = async (creds: LoginCreds, req: NextApiRequest, res: NextApiResponse) => {
   log.debug({ msg: 'logging in user', creds });
-
-  if (req.method !== 'POST') {
-    throw new MethodNotAllowed();
-  }
 
   if (!loginSchema.safeParse(creds).success) {
     throw new InvalidCredentials();
@@ -96,17 +83,19 @@ export const loginUser = async (creds: LoginCreds, req: NextApiRequest) => {
     log.debug('Attempting to authenticate user');
     const { status, headers: resHeaders } = await axios.request<AccountsResponse>(config);
 
-    if (status === 200) {
+    if (status === HttpStatusCode.Ok) {
       log.debug('Authentication successful');
-      return await bootstrap(req, getSetCookieHeader(resHeaders));
+      const { data, headers } = await bootstrap(req, getSetCookieHeader(resHeaders));
+      res.appendHeader('set-cookie', getSetCookieHeader(headers));
+      return data;
     }
   } catch (error) {
     if (axios.isAxiosError(error)) {
       switch (error.response?.status) {
-        case 400:
-        case 401:
+        case HttpStatusCode.BadRequest:
+        case HttpStatusCode.Unauthorized:
           throw new InvalidCredentials(error);
-        case 403:
+        case HttpStatusCode.Forbidden:
           throw new AccountNotVerified(error);
       }
     }
@@ -186,26 +175,3 @@ export const apiTokenIsExpired = (expires: string) => {
   log.debug({ msg: 'Checking token expiry', expires, isExpired });
   return isExpired;
 };
-
-
-const getSessionSecret = () => {
-  const secret = process.env.COOKIE_SECRET;
-  if (!secret) {
-    throw new Error('No cookie secret found');
-  }
-  return secret;
-};
-
-export const getSessionConfig = (): IronSessionOptions =>
-  ({
-    password: getSessionSecret(),
-    cookieName: process.env.SCIX_SESSION_COOKIE_NAME ?? 'scix_session',
-    cookieOptions: {
-      expires: new Date(), // 24 hours
-      httpOnly: true,
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-    },
-  });
-
-export const getSession = (req: NextApiRequest, res: NextApiResponse) => getIronSession(req, res, getSessionConfig());
