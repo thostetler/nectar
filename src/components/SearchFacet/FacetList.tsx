@@ -234,9 +234,16 @@ export const Item = (props: IItemProps) => {
   const { node, variant = 'basic', expandable, onError } = props;
   const [expanded, setExpanded] = useBoolean(false);
   const setFocused = useFacetStore(selectors.setFocused);
+  const pushPage = useFacetStore(selectors.pushPage);
 
   const handleExpand = () => {
-    variant === 'basic' ? setExpanded.toggle() : setFocused(node);
+    if (variant === 'basic') {
+      setExpanded.toggle();
+    } else {
+      // while in the modal this will push the page to the stack
+      pushPage();
+      setFocused(node);
+    }
   };
 
   const listItemProps: ListItemProps = {

@@ -38,6 +38,7 @@ export interface IFacetStoreState {
   sort: ['count' | 'index', 'asc' | 'desc'];
   letter: string;
   search: string;
+  pages: Array<number>;
 }
 
 export type FacetStoreEvents = {
@@ -50,6 +51,10 @@ export type FacetStoreEvents = {
   addNodes: (nodes: FacetItem[]) => void;
   updateModal: (isOpen: boolean) => void;
   clearSelection: () => void;
+  pushPage: () => void;
+  updatePage: (page: number) => void;
+  popPage: () => void;
+  getPage: () => number;
 };
 
 const initialState: IFacetStoreState = {
@@ -62,6 +67,7 @@ const initialState: IFacetStoreState = {
   letter: 'All',
   search: '',
   isOpen: false,
+  pages: [0],
 };
 
 const createStore = (preloadedState: Partial<IFacetStoreState>) => () =>
@@ -103,6 +109,10 @@ const createStore = (preloadedState: Partial<IFacetStoreState>) => () =>
     setSort: (sort) => set({ sort }),
     reset: () => set(omit(['params'], initialState)),
     clearSelection: () => set(pick(['selection', 'selected'], initialState)),
+    pushPage: () => set({ pages: [...get().pages, 0] }),
+    popPage: () => set({ pages: get().pages.slice(0, -1) }),
+    updatePage: (page) => set({ pages: get().pages.slice(0, -1).concat(page) }),
+    getPage: () => get().pages.slice(-1)[0],
   }));
 
 const FacetStoreContext = createContext<IFacetStoreState & FacetStoreEvents>();
@@ -138,4 +148,8 @@ export const selectors = {
   addNodes: (state: CombinedState) => state.addNodes,
   updateModal: (state: CombinedState) => state.updateModal,
   clearSelection: (state: CombinedState) => state.clearSelection,
+  pushPage: (state: CombinedState) => state.pushPage,
+  popPage: (state: CombinedState) => state.popPage,
+  updatePage: (state: CombinedState) => state.updatePage,
+  getPage: (state: CombinedState) => state.getPage,
 };

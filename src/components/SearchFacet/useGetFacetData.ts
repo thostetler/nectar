@@ -1,12 +1,12 @@
 import { FacetField, IADSApiSearchParams, IBucket, useGetSearchFacetJSON } from '@/api';
 import { calculatePagination } from '@/components/ResultList/Pagination/usePagination';
 import { getLevelFromKey, getPrevKey } from '@/components/SearchFacet/helpers';
-import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
+import { selectors, useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { FacetItem } from '@/components/SearchFacet/types';
 import { AppState, useStore } from '@/store';
 import { sanitize } from 'dompurify';
 import { isEmpty, omit } from 'ramda';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { isNonEmptyArray, isNonEmptyString } from 'ramda-adjunct';
 
 export interface IUseGetFacetDataProps {
@@ -29,6 +29,8 @@ export const FACET_DEFAULT_PREFIX = '0/';
 const querySelector = (state: AppState) => omit(['fl', 'start', 'rows'], state.latestQuery) as IADSApiSearchParams;
 
 export const useGetFacetData = (props: IUseGetFacetDataProps) => {
+  const prevPrefixRef = useRef('');
+  const prevSortRef = useRef<[IUseGetFacetDataProps['sortField'], IUseGetFacetDataProps['sortDir']]>(['count', 'desc']);
   const searchQuery = useStore(querySelector);
   const {
     field,
@@ -44,11 +46,35 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
   } = props;
 
   const [pagination, setPagination] = useState(() => calculatePagination({ page: 0, numPerPage: FACET_DEFAULT_LIMIT }));
+  const updatePage = useFacetStore(selectors.updatePage);
+  const getCachedPage = useFacetStore(selectors.getPage);
 
   // on prefix change (search, letter, sort) reset back to page 0
   useEffect(() => {
-    setPagination(calculatePagination({ page: 0, numPerPage: FACET_DEFAULT_LIMIT }));
-  }, [prefix]);
+    /**
+     * Because the prefixes will grow as we move deeper in the tree
+     * we can just look at the length (if we're moving up then we use the cached value, otherwise set to 0);
+     * if the user is searching then we should always reset to 0
+     */
+    const [cachedSortField, cachedSortDir] = prevSortRef.current;
+    if (
+      // user is searching
+      searchTerm?.length > 0 ||
+      // user is moving down the tree
+      prefix?.length > prevPrefixRef.current.length ||
+      // sort field or direction has changed
+      cachedSortField !== sortField ||
+      cachedSortDir !== sortDir
+    ) {
+      setPagination(calculatePagination({ page: 0, numPerPage: FACET_DEFAULT_LIMIT }));
+    } else {
+      // otherwise if we're moving up the tree, use the cached page
+      setPagination(calculatePagination({ page: getCachedPage(), numPerPage: FACET_DEFAULT_LIMIT }));
+    }
+
+    prevPrefixRef.current = prefix;
+    prevSortRef.current = [sortField, sortDir];
+  }, [prefix, searchTerm, sortDir, sortField]);
 
   // fetch the data
   const { data, ...result } = useGetSearchFacetJSON(
@@ -75,6 +101,10 @@ export const useGetFacetData = (props: IUseGetFacetDataProps) => {
 
   const res = data?.[field];
   const treeData = useMemo(() => formatTreeData(res?.buckets ?? [], filter), [res?.buckets, filter]);
+
+  useEffect(() => {
+    updatePage(pagination.page);
+  }, [pagination.page]);
 
   const handleLoadMore = useCallback(() => {
     if (!pagination.noNext) {

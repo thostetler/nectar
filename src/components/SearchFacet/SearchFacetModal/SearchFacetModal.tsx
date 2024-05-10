@@ -19,7 +19,7 @@ import { IFacetListProps, LogicSelect } from '@/components/SearchFacet/FacetList
 import { AlphaSorter } from '@/components/SearchFacet/SearchFacetModal/AlphaSorter';
 import { SearchInput } from '@/components/SearchFacet/SearchFacetModal/SearchInput';
 import { SortControl } from '@/components/SearchFacet/SearchFacetModal/SortControl';
-import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
+import { selectors, useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { ReactElement, ReactNode, useCallback, useMemo } from 'react';
 import { keyToPath, parseTitleFromKey } from '../helpers';
 import { useDebounce } from 'src/lib';
@@ -135,12 +135,14 @@ const useGetSearchTerm = () => {
 };
 
 const UnExpandButton = () => {
-  const focused = useFacetStore((state) => state.focused);
-  const setFocused = useFacetStore((state) => state.setFocused);
+  const focused = useFacetStore(selectors.focused);
+  const setFocused = useFacetStore(selectors.setFocused);
+  const popPage = useFacetStore(selectors.popPage);
 
   const handleUnExpand = useCallback(() => {
     if (focused) {
       setFocused(focused.parentId);
+      popPage();
     }
   }, [focused]);
 
