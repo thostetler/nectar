@@ -1,18 +1,22 @@
 import pino, { Logger } from 'pino';
 
 export const logger: Logger = pino({
+  // Don't enable logging in other environments (i.e. testing, CI)
+  enabled: ['production', 'development'].includes(process.env.NODE_ENV),
   errorKey: 'error',
   browser: {
     asObject: true,
   },
   level: process.env.NODE_ENV === 'development' ? 'debug' : 'info',
   base: {
-    env: process.env.NODE_ENV || 'development',
+    env: process.env.NODE_ENV ?? 'development',
   },
 });
 
 // for use in edge functions (i.e. middleware)
 export const edgeLogger: Logger = pino({
+  // Don't enable logging in other environments (i.e. testing, CI)
+  enabled: ['production', 'development'].includes(process.env.NODE_ENV),
   browser: {
     // this is a workaround for the edge function environment, which does not support
     // some formatter pino uses under the hood
