@@ -13,9 +13,7 @@ export default defineConfig({
     threads: true,
     maxConcurrency: 16,
     globals: false,
-    cache: {
-      dir: '.vitest',
-    },
+    cacheDir: '.vitest',
     coverage: {
       provider: 'v8',
       reporter: 'lcov',

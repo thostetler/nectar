@@ -4,7 +4,7 @@ import { getLevelFromKey, getPrevKey } from '@/components/SearchFacet/helpers';
 import { selectors, useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { FacetItem } from '@/components/SearchFacet/types';
 import { AppState, useStore } from '@/store';
-import { sanitize } from 'dompurify';
+import { sanitize } from 'isomorphic-dompurify';
 import { isEmpty, omit } from 'ramda';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { isNonEmptyArray, isNonEmptyString } from 'ramda-adjunct';
