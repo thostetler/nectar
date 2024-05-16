@@ -238,6 +238,7 @@ const BibstemPickerImpl = (props: IBibstemPickerProps, ref: ForwardedRef<never>)
           type="text"
           name="bibstems"
           value={state.hiddenValue}
+          onChange={() => void 0}
           {...omit(['value'], inputProps)}
           onFocus={() => selectRef.current.focus()}
           ref={ref}

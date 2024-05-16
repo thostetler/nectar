@@ -13,6 +13,9 @@ import { SetupServerApi } from 'msw/node';
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
+// mock next/router
+vi.mock('next/router', () => import('next-router-mock'));
+
 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
 replaceAllInserter.shim();
 

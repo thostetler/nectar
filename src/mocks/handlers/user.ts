@@ -1,4 +1,6 @@
 import { rest } from 'msw';
+import { apiHandlerRoute } from '@/mocks/mockHelpers';
+import { ApiTargets } from '@/api';
 
 export const userHandlers = [
   rest.get('*/api/user', (req, res, ctx) => {
@@ -23,5 +25,9 @@ export const userHandlers = [
         isAuthenticated: true,
       }),
     );
+  }),
+
+  rest.all(apiHandlerRoute(ApiTargets.USER_DATA), (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json({}));
   }),
 ];

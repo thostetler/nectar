@@ -1,19 +1,19 @@
 import { Esources } from '@/api';
 import { ChevronDownIcon, Icon, LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import {
-  Menu,
-  MenuButton,
-  Button,
-  MenuList,
-  MenuItem,
-  List,
-  ListItem,
-  BoxProps,
   Box,
+  BoxProps,
+  Button,
   Flex,
-  Text,
   HStack,
   IconButton,
+  List,
+  ListItem,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Text,
 } from '@chakra-ui/react';
 import { ItemType } from '@/components/Dropdown/types';
 import { GenericFileIcon } from '@/components/icons/GenericFileIcon';
@@ -88,22 +88,20 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
           </MenuButton>
           {resources.length > 0 && (
             <MenuList>
-              {resources.map((group) => (
-                <>
-                  {group.links.map((link) => (
-                    <MenuItem key={`${group.label}-${link.type}`} as={SimpleLink} href={link.path} newTab>
-                      {link.rawType === Esources.INSTITUTION ? (
-                        <Icon as={AcademicCapIcon} mr={1} />
-                      ) : link.open ? (
-                        <UnlockIcon color="green.600" mr={1} />
-                      ) : (
-                        <LockIcon mr={1} />
-                      )}
-                      {`${group.label} ${link.type.toLocaleUpperCase()}`}
-                    </MenuItem>
-                  ))}
-                </>
-              ))}
+              {resources.map((group) =>
+                group.links.map((link) => (
+                  <MenuItem key={`${group.label}-${link.type}`} as={SimpleLink} href={link.path} newTab>
+                    {link.rawType === Esources.INSTITUTION ? (
+                      <Icon as={AcademicCapIcon} mr={1} />
+                    ) : link.open ? (
+                      <UnlockIcon color="green.600" mr={1} />
+                    ) : (
+                      <LockIcon mr={1} />
+                    )}
+                    {`${group.label} ${link.type.toLocaleUpperCase()}`}
+                  </MenuItem>
+                )),
+              )}
             </MenuList>
           )}
         </Menu>
@@ -116,6 +114,7 @@ export const FullTextSourceItems = ({ resources, type, ...boxProps }: IFullTextS
                 <HStack>
                   {group.links.map((link) => (
                     <IconButton
+                      key={`${group.label}-${link.type}`}
                       aria-label={`${group.label} ${link.type}`}
                       icon={
                         link.rawType === Esources.INSTITUTION ? (

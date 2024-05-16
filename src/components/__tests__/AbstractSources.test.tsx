@@ -1,16 +1,16 @@
 import { render } from '@/test-utils';
-import Meta, { Default } from '../__stories__/AbstractSources.stories';
-import { composeStory } from '@storybook/react';
 import { test, vi } from 'vitest';
+import { AbstractSources } from '@/components';
+import { doc } from '@/components/__mocks__/data';
+import { noop } from '@/utils';
 
-const AbstractSources = composeStory(Default, Meta);
+// chakra's accordion calls the scrollTo global, jsdom doesn't support it so stub it here
+vi.stubGlobal('scrollTo', noop);
 
-vi.mock('next/router', () => ({
-  useRouter: () => ({
-    reload: vi.fn(),
-  }),
-}));
+test('renders menu without crashing', () => {
+  render(<AbstractSources doc={doc} style="menu" />);
+});
 
-test('renders without crashing', () => {
-  render(<AbstractSources />);
+test('renders accordion without crashing', () => {
+  render(<AbstractSources doc={doc} style="accordion" />);
 });

@@ -4,7 +4,7 @@ import { IBibstemOption } from '@/types';
 
 export const bibstemHandlers = [
   rest.get<unknown, { term: string }>(`*/api/bibstems/:term`, (req, res, ctx) => {
-    const term = req.params.term.toLowerCase();
+    const term: string = req.params.term.toLowerCase();
     const values = defaultBibstems.filter(({ value, label }) => {
       const parts = `${value} ${Array.isArray(label) ? label[0] : label}`.toLowerCase().match(/\S+\s*/g);
       if (parts === null) {

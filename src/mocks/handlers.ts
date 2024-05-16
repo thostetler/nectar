@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { orcidHandlers } from '@/mocks/handlers/orcid';
-import { userHandlers } from '@/mocks/responses/user/user';
+import { userHandlers } from '@/mocks/handlers/user';
 import { objectsHandlers } from '@/mocks/handlers/objects';
 import { accountHandlers } from '@/mocks/handlers/accounts';
 import { authorAffiliationHandlers } from '@/mocks/handlers/author-affiliation';
@@ -13,6 +13,7 @@ import { myadsHandlers } from '@/mocks/handlers/myads';
 import { bibstemHandlers } from '@/mocks/handlers/bibstems';
 import { librariesHandlers } from '@/mocks/handlers/libraries';
 import { notificationsHandlers } from './handlers/notifications';
+import { resolverHandlers } from './handlers/resolver';
 
 export const handlers = [
   ...accountHandlers,
@@ -29,4 +30,5 @@ export const handlers = [
   ...userHandlers,
   ...librariesHandlers,
   ...notificationsHandlers,
+  ...resolverHandlers,
 ];

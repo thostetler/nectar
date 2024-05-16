@@ -10,21 +10,21 @@ export default defineConfig({
     exclude: [...defaultExclude, '**/e2e/**'],
     setupFiles: ['./vitest-setup.ts'],
     isolate: true,
-    threads: true,
+    pool: 'forks',
     maxConcurrency: 16,
     globals: false,
-    cacheDir: '.vitest',
     coverage: {
       provider: 'v8',
       reporter: 'lcov',
     },
   },
-  server: {
-    deps: {
-      fallbackCJS: true,
-    },
-  },
+  cacheDir: '.vitest',
   resolve: {
+    dedupe: [
+      '@emotion/styled',
+      '@emotion/react',
+    ],
+    mainFields: ['module', 'jsnext:main', 'main'],
     alias: {
       'react/jsx-dev-runtime.js': resolve(__dirname, 'node_modules/react/jsx-dev-runtime.js'),
       'react/jsx-runtime.js': resolve(__dirname, 'node_modules/react/jsx-runtime.js'),
