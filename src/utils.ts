@@ -382,6 +382,7 @@ export const parseAPIError = (
     ['response', 'data', 'user-message'],
     ['response', 'data', 'message'],
     ['response', 'data', 'error'],
+    ['response', 'data', 'error', 'msg'],
     ['response', 'statusText'],
     ['message'],
   ];
