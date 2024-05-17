@@ -13,7 +13,7 @@ import {
   FormLabel,
   Heading,
   Select,
-  SkeletonText,
+  Skeleton,
   Stack,
   Table,
   TableContainer,
@@ -27,20 +27,31 @@ import {
   useBoolean,
   VisuallyHidden,
 } from '@chakra-ui/react';
-import { isIADSSearchParams } from '@/utils';
+import { isIADSSearchParams, parseAPIError } from '@/utils';
 import { assoc, isNil, pathOr } from 'ramda';
-import { isNilOrEmpty, isNotNilOrEmpty } from 'ramda-adjunct';
-import { ChangeEventHandler, Dispatch, ReactElement, SetStateAction, useCallback, useEffect, useState } from 'react';
+import { isNilOrEmpty, isNotNilOrEmpty, notEqual } from 'ramda-adjunct';
+import {
+  ChangeEventHandler,
+  Dispatch,
+  memo,
+  ReactElement,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { AuthorAffiliationsErrorMessage } from './ErrorMessage';
 import { ExportModal } from './ExportModal';
 import { countOptions, NONESYMBOL } from './models';
 import { AuthorAffStoreProvider, useAuthorAffStore } from './store';
 import { IGroupedAuthorAffilationData } from './types';
+import { APP_DEFAULTS } from '@/config';
+import { StandardAlertMessage } from '@/components';
 
 export type AuthorAffiliationsProps =
   | (BoxProps & { params: IAuthorAffiliationPayload; query?: IADSApiSearchParams })
-  | { params?: IAuthorAffiliationPayload; query: IADSApiSearchParams };
+  | (BoxProps & { params?: IAuthorAffiliationPayload; query: IADSApiSearchParams });
 
 export const AuthorAffiliations = (props: AuthorAffiliationsProps): ReactElement => {
   const { params: initialParams, query, ...boxProps } = props;
@@ -52,31 +63,48 @@ export const AuthorAffiliations = (props: AuthorAffiliationsProps): ReactElement
   const {
     data: affData,
     isLoading,
+    isFetching,
     isError,
     error,
   } = useAuthorAffiliationSearch(params, {
     enabled: !isNilOrEmpty(params.bibcode),
-    useErrorBoundary: true,
-    keepPreviousData: true,
   });
 
   // query for bibcodes, this will only run if we weren't passed params (and we have a query)
-  const { data: queryData } = useSearchInfinite(query, {
-    enabled: isIADSSearchParams(query) && isNilOrEmpty(params.bibcode),
-    useErrorBoundary: true,
-  });
+  const { data: queryData, error: querySearchError } = useSearchInfinite(
+    {
+      fl: ['bibcode'],
+      rows: APP_DEFAULTS.AUTHOR_AFF_SEARCH_SIZE,
+      ...query,
+    },
+    {
+      enabled: isIADSSearchParams(query) && isNilOrEmpty(params.bibcode),
+    },
+  );
 
   // extract the bibcodes from the search response
   useEffect(() => {
     if (queryData && isNilOrEmpty(params.bibcode)) {
-      setParams(
-        assoc(
-          'bibcode',
-          pathOr<IDocsEntity[]>([], ['pages', '0', 'response', 'docs'], queryData).map((d) => d.bibcode),
-        ),
-      );
+      const bibcodes = pathOr<IDocsEntity[]>([], ['pages', '0', 'response', 'docs'], queryData).map((d) => d.bibcode);
+      if (notEqual(bibcodes, params.bibcode)) {
+        setParams(assoc('bibcode', bibcodes));
+      }
     }
-  }, [queryData, params.bibcode]);
+  }, [queryData?.pages?.[0]?.response?.docs, params.bibcode]);
+
+  if (querySearchError) {
+    return (
+      <StandardAlertMessage
+        title="There was a problem with the query"
+        status="error"
+        description={parseAPIError(querySearchError)}
+      />
+    );
+  } else if (queryData?.pages?.[0]?.response?.numFound === 0) {
+    return (
+      <StandardAlertMessage title="No Results" status="info" description="No results found for the search query." />
+    );
+  }
 
   return (
     <Box {...boxProps}>
@@ -86,7 +114,7 @@ export const AuthorAffiliations = (props: AuthorAffiliationsProps): ReactElement
             params={params}
             setParams={setParams}
             items={affData}
-            isLoading={isLoading}
+            isLoading={isLoading || isFetching}
             isError={isError}
             error={error}
             records={pathOr<number>(0, ['pages', '0', 'response', 'docs', 'length'], queryData)}
@@ -194,53 +222,52 @@ const AffForm = (props: IAffFormProps) => {
               <Th>Last Active Date(s)</Th>
             </Tr>
           </Thead>
-          <Tbody data-testid="author-aff-table-body">
-            {isLoading ? (
-              <SkeletonTableRows />
-            ) : items.length === 0 ? (
-              <Tr>
-                <Td colSpan={5}>
-                  <Alert status="warning" justifyContent="center">
-                    <AlertTitle>No affiliation data to display</AlertTitle>
-                  </Alert>
-                </Td>
-              </Tr>
-            ) : (
-              items.map((ctx, idx) => <Row context={ctx} key={`${ctx.authorName}_${idx}`} idx={idx + 1} />)
-            )}
-          </Tbody>
+          <Tbody data-testid="author-aff-table-body">{isLoading ? <SkeletonTableRows /> : renderAffList(items)}</Tbody>
         </Table>
       </TableContainer>
     </Box>
   );
 };
 
-const SkeletonTableRows = () => {
+const renderAffList = (items: IGroupedAuthorAffilationData[]) => {
+  if (items.length === 0) {
+    return (
+      <Tr>
+        <Td colSpan={5}>
+          <Alert status="warning" justifyContent="center">
+            <AlertTitle>No affiliation data to display</AlertTitle>
+          </Alert>
+        </Td>
+      </Tr>
+    );
+  }
+
+  return items.map((ctx, idx) => <Row context={ctx} key={`${ctx.authorName}_${idx}`} idx={idx + 1} />);
+};
+
+const SkeletonTableRows = memo(() => {
   return (
     <>
-      <Tr my="2">
-        <Td colSpan={5}>
-          <SkeletonText h="8" />
-        </Td>
-      </Tr>
-      <Tr my="2">
-        <Td colSpan={5}>
-          <SkeletonText h="8" />
-        </Td>
-      </Tr>
-      <Tr my="2">
-        <Td colSpan={5}>
-          <SkeletonText h="8" />
-        </Td>
-      </Tr>
-      <Tr my="2">
-        <Td colSpan={5}>
-          <SkeletonText h="8" />
-        </Td>
-      </Tr>
+      {new Array(10).fill(0).map((_, idx) => (
+        <Tr key={idx}>
+          <Td>{idx + 1}</Td>
+          <Td>
+            <Skeleton h="20px" />
+          </Td>
+          <Td>
+            <Skeleton h="20px" />
+          </Td>
+          <Td>
+            <Skeleton h="20px" />
+          </Td>
+          <Td>
+            <Skeleton h="20px" />
+          </Td>
+        </Tr>
+      ))}
     </>
   );
-};
+});
 
 const Row = (props: { context: IGroupedAuthorAffilationData; idx: number }) => {
   const { context: ctx, idx } = props;
