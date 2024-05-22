@@ -37,7 +37,7 @@ export const SearchInput: FC<ISearchInputProps> = (props) => {
   };
 
   return (
-    <FormControl>
+    <FormControl data-testid="search-facet-search">
       <FormLabel>
         <VisuallyHidden>{label}</VisuallyHidden>
       </FormLabel>

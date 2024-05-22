@@ -15,7 +15,7 @@ export const AlphaSorter: FC<IAlphaSorterProps> = (props) => {
   });
 
   return (
-    <Flex {...getRootProps()} {...flexProps}>
+    <Flex {...getRootProps()} {...flexProps} data-testid="search-facet-alpha-sorter">
       <LetterRadio {...getRadioProps({ value: 'All' })} />
       {range(65, 91).map((i) => (
         <LetterRadio key={i} {...getRadioProps({ value: String.fromCharCode(i) })} />

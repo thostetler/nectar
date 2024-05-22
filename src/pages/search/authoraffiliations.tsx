@@ -25,6 +25,7 @@ const AuthorAffiliationsPage: NextPage = () => {
         mt={showBackLink ? 0 : 4}
         mb="4"
         aria-labelledby="author-affiliation-title"
+        data-testid="author-aff-container"
         centerContent
       >
         <AuthorAffiliations query={query} w="full" maxW="container.lg" />

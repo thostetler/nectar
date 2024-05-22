@@ -185,7 +185,7 @@ export const NodeListModal = (props: INodeListProps) => {
   }
 
   return (
-    <>
+    <div data-testid="search-facet-list-container">
       {isError ? (
         <Center data-testid="search-facet-error">
           <Alert status="error">
@@ -218,7 +218,7 @@ export const NodeListModal = (props: INodeListProps) => {
         isLoading={isFetching}
         noLinks
       />
-    </>
+    </div>
   );
 };
 

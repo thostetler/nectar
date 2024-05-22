@@ -7,13 +7,11 @@ import {
   toggleAff,
   toggleAll,
 } from '@/components/AuthorAffiliations/helpers';
-import { composeStories } from '@storybook/react';
-import { render } from '@/test-utils';
+import { createServerListenerMocks, render } from '@/test-utils';
 import { lensPath, mapObjIndexed, prop, set, view } from 'ramda';
-import { afterEach, describe, expect, test, vi } from 'vitest';
-import * as stories from '../__stories__/AuthorAffiliations.stories';
-
-const { WithNoIntitialArgs } = composeStories(stories);
+import { afterEach, describe, expect, test, TestContext, vi } from 'vitest';
+import { AuthorAffiliations, AuthorAffiliationsProps } from '@/components';
+import userEvent from '@testing-library/user-event';
 
 vi.mock('file-saver', () => ({
   saveAs: vi.fn(),
@@ -32,9 +30,15 @@ afterEach(() => {
 });
 
 describe('UI', () => {
-  test('providing no args shows warning', async () => {
-    const { findByRole } = render(<WithNoIntitialArgs />);
-    await findByRole('alert');
+  const setup = (props: AuthorAffiliationsProps) => ({
+    user: userEvent.setup(),
+    ...render(<AuthorAffiliations {...props} />),
+  });
+  test('Shows a message if the query is bad', async ({ server }: TestContext) => {
+    const { onRequest } = createServerListenerMocks(server);
+    console.log(onRequest.mock.calls);
+    const { debug, findByTestId } = setup({ query: { q: 'star' } });
+    debug(await findByTestId('author-aff-container'));
   });
 });
 

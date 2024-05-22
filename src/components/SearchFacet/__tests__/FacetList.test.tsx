@@ -1,12 +1,11 @@
 import { SearchFacetID } from '@/components/SearchFacet/types';
 import userEvent from '@testing-library/user-event';
 import { FacetStoreProvider } from '@/components/SearchFacet/store/FacetStore';
-import { test, vi } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import { FacetList } from '@/components/SearchFacet/FacetList';
 import { DefaultProviders } from '@/test-utils';
 import { render } from '@testing-library/react';
-import { waitFor } from '@testing-library/dom';
-import { ISearchFacetModalProps } from '@/components/SearchFacet/SearchFacetModal';
+import { ModalBodyProps, ModalContentProps, ModalFooterProps, ModalHeaderProps, ModalProps } from '@chakra-ui/react';
 
 const setup = (id?: SearchFacetID) => {
   const user = userEvent.setup();
@@ -20,17 +19,31 @@ const setup = (id?: SearchFacetID) => {
   return { ...result, user };
 };
 
-// mock the modal, so we don't have to deal with portals
-vi.mock('@/components/SearchFacet/SearchFacetModal/SearchFacetModal', async (importOriginal) => {
+// mock out the Modal* components from Chakra so we don't have to deal with them
+vi.mock('@chakra-ui/react', async (importOriginal) => {
   return {
-    ...(await importOriginal<typeof import('@/components/SearchFacet/SearchFacetModal/SearchFacetModal')>()),
-    SearchFacetModal: ({ children }: ISearchFacetModalProps) => <>{children}</>,
+    ...(await importOriginal<typeof import('@chakra-ui/react')>()),
+    Modal: ({ children }: ModalProps) => <div data-testid="facet-modal">{children}</div>,
+    ModalBody: ({ children }: ModalBodyProps) => <div data-testid="facet-modal-body">{children}</div>,
+    ModalCloseButton: () => <div data-testid="facet-modal-close-btn" />,
+    ModalContent: ({ children }: ModalContentProps) => <div data-testid="facet-modal-content">{children}</div>,
+    ModalFooter: ({ children }: ModalFooterProps) => <div data-testid="facet-modal-footer">{children}</div>,
+    ModalHeader: ({ children }: ModalHeaderProps) => <div data-testid="facet-modal-header">{children}</div>,
+    ModalOverlay: () => <div data-testid="facet-modal-overlay" />,
   };
 });
 
-test('lksdjf', async () => {
-  const { debug, user, findByTestId } = setup('author');
-  await waitFor(() => findByTestId('search-facet-root-list'));
-  await user.click(await findByTestId('search-facet-load-more-btn'));
-  debug();
+test('FacetList sections all render properly', async () => {
+  const { user, findByTestId, getByRole } = setup('author');
+
+  // check the header
+  expect(await findByTestId('search-facet-search')).toBeVisible();
+
+  // sort control should be visible
+  const sortControl = await findByTestId('search-facet-sort-control');
+  expect(sortControl).toBeVisible();
+
+  // change to A-Z sort and confirm the alpha sorter is visible
+  await user.selectOptions(sortControl, getByRole('option', { name: 'A-Z' }));
+  expect(await findByTestId('search-facet-alpha-sorter')).toBeVisible();
 });

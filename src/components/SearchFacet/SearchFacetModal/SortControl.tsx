@@ -3,16 +3,13 @@ import { IFacetStoreState } from '@/components/SearchFacet/store/FacetStore';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/solid';
 import { ChangeEventHandler } from 'react';
 
-export const SortControl = ({
-  sort,
-  onSortChange,
-  onlyCount,
-  ...flexProps
-}: FlexProps & {
+export interface ISortControlProps extends FlexProps {
   sort: IFacetStoreState['sort'];
   onSortChange: (sort: IFacetStoreState['sort']) => void;
   onlyCount?: boolean;
-}) => {
+}
+
+export const SortControl = ({ sort, onSortChange, onlyCount, ...flexProps }: ISortControlProps) => {
   const [value, dir] = sort;
 
   const handleSortChange: ChangeEventHandler<HTMLSelectElement> = (ev) => {
@@ -34,7 +31,14 @@ export const SortControl = ({
       }}
       {...flexProps}
     >
-      <Select size="sm" value={value} onChange={handleSortChange} borderRightRadius="none" _focus={{ boxShadow: '' }}>
+      <Select
+        size="sm"
+        value={value}
+        onChange={handleSortChange}
+        borderRightRadius="none"
+        _focus={{ boxShadow: '' }}
+        data-testid="search-facet-sort-control"
+      >
         <option value="count">Count</option>
         {onlyCount ? null : <option value="index">A-Z</option>}
       </Select>

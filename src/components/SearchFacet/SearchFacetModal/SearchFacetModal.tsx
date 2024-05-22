@@ -60,7 +60,7 @@ const createBreadcrumbs = (key: string) => {
   return crumbs;
 };
 
-const ModalFacet = (props: ISearchFacetModalProps) => {
+export const ModalFacet = (props: ISearchFacetModalProps) => {
   const { onFilter, children } = props;
 
   const params = useFacetStore((state) => state.params);
