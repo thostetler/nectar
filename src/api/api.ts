@@ -7,6 +7,7 @@ import { defaultRequestConfig } from './config';
 import { IApiUserResponse } from '@/pages/api/user';
 import { logger } from '@/logger';
 import { buildStorage, CacheOptions, setupCache, StorageValue } from 'axios-cache-interceptor';
+import { parseAPIError } from '@/utils';
 
 export const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
@@ -235,9 +236,11 @@ class Api {
         this.bootstrapRetries -= 1;
         return this.request(config);
       }
+
       // bootstrapping failed all attempts, let user know
-      const bootstrapError = new Error('Unrecoverable Error, unable to refresh token', { cause: e as Error });
-      return Promise.reject(bootstrapError);
+      const msg = 'Unrecoverable Error, unable to refresh token';
+      log.error({ msg, error: e });
+      return Promise.reject(parseAPIError(e, { defaultMessage: msg }));
     }
   }
 

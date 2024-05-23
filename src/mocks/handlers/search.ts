@@ -1,5 +1,5 @@
 import { rest } from 'msw';
-import { ApiTargets, FacetField, IADSApiSearchResponse } from '@/api';
+import { FacetField, IADSApiSearchResponse } from '@/api';
 import qs from 'qs';
 import faker from '@faker-js/faker';
 import { generateFacetResponse } from '@/mocks/generators/facets';
@@ -8,7 +8,7 @@ import { api, apiHandlerRoute, highlights_mocks, ids_mocks, ranRange } from '@/m
 import { generateSearchResponse } from '@/mocks/generators/search';
 
 export const searchHandlers = [
-  rest.get(apiHandlerRoute(ApiTargets.SEARCH), async (req, res, ctx) => {
+  rest.get(apiHandlerRoute('SEARCH'), async (req, res, ctx) => {
     const params = qs.parse(req.url.search.slice(1));
 
     if (typeof params.cursorMark === 'string') {
@@ -112,7 +112,7 @@ export const searchHandlers = [
     return res(ctx.status(200), ctx.json<IADSApiSearchResponse>(body));
   }),
 
-  rest.post<string>(apiHandlerRoute(ApiTargets.BIGQUERY), async (req, res, ctx) => {
+  rest.post<string>(apiHandlerRoute('BIGQUERY'), async (req, res, ctx) => {
     const bibcodes = req.body;
     const rows = Number(new URL(req.url).searchParams.get('rows'));
     const authors = range(0, 5).map(() => `${faker.name.lastName()}, ${faker.random.alpha(1)}.`);

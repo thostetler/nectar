@@ -87,4 +87,5 @@ export const exportAuthorAffData = (entries: string[]) => {
   return entries.join('\n');
 };
 
-export const apiHandlerRoute = (key: ApiTargets, path?: string) => `*${key}${typeof path === 'string' ? path : '*'}`;
+export const apiHandlerRoute = (key: keyof typeof ApiTargets, path?: string) =>
+  `*${ApiTargets[key]}${typeof path === 'string' ? path : '*'}`;

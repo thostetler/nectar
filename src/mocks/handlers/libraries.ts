@@ -1,5 +1,4 @@
 import {
-  ApiTargets,
   IADSApiLibraryAddAnnotationParams,
   IADSApiLibraryAddParams,
   IADSApiLibraryDeleteAnnotationParams,
@@ -29,13 +28,13 @@ const entities = allEntities as { [key in string]: IADSApiLibraryEntityResponse 
 
 // get library
 export const librariesHandlers = [
-  rest.get(apiHandlerRoute(ApiTargets.LIBRARIES, '/:id'), (req, res, ctx) => {
+  rest.get(apiHandlerRoute('LIBRARIES', '/:id'), (req, res, ctx) => {
     const id = req.params.id as string;
     return res(ctx.json(entities[id]));
   }),
 
   // get libraries
-  rest.get(apiHandlerRoute(ApiTargets.LIBRARIES), (req, res, ctx) => {
+  rest.get(apiHandlerRoute('LIBRARIES'), (req, res, ctx) => {
     const start = req.url.searchParams.has('start') ? Number(req.url.searchParams.get('start')) : 0;
     const rows = req.url.searchParams.has('rows') ? Number(req.url.searchParams.get('rows')) : libraries.length;
     const sortby = req.url.searchParams.has('sort')
@@ -65,7 +64,7 @@ export const librariesHandlers = [
 
   // library operation
   rest.post<IADSApiLibraryOperationParams, { id: string }>(
-    apiHandlerRoute(ApiTargets.LIBRARY_OPERATION, '/:id'),
+    apiHandlerRoute('LIBRARY_OPERATION', '/:id'),
     (req, res, ctx) => {
       const id = req.params.id;
       const { description, libraries: ids, action, name, public: isPublic } = req.body;
@@ -106,7 +105,7 @@ export const librariesHandlers = [
   ),
 
   // add library
-  rest.post<IADSApiLibraryAddParams>(apiHandlerRoute(ApiTargets.LIBRARIES), async (req, res, ctx) => {
+  rest.post<IADSApiLibraryAddParams>(apiHandlerRoute('LIBRARIES'), async (req, res, ctx) => {
     const { name, description, public: isPublic, bibcode } = req.body;
 
     libraries.push({
@@ -126,7 +125,7 @@ export const librariesHandlers = [
   }),
 
   // delete library
-  rest.delete<null, { id: string }>(apiHandlerRoute(ApiTargets.DOCUMENTS, '/:id'), async (req, res, ctx) => {
+  rest.delete<null, { id: string }>(apiHandlerRoute('DOCUMENTS', '/:id'), async (req, res, ctx) => {
     const id = req.params.id;
     const index = libraries.findIndex((lib) => lib.id === id);
     libraries.splice(index, 1);
@@ -136,7 +135,7 @@ export const librariesHandlers = [
 
   // edit library meta
   rest.put<Omit<IADSApiLibraryEditMetaParams, 'id'>, { id: string }>(
-    apiHandlerRoute(ApiTargets.DOCUMENTS, '/:id'),
+    apiHandlerRoute('DOCUMENTS', '/:id'),
     async (req, res, ctx) => {
       const id = req.params.id;
       const { name, description, public: isPublic } = req.body;
@@ -165,7 +164,7 @@ export const librariesHandlers = [
 
   //  delete/add documents
   rest.post<null | IADSApiLibraryDocumentParams, { id: string }>(
-    apiHandlerRoute(ApiTargets.DOCUMENTS, '/:id'),
+    apiHandlerRoute('DOCUMENTS', '/:id'),
     async (req, res, ctx) => {
       const id = req.params.id;
 
@@ -193,13 +192,13 @@ export const librariesHandlers = [
     },
   ),
 
-  rest.get<null, { id: string }>(apiHandlerRoute(ApiTargets.PERMISSIONS, '/:id'), async (req, res, ctx) => {
+  rest.get<null, { id: string }>(apiHandlerRoute('PERMISSIONS', '/:id'), async (req, res, ctx) => {
     const id = req.params.id;
     return res(ctx.json(permissions[id]));
   }),
 
   rest.post<IADSApiLibraryPermissionUpdateParams, { id: string }>(
-    apiHandlerRoute(ApiTargets.PERMISSIONS, '/:id'),
+    apiHandlerRoute('PERMISSIONS', '/:id'),
     async (req, res, ctx) => {
       const id = req.params.id;
       const { email, permission } = req.body;
@@ -232,7 +231,7 @@ export const librariesHandlers = [
   ),
 
   rest.post<Omit<IADSApiLibraryTransferParams, 'id'>, { id: string }>(
-    apiHandlerRoute(ApiTargets.LIBRARY_TRANSFER, '/:id'),
+    apiHandlerRoute('LIBRARY_TRANSFER', '/:id'),
     async (req, res, ctx) => {
       const id = req.params.id;
       const { email } = req.body;
@@ -246,7 +245,7 @@ export const librariesHandlers = [
 
   // add note
   rest.post<Omit<IADSApiLibraryAddAnnotationParams, 'library' | 'bibcode'>, { library: string; bibcode: string }>(
-    apiHandlerRoute(ApiTargets.LIBRARY_NOTES, '/:library/:bibcode'),
+    apiHandlerRoute('LIBRARY_NOTES', '/:library/:bibcode'),
     async (req, res, ctx) => {
       const { library, bibcode } = req.params;
       const { content } = req.body;
@@ -266,7 +265,7 @@ export const librariesHandlers = [
 
   // update note
   rest.put<Omit<IADSApiLibraryUpdateAnnotationParams, 'library' | 'bibcode'>, { library: string; bibcode: string }>(
-    apiHandlerRoute(ApiTargets.LIBRARY_NOTES, '/:library/:bibcode'),
+    apiHandlerRoute('LIBRARY_NOTES', '/:library/:bibcode'),
     async (req, res, ctx) => {
       const { library, bibcode } = req.params;
       const { content } = req.body;
@@ -279,7 +278,7 @@ export const librariesHandlers = [
 
   // delete note
   rest.delete<Omit<IADSApiLibraryDeleteAnnotationParams, 'library' | 'bibcode'>, { library: string; bibcode: string }>(
-    apiHandlerRoute(ApiTargets.LIBRARY_NOTES, '/:library/:bibcode'),
+    apiHandlerRoute('LIBRARY_NOTES', '/:library/:bibcode'),
     async (req, res, ctx) => {
       const { library, bibcode } = req.params;
 

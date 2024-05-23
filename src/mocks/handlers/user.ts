@@ -20,7 +20,7 @@ export const userHandlers = [
           access_token: 'test',
           expire_in: '2500-03-22T14:50:07.712037',
           anonymous: false,
-          username: 'test',
+          username: 'testy@testing.com',
         },
         isAuthenticated: true,
       }),

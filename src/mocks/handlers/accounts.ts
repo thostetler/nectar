@@ -1,9 +1,8 @@
 import { rest } from 'msw';
-import { ApiTargets } from '@/api';
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
 
 export const accountHandlers = [
-  rest.get(apiHandlerRoute(ApiTargets.BOOTSTRAP), (req, res, ctx) => {
+  rest.get(apiHandlerRoute('BOOTSTRAP'), (req, res, ctx) => {
     const test = req.url.searchParams.get('test');
 
     if (test === 'networkerror') {

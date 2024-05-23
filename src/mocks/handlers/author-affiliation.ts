@@ -1,12 +1,11 @@
 import { rest } from 'msw';
-import { ApiTargets } from '@/api';
 import { IAuthorAffiliationExportPayload, IAuthorAffiliationResponse } from '@/api/author-affiliation/types';
 import { flatten, range } from 'ramda';
 import { apiHandlerRoute, authorAffData } from '@/mocks/mockHelpers';
 import faker from '@faker-js/faker';
 
 export const authorAffiliationHandlers = [
-  rest.post(apiHandlerRoute(ApiTargets.AUTHOR_AFFILIATION_SEARCH), (req, res, ctx) => {
+  rest.post(apiHandlerRoute('AUTHOR_AFFILIATION_SEARCH'), (req, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.json<IAuthorAffiliationResponse>({
@@ -15,7 +14,7 @@ export const authorAffiliationHandlers = [
     );
   }),
 
-  rest.post<IAuthorAffiliationExportPayload>(apiHandlerRoute(ApiTargets.AUTHOR_AFFILIATION_EXPORT), (req, res, ctx) => {
+  rest.post<IAuthorAffiliationExportPayload>(apiHandlerRoute('AUTHOR_AFFILIATION_EXPORT'), (req, res, ctx) => {
     return res(ctx.status(200), ctx.json('success'));
   }),
 ];
