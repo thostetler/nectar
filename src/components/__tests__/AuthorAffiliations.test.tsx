@@ -7,11 +7,8 @@ import {
   toggleAff,
   toggleAll,
 } from '@/components/AuthorAffiliations/helpers';
-import { createServerListenerMocks, render } from '@/test-utils';
 import { lensPath, mapObjIndexed, prop, set, view } from 'ramda';
-import { afterEach, describe, expect, test, TestContext, vi } from 'vitest';
-import { AuthorAffiliations, AuthorAffiliationsProps } from '@/components';
-import userEvent from '@testing-library/user-event';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 
 vi.mock('file-saver', () => ({
   saveAs: vi.fn(),
@@ -27,19 +24,6 @@ vi.stubGlobal('open', vi.fn());
 
 afterEach(() => {
   vi.clearAllMocks();
-});
-
-describe('UI', () => {
-  const setup = (props: AuthorAffiliationsProps) => ({
-    user: userEvent.setup(),
-    ...render(<AuthorAffiliations {...props} />),
-  });
-  test('Shows a message if the query is bad', async ({ server }: TestContext) => {
-    const { onRequest } = createServerListenerMocks(server);
-    console.log(onRequest.mock.calls);
-    const { debug, findByTestId } = setup({ query: { q: 'star' } });
-    debug(await findByTestId('author-aff-container'));
-  });
 });
 
 describe('helpers', () => {

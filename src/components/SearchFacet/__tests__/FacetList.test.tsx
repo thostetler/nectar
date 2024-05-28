@@ -47,3 +47,23 @@ test('FacetList sections all render properly', async () => {
   await user.selectOptions(sortControl, getByRole('option', { name: 'A-Z' }));
   expect(await findByTestId('search-facet-alpha-sorter')).toBeVisible();
 });
+
+test('FacetList returns to previous page when going back', async () => {
+  const { debug, user, getByTestId, findByTestId, getAllByTestId } = setup('author');
+
+  // ensure we are loaded and have content
+  expect(await findByTestId('search-facet-list-container')).toBeVisible();
+
+  // paginate forward a couple pages
+  expect(getByTestId('pagination-label')).toHaveTextContent(/^Showing 1 to 10.*/);
+  await user.click(getByTestId('pagination-next'));
+  expect(getByTestId('pagination-label')).toHaveTextContent(/^Showing 11 to 20.*/);
+  await user.click(getByTestId('pagination-next'));
+  expect(getByTestId('pagination-label')).toHaveTextContent(/^Showing 21 to 30.*/);
+  // we should now be on page 3
+
+  // dig into one entry
+  await user.click(getAllByTestId('search-facet-expand')[1]);
+
+  debug(await findByTestId('search-facet-list-container'));
+});
