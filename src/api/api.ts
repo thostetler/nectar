@@ -1,6 +1,6 @@
 import { IUserData } from '@/api';
 import { APP_STORAGE_KEY, updateAppUser } from '@/store';
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, HttpStatusCode } from 'axios';
 import { isPast, parseISO } from 'date-fns';
 import { identity, isNil } from 'ramda';
 import { defaultRequestConfig } from './config';
@@ -122,6 +122,11 @@ class Api {
           return Promise.reject(error);
         }
 
+        // if the request is a 429 (too many requests) just reject
+        if (error.response.status === HttpStatusCode.TooManyRequests) {
+          return Promise.reject(error);
+        }
+
         // check if the incoming error is the exact same status and URL as the last request
         // if so, we should reject to keep from getting into a loop
         if (
@@ -140,7 +145,7 @@ class Api {
           this.recentError = { status: error.response.status, config: error.config };
         }
 
-        if (error.response.status === API_STATUS.UNAUTHORIZED) {
+        if (error.response.status === HttpStatusCode.Unauthorized) {
           this.invalidateUserData();
 
           log.debug({ msg: 'Unauthorized request, refreshing token and retrying', err: error });
