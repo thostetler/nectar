@@ -1,10 +1,11 @@
 // eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
 import { getIronSession } from 'iron-session/edge';
-import { sessionConfig } from '@/config';
+import { sessionConfig, TRACING_HEADERS } from '@/config';
 import { edgeLogger } from '@/logger';
 import { ApiTargets } from '@/api/models';
 import { IVerifyAccountResponse } from '@/api/user/types';
+import { pick } from 'ramda';
 
 const extractToken = (path: string) => {
   try {
@@ -39,6 +40,7 @@ export const verifyMiddleware = async (req: NextRequest, res: NextResponse) => {
       const headers = new Headers({
         authorization: `Bearer ${session.token.access_token}`,
         cookie: `${process.env.ADS_SESSION_COOKIE_NAME}=${req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value}`,
+        ...pick(TRACING_HEADERS, Object.fromEntries(req.headers.entries())),
       });
 
       const result = await fetch(url, {

@@ -1,5 +1,5 @@
 import { getIronSession } from 'iron-session/edge';
-import { sessionConfig } from '@/config';
+import { sessionConfig, TRACING_HEADERS } from '@/config';
 import { ApiTargets } from '@/api/models';
 import { IBootstrapPayload, IUserData } from '@/api/user/types';
 import { isNil, pick } from 'ramda';
@@ -37,7 +37,7 @@ const isAuthenticated = (user: IUserData) => isUserData(user) && (!user.anonymou
  * Bootstraps the session (to get a new token)
  * @param cookie
  */
-const bootstrap = async (cookie?: string) => {
+const bootstrap = async (cookie?: string, requestHeaders?: Headers) => {
   if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
     return {
       token: {
@@ -48,6 +48,7 @@ const bootstrap = async (cookie?: string) => {
       },
       headers: new Headers({
         'set-cookie': `${process.env.ADS_SESSION_COOKIE_NAME}=mocked`,
+        ...pick(TRACING_HEADERS, Object.fromEntries(requestHeaders?.entries())),
       }),
     };
   }
@@ -136,7 +137,7 @@ export const initSession = async (req: NextRequest, res: NextResponse) => {
   await botCheck(req, res);
 
   // bootstrap a new token, passing in the current session cookie value
-  const { token, headers } = (await bootstrap(adsSessionCookie)) ?? {};
+  const { token, headers } = (await bootstrap(adsSessionCookie, req.headers)) ?? {};
 
   // validate token, update session, forward cookies
   if (isValidToken(token)) {
