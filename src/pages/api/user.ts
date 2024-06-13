@@ -3,6 +3,7 @@ import { withIronSessionApiRoute } from 'iron-session/next';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { sessionConfig } from '@/config';
 import { IronSession } from 'iron-session';
+import rateLimitMiddleware from '@/middlewares/rateLimit';
 
 export interface IApiUserResponse {
   isAuthenticated: boolean;
@@ -16,4 +17,4 @@ const user = (req: NextApiRequest, res: NextApiResponse) => {
   });
 };
 
-export default withIronSessionApiRoute(user, sessionConfig);
+export default withIronSessionApiRoute(rateLimitMiddleware(user), sessionConfig);
