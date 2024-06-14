@@ -74,6 +74,7 @@
     "fuse.js": "^6.6.2",
     "he": "^1.2.0",
     "idb-keyval": "^6.2.1",
+    "ioredis": "^5.4.1",
     "isomorphic-dompurify": "^0.15.0",
     "lucene": "^2.1.1",
     "match-sorter": "^6.3.1",
