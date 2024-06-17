@@ -4,6 +4,7 @@ import { edgeLogger } from '@/logger';
 // eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse, userAgent } from 'next/server';
 import { IronSessionData } from 'iron-session';
+import { getIp } from './helpers';
 
 enum CRAWLER_RESULT {
   BOT,
@@ -11,12 +12,6 @@ enum CRAWLER_RESULT {
   POTENTIAL_MALICIOUS_BOT,
   UNVERIFIABLE,
 }
-
-const getIp = (req: NextRequest) =>
-  req.headers.get('X-Original-Forwarded-For') ||
-  req.headers.get('X-Forwarded-For') ||
-  req.headers.get('X-Real-Ip') ||
-  req.ip;
 
 const crawlerCheck = async (req: NextRequest, ip: string, ua: string) => {
   try {

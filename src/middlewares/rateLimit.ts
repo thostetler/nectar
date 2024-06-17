@@ -1,36 +1,36 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import { getIp } from './helpers';
+import { NextRequest, NextResponse } from 'next/server';
+import { logger, edgeLogger } from '@/logger';
 
-const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
+const hit = async (url: string, ip: string) => await fetch(new URL('/api/isBot', url), {
+  method: 'POST',
+  body: JSON.stringify({ ip }),
+}).then(res => res.json()) as { curr: number; max: number };
 
-const getIp = (req: NextApiRequest) =>
-  (req.headers['X-Original-Forwarded-For'] || req.headers['X-Forwarded-For'] || req.headers['X-Real-Ip']) as string;
+export const rateLimit = async (req: NextRequest) => {
+  const ip = getIp(req);
+  const { curr, max } = await hit(req.nextUrl.toString(), ip);
 
-export default function rateLimitMiddleware(handler: (req: NextApiRequest, res: NextApiResponse) => void) {
-  return (req: NextApiRequest, res: NextApiResponse) => {
-    const ip = getIp(req);
-    const limit = 5; // Limiting requests to 5 per minute per IP
-    const windowMs = 60 * 1000; // 1 minute
+  if (curr > max) {
+    edgeLogger.info({ msg: 'Rate limit reached', ip, curr, max })
+    return NextResponse.json(
+      { message: 'Too many requests from this IP, please try again later.' },
+      { status: 429 }
+    );
+  }
 
-    if (!rateLimitMap.has(ip)) {
-      rateLimitMap.set(ip, {
-        count: 0,
-        lastReset: Date.now(),
-      });
-    }
+  return NextResponse.next();
+};
 
-    const ipData = rateLimitMap.get(ip);
+export const apiRateLimitApi = async (req: NextApiRequest, res: NextApiResponse) => {
+  const ip = getIp(req);
+  const { curr, max } = await hit(req.url, ip);
 
-    if (Date.now() - ipData.lastReset > windowMs) {
-      ipData.count = 0;
-      ipData.lastReset = Date.now();
-    }
+  if (curr > max) {
+    logger.info({ msg: 'Rate limit reached', ip, curr, max })
+    return res.status(429).send('Too Many Requests');
+  }
 
-    if (ipData.count >= limit) {
-      return res.status(429).send('Too Many Requests');
-    }
-
-    ipData.count += 1;
-
-    return handler(req, res);
-  };
+  return res;
 }

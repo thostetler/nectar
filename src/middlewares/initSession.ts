@@ -9,6 +9,7 @@ import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { botCheck } from '@/middlewares/botCheck';
 import setCookie from 'set-cookie-parser';
+import { rateLimit } from './rateLimit';
 
 /**
  * Checks if the user data is valid
@@ -108,6 +109,9 @@ const log = edgeLogger.child({}, { msgPrefix: '[initSession] ' });
  * @param res
  */
 export const initSession = async (req: NextRequest, res: NextResponse) => {
+  // check the request for rate limiting
+  await rateLimit(req);
+
   log.debug('Initializing session');
   const session = await getIronSession(req, res, sessionConfig);
   const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
