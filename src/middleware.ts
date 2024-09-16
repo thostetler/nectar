@@ -4,8 +4,38 @@ import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
 import { getIronSession } from 'iron-session/edge';
 import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
+import { LRUCache } from 'lru-cache';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
+
+// Rate-limiting configuration using LRU-cache
+const rateLimitCache = new LRUCache<string, { count: number; lastRequest: number }>({
+  max: 500, // Maximum of 500 unique IP addresses tracked
+  ttl: 1000 * 60 * 1, // Cache for 1 minute (time to live)
+  ttlAutopurge: true, // Automatically remove expired entries
+});
+
+const RATE_LIMIT_MAX_REQUESTS = 5; // Max number of requests per time window
+const RATE_LIMIT_TIME_WINDOW = 60 * 1000; // Time window for rate limit (1 minute)
+
+const rateLimit = (ip: string) => {
+  const currentTime = Date.now();
+  const entry = rateLimitCache.get(ip) || {
+    count: 0,
+    lastRequest: currentTime,
+  };
+
+  if (currentTime - entry.lastRequest < RATE_LIMIT_TIME_WINDOW) {
+    entry.count += 1;
+  } else {
+    entry.count = 1; // Reset count if outside of time window
+    entry.lastRequest = currentTime;
+  }
+
+  rateLimitCache.set(ip, entry);
+
+  return entry.count <= RATE_LIMIT_MAX_REQUESTS;
+};
 
 const redirect = (url: URL, req: NextRequest, message?: string) => {
   // clean the url of any existing notify params
