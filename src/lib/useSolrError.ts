@@ -14,7 +14,13 @@ export enum SOLR_ERROR {
 }
 
 const isSolrErrorResponse = (error: unknown): error is SolrErrorResponse => {
-  return typeof error === 'object' && error !== null && 'code' in error && 'metadata' in error && 'msg' in error;
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    'metadata' in error &&
+    'msg' in error
+  );
 };
 
 export const useSolrError = (error: unknown) => {
@@ -22,7 +28,8 @@ export const useSolrError = (error: unknown) => {
 
   // if incoming error is an axios error, extract the actual solr error from it
   if (isAxiosError(solrError)) {
-    solrError = (solrError as AxiosError<IADSApiSearchResponse>).response.data.error as SolrErrorResponse;
+    solrError = (solrError as AxiosError<IADSApiSearchResponse>)?.response?.data?
+      .error as SolrErrorResponse;
   }
 
   // if incoming error is not a solr error, return unknown

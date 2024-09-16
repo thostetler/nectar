@@ -4,45 +4,25 @@ import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
 import { getIronSession } from 'iron-session/edge';
 import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
-import { LRUCache } from 'lru-cache';
+import { rateLimit } from '@/rateLimit';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
-// Rate-limiting configuration using LRU-cache
-const rateLimitCache = new LRUCache<string, { count: number; lastRequest: number }>({
-  max: 500, // Maximum of 500 unique IP addresses tracked
-  ttl: 1000 * 60 * 1, // Cache for 1 minute (time to live)
-  ttlAutopurge: true, // Automatically remove expired entries
-});
-
-const RATE_LIMIT_MAX_REQUESTS = 5; // Max number of requests per time window
-const RATE_LIMIT_TIME_WINDOW = 60 * 1000; // Time window for rate limit (1 minute)
-
-const rateLimit = (ip: string) => {
-  const currentTime = Date.now();
-  const entry = rateLimitCache.get(ip) || {
-    count: 0,
-    lastRequest: currentTime,
-  };
-
-  if (currentTime - entry.lastRequest < RATE_LIMIT_TIME_WINDOW) {
-    entry.count += 1;
-  } else {
-    entry.count = 1; // Reset count if outside of time window
-    entry.lastRequest = currentTime;
-  }
-
-  rateLimitCache.set(ip, entry);
-
-  return entry.count <= RATE_LIMIT_MAX_REQUESTS;
-};
-
-const redirect = (url: URL, req: NextRequest, message?: string) => {
+const redirect = (
+  url: URL,
+  req: NextRequest,
+  res: NextResponse,
+  message?: string,
+) => {
   // clean the url of any existing notify params
   url.searchParams.delete('notify');
   if (message) {
     url.searchParams.set('notify', message);
   }
+  res.cookies.set('redirected', 'true', {
+    maxAge: 60,
+    path: '/',
+  });
   return NextResponse.redirect(url, req);
 };
 
@@ -55,7 +35,7 @@ const redirectIfAuthenticated = async (req: NextRequest, res: NextResponse) => {
     const url = req.nextUrl.clone();
     log.debug({ msg: 'User is authenticated, redirecting to home', url });
     url.pathname = '/';
-    return redirect(url, req);
+    return redirect(url, req, res);
   }
   return res;
 };
@@ -79,19 +59,19 @@ const loginMiddleware = async (req: NextRequest, res: NextResponse) => {
         log.debug('Next param is external, redirecting to root');
         url.searchParams.delete('next');
         url.pathname = '/';
-        return redirect(url, req, 'account-login-success');
+        return redirect(url, req, res, 'account-login-success');
       }
 
       log.debug('Next param is relative, redirecting to it');
       url.searchParams.delete('next');
       url.pathname = nextUrl.pathname;
-      return redirect(url, req, 'account-login-success');
+      return redirect(url, req, res, 'account-login-success');
     }
 
     log.debug('No next param found, redirecting to root');
     const url = req.nextUrl.clone();
     url.pathname = '/';
-    return redirect(url, req);
+    return redirect(url, req, res);
   }
 
   log.debug('User is not authenticated, proceeding to login page');
@@ -110,7 +90,7 @@ const protectedRoute = async (req: NextRequest, res: NextResponse) => {
   const originalPath = url.pathname;
   url.pathname = '/user/account/login';
   url.searchParams.set('next', encodeURIComponent(originalPath));
-  return redirect(url, req, 'login-required');
+  return redirect(url, req, res, 'login-required');
 };
 
 export async function middleware(req: NextRequest) {
@@ -120,6 +100,21 @@ export async function middleware(req: NextRequest) {
     url: req.nextUrl.toString(),
   });
 
+  if (req.cookies.has('redirected')) {
+    return NextResponse.next();
+  }
+
+  const ip = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
+
+  // Apply rate limiting
+  if (!rateLimit(ip)) {
+    log.warn({ msg: 'Rate limit exceeded', ip });
+    return NextResponse.json(
+      { message: 'Too many requests, please try again later.' },
+      { status: 429 },
+    );
+  }
+
   const res = await initSession(req, NextResponse.next());
 
   const path = req.nextUrl.pathname;
@@ -128,7 +123,10 @@ export async function middleware(req: NextRequest) {
     return loginMiddleware(req, res);
   }
 
-  if (path.startsWith('/user/account/register') || path.startsWith('/user/forgotpassword')) {
+  if (
+    path.startsWith('/user/account/register') ||
+    path.startsWith('/user/forgotpassword')
+  ) {
     return redirectIfAuthenticated(req, res);
   }
 
@@ -136,7 +134,10 @@ export async function middleware(req: NextRequest) {
     return protectedRoute(req, res);
   }
 
-  if (path.startsWith('/user/account/verify/change-email') || path.startsWith('/user/account/verify/register')) {
+  if (
+    path.startsWith('/user/account/verify/change-email') ||
+    path.startsWith('/user/account/verify/register')
+  ) {
     return verifyMiddleware(req, res);
   }
 
