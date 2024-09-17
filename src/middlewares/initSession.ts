@@ -1,12 +1,11 @@
-import { getIronSession } from 'iron-session/edge';
-import { sessionConfig } from '@/config';
+import { IronSession } from 'iron-session';
 import { ApiTargets } from '@/api/models';
 import { IBootstrapPayload, IUserData } from '@/api/user/types';
 import { isNil, pick } from 'ramda';
 import { isPast, parseISO } from 'date-fns';
 import { edgeLogger } from '@/logger';
+//  eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
-import { botCheck } from '@/middlewares/botCheck';
 import setCookie from 'set-cookie-parser';
 
 /**
@@ -24,15 +23,13 @@ const isUserData = (userData?: IUserData): userData is IUserData =>
  * Checks if the token is valid
  * @param userData
  */
-const isValidToken = (userData?: IUserData): boolean =>
-  isUserData(userData) && !isPast(parseISO(userData.expire_in));
+const isValidToken = (userData?: IUserData): boolean => isUserData(userData) && !isPast(parseISO(userData.expire_in));
 
 /**
  * Checks if the user is authenticated
  * @param user
  */
-const isAuthenticated = (user: IUserData) =>
-  isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
+const isAuthenticated = (user: IUserData) => isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
 
 /**
  * Bootstraps the session (to get a new token)
@@ -58,10 +55,7 @@ const bootstrap = async (cookie?: string) => {
 
   // use the incoming session cookie to perform the bootstrap
   if (cookie) {
-    headers.append(
-      'cookie',
-      `${process.env.ADS_SESSION_COOKIE_NAME}=${cookie}`,
-    );
+    headers.append('cookie', `${process.env.ADS_SESSION_COOKIE_NAME}=${cookie}`);
   }
   try {
     log.debug('Bootstrapping');
@@ -75,10 +69,7 @@ const bootstrap = async (cookie?: string) => {
       payload: json,
     });
     return {
-      token: pick(
-        ['access_token', 'username', 'anonymous', 'expire_in'],
-        json,
-      ) as IUserData,
+      token: pick(['access_token', 'username', 'anonymous', 'expire_in'], json) as IUserData,
       headers: res.headers,
     };
   } catch (error) {
@@ -99,10 +90,7 @@ const hash = async (str?: string) => {
     return '';
   }
   try {
-    const buffer = await globalThis.crypto.subtle.digest(
-      'SHA-1',
-      Buffer.from(str, 'utf-8'),
-    );
+    const buffer = await globalThis.crypto.subtle.digest('SHA-1', Buffer.from(str, 'utf-8'));
     return Array.from(new Uint8Array(buffer)).toString();
   } catch (e) {
     return '';
@@ -116,12 +104,9 @@ const log = edgeLogger.child({}, { msgPrefix: '[initSession] ' });
  * @param req
  * @param res
  */
-export const initSession = async (req: NextRequest, res: NextResponse) => {
+export const initSession = async (req: NextRequest, res: NextResponse, session: IronSession) => {
   log.debug('Initializing session');
-  const session = await getIronSession(req, res, sessionConfig);
-  const adsSessionCookie = req.cookies.get(
-    process.env.ADS_SESSION_COOKIE_NAME,
-  )?.value;
+  const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
   const apiCookieHash = await hash(adsSessionCookie);
 
   log.debug('Incoming session found, validating...');
@@ -155,22 +140,9 @@ export const initSession = async (req: NextRequest, res: NextResponse) => {
     session.token = token;
     session.isAuthenticated = isAuthenticated(token);
     log.debug({ msg: 'headers', headers: headers.entries() });
-    const sessionCookieValue = setCookie.parse(
-      headers.get('set-cookie') ?? '',
-    )[0].value;
+    const sessionCookieValue = setCookie.parse(headers.get('set-cookie') ?? '')[0].value;
     res.cookies.set(process.env.ADS_SESSION_COOKIE_NAME, sessionCookieValue);
-    session.apiCookieHash = await hash(
-      res.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value,
-    );
+    session.apiCookieHash = await hash(res.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value);
     await session.save();
-    return res;
   }
-
-  log.error('Failed to create a new session, redirecting back to root');
-  // if bootstrapping fails, we should probably redirect back to root and show a message
-  const url = req.nextUrl.clone();
-  url.pathname = '/';
-  url.searchParams.set('notify', 'api-connect-failed');
-  res.cookies.set('redirected', 'true', { maxAge: 60, path: '/' });
-  return NextResponse.redirect(url, req);
 };

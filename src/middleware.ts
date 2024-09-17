@@ -3,6 +3,7 @@ import { initSession } from '@/middlewares/initSession';
 import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
 import { getIronSession } from 'iron-session/edge';
 import { edgeLogger } from '@/logger';
+//  eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit } from '@/rateLimit';
 
@@ -11,18 +12,23 @@ const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 const redirect = (
   url: URL,
   req: NextRequest,
-  res: NextResponse,
-  message?: string,
+  options?: {
+    message: string;
+    clearParams?: boolean;
+  },
 ) => {
+  const clear = options?.clearParams ?? true;
+  log.debug({ options, url: url.searchParams.toString() }, 'redirection');
+  if (clear) {
+    url.search = '';
+    url.searchParams.forEach((_, key, search) => search.delete(key));
+  }
+
   // clean the url of any existing notify params
   url.searchParams.delete('notify');
-  if (message) {
-    url.searchParams.set('notify', message);
+  if (options?.message) {
+    url.searchParams.set('notify', options?.message);
   }
-  res.cookies.set('redirected', 'true', {
-    maxAge: 60,
-    path: '/',
-  });
   return NextResponse.redirect(url, req);
 };
 
@@ -35,7 +41,7 @@ const redirectIfAuthenticated = async (req: NextRequest, res: NextResponse) => {
     const url = req.nextUrl.clone();
     log.debug({ msg: 'User is authenticated, redirecting to home', url });
     url.pathname = '/';
-    return redirect(url, req, res);
+    return redirect(url, req);
   }
   return res;
 };
@@ -59,19 +65,19 @@ const loginMiddleware = async (req: NextRequest, res: NextResponse) => {
         log.debug('Next param is external, redirecting to root');
         url.searchParams.delete('next');
         url.pathname = '/';
-        return redirect(url, req, res, 'account-login-success');
+        return redirect(url, req, { message: 'account-login-success' });
       }
 
       log.debug('Next param is relative, redirecting to it');
       url.searchParams.delete('next');
       url.pathname = nextUrl.pathname;
-      return redirect(url, req, res, 'account-login-success');
+      return redirect(url, req, { message: 'account-login-success' });
     }
 
     log.debug('No next param found, redirecting to root');
     const url = req.nextUrl.clone();
     url.pathname = '/';
-    return redirect(url, req, res);
+    return redirect(url, req);
   }
 
   log.debug('User is not authenticated, proceeding to login page');
@@ -90,7 +96,7 @@ const protectedRoute = async (req: NextRequest, res: NextResponse) => {
   const originalPath = url.pathname;
   url.pathname = '/user/account/login';
   url.searchParams.set('next', encodeURIComponent(originalPath));
-  return redirect(url, req, res, 'login-required');
+  return redirect(url, req, { message: 'login-required', clearParams: false });
 };
 
 export async function middleware(req: NextRequest) {
@@ -100,8 +106,11 @@ export async function middleware(req: NextRequest) {
     url: req.nextUrl.toString(),
   });
 
-  if (req.cookies.has('redirected')) {
-    return NextResponse.next();
+  const res = NextResponse.next();
+
+  // Skip middleware for the root path
+  if (req.nextUrl.pathname === '/') {
+    return res;
   }
 
   const ip = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
@@ -109,13 +118,19 @@ export async function middleware(req: NextRequest) {
   // Apply rate limiting
   if (!rateLimit(ip)) {
     log.warn({ msg: 'Rate limit exceeded', ip });
-    return NextResponse.json(
-      { message: 'Too many requests, please try again later.' },
-      { status: 429 },
-    );
+    const url = req.nextUrl.clone();
+    url.pathname = '/';
+    return redirect(url, req, { message: 'rate-limit-exceeded' });
   }
 
-  const res = await initSession(req, NextResponse.next());
+  const session = await getIronSession(req, res, sessionConfig);
+  await initSession(req, res, session);
+  if (!session.token) {
+    log.error('Failed to create a new session, redirecting back to root');
+    const url = req.nextUrl.clone();
+    url.pathname = '/';
+    return redirect(url, req, { message: 'api-connect-failed' });
+  }
 
   const path = req.nextUrl.pathname;
 
@@ -123,10 +138,7 @@ export async function middleware(req: NextRequest) {
     return loginMiddleware(req, res);
   }
 
-  if (
-    path.startsWith('/user/account/register') ||
-    path.startsWith('/user/forgotpassword')
-  ) {
+  if (path.startsWith('/user/account/register') || path.startsWith('/user/forgotpassword')) {
     return redirectIfAuthenticated(req, res);
   }
 
@@ -134,10 +146,7 @@ export async function middleware(req: NextRequest) {
     return protectedRoute(req, res);
   }
 
-  if (
-    path.startsWith('/user/account/verify/change-email') ||
-    path.startsWith('/user/account/verify/register')
-  ) {
+  if (path.startsWith('/user/account/verify/change-email') || path.startsWith('/user/account/verify/register')) {
     return verifyMiddleware(req, res);
   }
 
@@ -147,7 +156,7 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|light|dark|_next/image|favicon|android|images|mockServiceWorker|site.webmanifest).*)',
+    '/((?!api|_next/static|light|dark|_next/image|favicon|android|images|mockServiceWorker|site.webmanifest|error|feedback|classic-form|paper-form).*)',
     '/api/user',
   ],
 };
