@@ -1,5 +1,4 @@
 import { sessionConfig } from '@/config';
-import { initSession } from '@/middlewares/initSession';
 import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
 import { getIronSession } from 'iron-session/edge';
 import { edgeLogger } from '@/logger';
@@ -117,20 +116,24 @@ export async function middleware(req: NextRequest) {
 
   // Apply rate limiting
   if (!rateLimit(ip)) {
-    log.warn({ msg: 'Rate limit exceeded', ip });
+    log.warn({ ip }, 'Rate limit exceeded');
+    if (req.nextUrl.pathname.startsWith('/api')) {
+      return NextResponse.json({ error: 'Rate Limit Exceeded' }, { status: 429 });
+    }
+
     const url = req.nextUrl.clone();
     url.pathname = '/';
     return redirect(url, req, { message: 'rate-limit-exceeded' });
   }
 
-  const session = await getIronSession(req, res, sessionConfig);
-  await initSession(req, res, session);
-  if (!session.token) {
-    log.error('Failed to create a new session, redirecting back to root');
-    const url = req.nextUrl.clone();
-    url.pathname = '/';
-    return redirect(url, req, { message: 'api-connect-failed' });
-  }
+  // const session = await getIronSession(req, res, sessionConfig);
+  // await initSession(req, res, session);
+  // if (!session.token) {
+  //   log.error('Failed to create a new session, redirecting back to root');
+  //   const url = req.nextUrl.clone();
+  //   url.pathname = '/';
+  //   return redirect(url, req, { message: 'api-connect-failed' });
+  // }
 
   const path = req.nextUrl.pathname;
 
@@ -157,6 +160,6 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     '/((?!api|_next/static|light|dark|_next/image|favicon|android|images|mockServiceWorker|site.webmanifest|error|feedback|classic-form|paper-form).*)',
-    '/api/user',
+    '/api/token/refresh',
   ],
 };
