@@ -3,7 +3,6 @@ import { withIronSessionSsr } from 'iron-session/next';
 import { sessionConfig } from '@/config';
 import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import api, { isUserData } from '@/api/api';
-import { dehydrate, hydrate, QueryClient } from '@tanstack/react-query';
 import { getNotification, NotificationId } from '@/store/slices';
 import { logger } from '@/logger';
 import { parseAPIError } from '@/utils';
@@ -20,13 +19,6 @@ const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
     token: isUserData(userData) ? userData.access_token : null,
   });
 
-  const qc = new QueryClient();
-  // found an incoming dehydrated state, hydrate it
-  if (prevResult?.props?.dehydratedState) {
-    hydrate(qc, prevResult.props.dehydratedState);
-  }
-  qc.setQueryData(['user'], userData);
-
   return Promise.resolve({
     props: {
       dehydratedAppState: {
@@ -35,7 +27,6 @@ const updateUserStateSSR: IncomingGSSP = (ctx, prevResult) => {
         // set notification if present
         notification: getNotification(ctx.query?.notify as NotificationId),
       } as AppState,
-      dehydratedState: dehydrate(qc),
     },
   });
 };

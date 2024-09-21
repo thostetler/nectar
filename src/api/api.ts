@@ -4,9 +4,9 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 import { isPast, parseISO } from 'date-fns';
 import { identity, isNil } from 'ramda';
 import { defaultRequestConfig } from './config';
-import { IApiUserResponse } from '@/pages/api/user';
 import { logger } from '@/logger';
 import { buildStorage, CacheOptions, setupCache, StorageValue } from 'axios-cache-interceptor';
+import { TokenResponse } from '@/pages/api/token/refresh';
 
 export const isUserData = (userData?: IUserData): userData is IUserData => {
   return (
@@ -103,7 +103,6 @@ class Api {
   private static instance: Api;
   private service: AxiosInstance;
   private userData: IUserData;
-  private bootstrapRetries = 2;
   private recentError: { status: number; config: AxiosRequestConfig };
 
   private constructor() {
@@ -183,6 +182,41 @@ class Api {
   }
 
   /**
+   *  Try all our possible ways of getting the user data (api access token)
+   */
+  private async getUserData() {
+    // first check if the userData we have is good
+    if (checkUserData(this.userData)) {
+      return this.userData;
+    }
+
+    // check local storage, could have been loaded via SSR
+    const localStorageUD = checkLocalStorageForUserData();
+    if (checkUserData(localStorageUD)) {
+      this.setUserData(localStorageUD);
+      return localStorageUD;
+    }
+
+    // fetch the userdata from the session (server api call)
+    const sessionUD = await this.fetchUserData();
+    if (checkUserData(sessionUD)) {
+      this.setUserData(sessionUD);
+      return sessionUD
+    }
+
+    // refresh the token directly
+    const freshUD = await this.refreshUserData();
+    if (checkUserData(freshUD)) {
+      this.setUserData(freshUD);
+      return freshUD
+    }
+
+    const err = new Error('Unable to obtain access to API, please try again later');
+    log.error({ err }, 'Could not find or refresh user data');
+    throw err;
+  }
+
+  /**
    * Main request method
    * Authenticate and fire the request
    */
@@ -194,60 +228,27 @@ class Api {
         userData: this.userData,
       });
     }
-    // serverside, we can just send the request
-    if (typeof window === 'undefined') {
-      return this.service.request<T>(applyTokenToRequest(config, this.userData?.access_token));
-    }
 
-    // in the case we have an unauthorized response, we should skip right to refreshing the token
-    const unauthorized = this.recentError?.status === API_STATUS.UNAUTHORIZED;
-
-    // we have valid token, send the request right away
-    if (!unauthorized && checkUserData(this.userData)) {
-      return this.service.request<T>(applyTokenToRequest(config, this.userData.access_token));
-    }
-
-    // otherwise attempt to get the token from local storage
-    const userData = checkLocalStorageForUserData();
-    if (!unauthorized && checkUserData(userData)) {
-      // set user data property
-      this.setUserData(userData);
-
-      return this.service.request<T>(applyTokenToRequest(config, userData.access_token));
-    }
-
-    // finally, we have to attempt a bootstrap request
+    let ud;
     try {
-      const freshUserData = await this.fetchUserData();
-
-      // if we don't have valid user data, throw an error
-      if (!checkUserData(freshUserData)) {
-        return Promise.reject(new Error('Unable to refresh token'));
-      }
-
-      // set user data property and in the app store
-      this.setUserData(freshUserData);
-      updateAppUser(freshUserData);
-
-      return this.service.request<T>(applyTokenToRequest(config, freshUserData.access_token));
-    } catch (e) {
-      if (this.bootstrapRetries > 0) {
-        this.bootstrapRetries -= 1;
-        return this.request(config);
-      }
-      // bootstrapping failed all attempts, let user know
-      const bootstrapError = new Error('Unrecoverable Error, unable to refresh token', { cause: e as Error });
-      return Promise.reject(bootstrapError);
+      ud = await this.getUserData();
+    } catch (err) {
+      log.error({ err }, 'API request error, unable to fetch api access');
+      return Promise.reject(err);
     }
+
+    return this.service.request<T>(applyTokenToRequest(config, ud.access_token));
   }
 
   async fetchUserData() {
-    const { data } = await axios.get<IApiUserResponse>('/api/user', {
-      headers: {
-        'x-Refresh-Token': 1,
-      },
-    });
+    const { data } = await axios.get<TokenResponse>('/api/token');
     log.debug({ msg: 'Fetching user data', data });
+    return data.user;
+  }
+
+  async refreshUserData() {
+    const { data } = await axios.post<TokenResponse>('/api/token/refresh');
+    log.debug({ msg: 'Refreshing user data', data });
     return data.user;
   }
 
@@ -256,7 +257,6 @@ class Api {
     void this.init();
     this.userData = null;
     this.recentError = null;
-    this.bootstrapRetries = 2;
   }
 }
 

@@ -102,11 +102,10 @@ const omitParams = (query: IADSApiSearchParams) =>
  */
 export const useSearch: SearchADSQuery = (params, options) => {
   // omit fields from queryKey
-  const cleanParams = omitParams(getSearchParams(params));
+  const cleanParams = getSearchParams(params);
 
   return useQuery<IADSApiSearchResponse, ErrorType, IADSApiSearchResponse['response']>({
     queryKey: searchKeys.primary(cleanParams),
-    queryHash: JSON.stringify(searchKeys.primary(cleanParams)),
     queryFn: fetchSearch,
     meta: { params },
     select: responseSelector,
@@ -395,7 +394,7 @@ export const fetchBigQuerySearch: MutationFunction<IADSApiSearchResponse['respon
  *
  * *This shouldn't be used directly, except during prefetching*
  */
-export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }) => {
+export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta, signal }) => {
   const { params } = meta as { params: IADSApiSearchParams };
 
   const finalParams = { ...params };
@@ -407,6 +406,7 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.SEARCH,
+    signal,
     params: finalParams,
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);

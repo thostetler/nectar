@@ -17,6 +17,7 @@ declare module 'iron-session' {
     isAuthenticated?: boolean;
     apiCookieHash?: string;
     bot?: boolean;
+    initialized: boolean;
   }
 }
 

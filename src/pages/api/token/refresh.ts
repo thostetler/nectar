@@ -7,6 +7,8 @@ import axios from 'axios';
 import { ApiTargets, IBootstrapPayload } from '@/api';
 import { logger } from '@/logger';
 import { pick } from 'ramda';
+import { IncomingMessage } from 'http';
+import { TRACING_HEADERS } from '@/config';
 
 export const config = {
   api: {
@@ -19,7 +21,30 @@ export interface IApiUserResponse {
   user: IronSession['token'];
 }
 
-const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+export type TokenResponse = {
+  isAuthenticated?: boolean;
+  user?: {
+    access_token: string;
+    expire_in: string;
+    anonymous: boolean;
+    username: string
+  }
+  error?: string;
+}
+
+const getHeaders = (req: IncomingMessage) => {
+  const headers: Record<string, string | string[]> = {
+    'Content-Type': 'application/json'
+  };
+  TRACING_HEADERS.forEach((key) => {
+    if (req.headers[key]) {
+      headers[key] = req.headers[key];
+    }
+  })
+  return headers;
+}
+
+const handler = async (req: NextApiRequest, res: NextApiResponse<TokenResponse>) => {
   logger.debug({ method: req.method }, 'Refetch request received');
 
   // disallow requests via GET,
@@ -30,7 +55,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // disallow access if request does not have a cookie
   // TODO: should "verify" session, not just detect one
-  if (!req.session?.token) {
+  if (!req.session?.initialized) {
     logger.error('request not authenticated');
     return res.status(401).json({ error: 'Not Authenticated' });
   }
@@ -43,10 +68,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       baseURL: process.env.API_HOST_SERVER,
       url: ApiTargets.BOOTSTRAP,
       headers: {
-        'X-Original-Uri': req.headers['X-Original-Uri'],
-        'X-Original-Forwarded-For': req.headers['X-Original-Forwarded-For'],
-        'X-Forwarded-For': req.headers['X-Forwarded-For'],
-        'X-Amzn-Trace-Id': req.headers['X-Amzn-Trace-Id'],
+        ...getHeaders(req),
         Cookie: `${process.env.ADS_SESSION_COOKIE_NAME}=${req.cookies[process.env.ADS_SESSION_COOKIE_NAME]}`,
       },
     });

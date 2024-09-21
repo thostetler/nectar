@@ -107,6 +107,14 @@ export async function middleware(req: NextRequest) {
 
   const res = NextResponse.next();
 
+  // initialize a session
+  const session = await getIronSession(req, res, sessionConfig);
+  log.debug({ session }, 'Session');
+
+  // initialize the session
+  session.initialized = true;
+  session.save();
+
   // Skip middleware for the root path
   if (req.nextUrl.pathname === '/') {
     return res;

@@ -1,13 +1,10 @@
 import {
   defaultParams,
-  getSearchParams,
   IADSApiSearchParams,
   IADSApiSearchResponse,
   SEARCH_API_KEYS,
-  searchKeys,
   SolrSort,
   useSearch,
-  fetchSearchSSR,
 } from '@/api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import {
@@ -65,6 +62,7 @@ import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 import { AxiosError } from 'axios';
 import { logger } from '@/logger';
 import { BRAND_NAME_FULL, BRAND_NAME_SHORT } from '@/config';
+import { parseSearchUrlToParams } from '@/gssp/search';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),
@@ -111,15 +109,15 @@ const SearchPage: NextPage = () => {
   const [isPrint] = useMediaQuery('print'); // use to hide elements when printing
 
   // parse the query params from the URL, this should match what the server parsed
-  const parsedParams = parseQueryFromUrl(router.asPath);
+  const { params: parsedParams, page } = parseSearchUrlToParams(router.asPath);
   const params = {
     ...defaultParams,
     ...parsedParams,
     rows: storeNumPerPage,
-    start: calculateStartIndex(parsedParams.p, storeNumPerPage, numFound),
+    start: calculateStartIndex(page, storeNumPerPage, numFound),
   };
 
-  const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(omitP(params));
+  const { data, isSuccess, isLoading, isFetching, error, isError } = useSearch(params);
 
   // needed by histogram for positioning and styling
   const [histogramExpanded, setHistogramExpanded] = useState(false);
@@ -268,7 +266,7 @@ const SearchPage: NextPage = () => {
                 {!isPrint && (
                   <Pagination
                     numPerPage={storeNumPerPage}
-                    page={params.p}
+                    page={page}
                     totalResults={data.numFound}
                     onPerPageSelect={handlePerPageChange}
                   />
@@ -411,56 +409,7 @@ const NoResultsMsg = () => (
   />
 );
 
-const omitUnsafeQueryParams = omit(['fl', 'start', 'rows']);
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  const queryClient = new QueryClient();
-  const { p: page, n: numPerPage, ...query } = parseQueryFromUrl<{ p: string; n: string }>(ctx.req.url);
-
-  const params = getSearchParams({
-    ...omitUnsafeQueryParams(query),
-    q: query.q.length === 0 ? '*:*' : query.q,
-    start: (page - 1) * numPerPage,
-    rows: numPerPage,
-  });
-
-  try {
-    const queryKey = searchKeys.primary(params);
-
-    // primary query prefetch
-    await queryClient.fetchQuery({
-      queryKey,
-      queryFn: () => fetchSearchSSR(params, ctx),
-    });
-
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-        dehydratedAppState: {
-          query: params,
-          latestQuery: params,
-          numPerPage: numPerPage as NumPerPageType,
-        } as AppState,
-        page,
-        params,
-      },
-    };
-  } catch (error) {
-    logger.error({ msg: 'Error fetching search results', error });
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-        dehydratedAppState: {
-          query: params,
-          latestQuery: params,
-          numPerPage: numPerPage as NumPerPageType,
-        } as AppState,
-        pageError: parseAPIError(error),
-        page,
-        params,
-      },
-    };
-  }
-});
+export { searchGSSP as getServerSideProps } from '@/gssp/search'
 
 export default SearchPage;
 
