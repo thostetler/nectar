@@ -23,19 +23,23 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { CalendarIcon } from '@chakra-ui/icons';
-import { BibstemPicker, Expandable, IRawClassicFormState, SimpleCopyButton, SimpleLink, Sort } from '@/components';
 import { APP_DEFAULTS } from '@/config';
 import { useErrorMessage } from '@/lib/useErrorMessage';
 import { useIsClient } from '@/lib/useIsClient';
-import { useRouter } from 'next/router';
+import { usePathname, useRouter } from 'next/navigation';
 import PT from 'prop-types';
 import { FormEventHandler, useMemo } from 'react';
 import { Control, Controller, useForm, UseFormRegisterReturn, useWatch } from 'react-hook-form';
 import { getSearchQuery } from './helpers';
-import { IClassicFormState } from './types';
+import { IClassicFormState, IRawClassicFormState } from './types';
 import { SolrSort, SolrSortField } from '@/api';
 import { solrSortOptions } from '@/components/Sort/model';
 import { normalizeSolrSort } from '@/utils';
+import { BibstemPicker } from '@/components/BibstemPicker';
+import { SimpleLink } from '@/components/SimpleLink';
+import { Sort } from '@/components/Sort';
+import { Expandable } from '@/components/Expandable';
+import { SimpleCopyButton } from '@/components/CopyButton';
 
 const propTypes = {
   ssrError: PT.string,
@@ -66,6 +70,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
   const isClient = useIsClient();
   const router = useRouter();
   const [queryError, setQueryError] = useErrorMessage<string>(props.ssrError);
+  const pathname = usePathname();
 
   const { register, control, handleSubmit } = useForm<IClassicFormState>({
     defaultValues: defaultClassicFormState,
@@ -76,7 +81,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
 
     void handleSubmit((params) => {
       try {
-        void router.push({ pathname: '/search', search: getSearchQuery(params) });
+        router.push(`/search?${getSearchQuery(params)}`);
       } catch (e) {
         setQueryError((e as Error)?.message);
       }
@@ -84,7 +89,7 @@ export const ClassicForm = (props: IClassicFormProps) => {
   };
 
   return (
-    <form method="post" action={router.route} onSubmit={formSubmit} aria-describedby="form-title">
+    <form method="post" action={pathname} onSubmit={formSubmit} aria-describedby="form-title">
       <Stack direction="column" spacing={5} aria-describedby="form-title">
         <VisuallyHidden as="h2" id="form-title">
           Classic Form

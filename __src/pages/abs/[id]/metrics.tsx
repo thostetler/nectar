@@ -7,7 +7,6 @@ import {
   useGetMetrics,
 } from '@/api';
 import { Box } from '@chakra-ui/react';
-import { LoadingMessage, MetricsPane } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { GetServerSideProps, NextPage } from 'next';

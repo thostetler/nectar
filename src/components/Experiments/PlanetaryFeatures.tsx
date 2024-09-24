@@ -6,7 +6,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Select } from '@/components';
 import { isNil } from 'ramda';
 import { GlobeAltIcon } from '@heroicons/react/24/solid';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { IADSApiSearchParams, useVaultBigQuerySearch } from '@/api';
 import { makeSearchParams } from '@/utils';
 import * as Q from '@/query-utils';

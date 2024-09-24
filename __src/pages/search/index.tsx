@@ -1,5 +1,6 @@
 import {
   defaultParams,
+  fetchSearchSSR,
   getSearchParams,
   IADSApiSearchParams,
   IADSApiSearchResponse,
@@ -7,7 +8,6 @@ import {
   searchKeys,
   SolrSort,
   useSearch,
-  fetchSearchSSR,
 } from '@/api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import {
@@ -49,7 +49,7 @@ import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagin
 import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
 import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogramSlider';
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/20/solid';
-import { useIsClient } from 'src/lib';
+import { useIsClient } from '../../lib';
 import { composeNextGSSP } from '@/ssr-utils';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { NumPerPageType } from '@/types';
@@ -64,7 +64,7 @@ import { dehydrate, QueryClient, useQueryClient } from '@tanstack/react-query';
 import { SOLR_ERROR, useSolrError } from '@/lib/useSolrError';
 import { AxiosError } from 'axios';
 import { logger } from '@/logger';
-import { BRAND_NAME_FULL, BRAND_NAME_SHORT } from '@/config';
+import { BRAND_NAME_FULL } from '@/config';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () => import('@/components/SearchFacet/YearHistogramSlider').then((mod) => mod.YearHistogramSlider),

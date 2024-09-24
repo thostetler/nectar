@@ -1,5 +1,5 @@
 import { SideNavigationMenu, TopNavigationMenu } from '@/components/NavigationMenu';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const settingsPath = '/user/settings';
 

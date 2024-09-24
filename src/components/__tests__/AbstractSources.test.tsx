@@ -5,7 +5,7 @@ import { test, vi } from 'vitest';
 
 const AbstractSources = composeStory(Default, Meta);
 
-vi.mock('next/router', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
     reload: vi.fn(),
   }),

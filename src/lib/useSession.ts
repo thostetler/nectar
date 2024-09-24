@@ -3,18 +3,17 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import { useUser } from '@/lib/useUser';
 import { useMutation } from '@tanstack/react-query';
-import { ILogoutResponse } from '@/pages/api/auth/logout';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 /**
  * Provides access to the user session and methods to logout
  */
 export const useSession = () => {
   const { user, reset } = useUser();
-  const { reload } = useRouter();
+  const { refresh } = useRouter();
 
   const { mutate: logout, ...result } = useMutation(['logout'], async () => {
-    const { data } = await axios.post<ILogoutResponse>('/api/auth/logout');
+    const { data } = await axios.post('/api/auth/logout');
     return data;
   });
 
@@ -22,14 +21,14 @@ export const useSession = () => {
     if (result.data?.success) {
       api.reset();
       reset().finally(() => {
-        reload();
+        refresh();
       });
     }
   }, [result.data?.success]);
 
   useEffect(() => {
     if (result.isError) {
-      reload();
+      refresh();
     }
   }, [result.isError]);
 

@@ -1,7 +1,7 @@
 import { Box, BoxProps, Button, Flex, Tag, TagCloseButton, TagLabel, Tooltip } from '@chakra-ui/react';
 import { clearFQs, removeFQClause } from '@/query-utils';
 import { isIADSSearchParams, makeSearchParams, parseQueryFromUrl } from '@/utils';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { curryN } from 'ramda';
 import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { FilterTuple, getFilters, getObjectName } from './helpers';
@@ -10,6 +10,8 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export const FacetFilters = (props: BoxProps): ReactElement => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [filterSections, setFilterSections] = useState<FilterTuple[]>([]);
 
   const [objectIds, setObjectIds] = useState<string[]>([]);
@@ -18,7 +20,7 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
 
   const queryClient = useQueryClient();
 
-  // look up in the cache for matching object id in the react query key
+  // look up in the cache for matching object id in the React query key
   // if found, get data from cache, otherwise fetch
   const translateObjectClauses = (clauses: string[]) => {
     const objectIds: string[] = [];
@@ -45,7 +47,7 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
 
   useEffect(() => {
     // Get the current query from the router
-    const parsedQuery = parseQueryFromUrl(router.asPath);
+    const parsedQuery = parseQueryFromUrl(searchParams.toString());
 
     // parse and generate the filters from the query, and set our sections
     const filters = getFilters(parsedQuery).map((tuple) => {
@@ -57,34 +59,32 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
       }
     });
     setFilterSections(filters);
-  }, [router.query, objects]);
+  }, [searchParams, objects]);
 
   const handleRemoveFilterClick = useCallback(
     curryN(3, (clause: string, key: string) => {
       if (typeof key === 'string') {
         // Remove the clause from the current query
-        const query = parseQueryFromUrl(router.asPath);
+        const query = parseQueryFromUrl(searchParams.toString());
         const params = removeFQClause(key, clause, query);
 
         // Update the router with the new query
         if (isIADSSearchParams(params)) {
-          const search = makeSearchParams(params);
-          void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+          router.push(`/search?${makeSearchParams(params)}`);
         }
       }
     }),
-    [filterSections, router.query],
+    [filterSections, searchParams],
   );
 
   const handleRemoveAllFiltersClick = () => {
-    const query = parseQueryFromUrl(router.asPath);
+    const query = parseQueryFromUrl(searchParams.toString());
 
     // clear all FQs from the query
     const params = clearFQs(query);
 
     if (isIADSSearchParams(params)) {
-      const search = makeSearchParams(params);
-      void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
+      router.push(`/search?${makeSearchParams(params)}`);
     }
   };
 

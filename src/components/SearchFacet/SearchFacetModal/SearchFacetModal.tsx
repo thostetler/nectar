@@ -22,7 +22,7 @@ import { SortControl } from '@/components/SearchFacet/SearchFacetModal/SortContr
 import { useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { ReactElement, ReactNode, useCallback, useMemo } from 'react';
 import { keyToPath, parseTitleFromKey } from '../helpers';
-import { useDebounce } from 'src/lib';
+import { useDebounce } from '../../../lib';
 import { SelectedList } from './SelectedList';
 
 interface ISearchFacetModalProps extends Omit<IFacetListProps, 'onError'> {

@@ -1,5 +1,4 @@
 import { getCoreadsParams, useGetAbstract, useGetCoreads } from '@/api';
-import { AbstractRefList } from '@/components';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
@@ -7,6 +6,7 @@ import { useRouter } from 'next/router';
 import { composeNextGSSP } from '@/ssr-utils';
 import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { APP_DEFAULTS } from '@/config';
+import { AbstractRefList } from '@/components/AbstractRefList';
 
 const CoreadsPage: NextPage = () => {
   const router = useRouter();

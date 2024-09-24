@@ -5,7 +5,6 @@ import { withDetailsPage } from '@/hocs/withDetailsPage';
 import { composeNextGSSP } from '@/ssr-utils';
 import { GetServerSideProps, NextPage } from 'next';
 import NextImage from 'next/legacy/image';
-import { LoadingMessage, SimpleLink } from '@/components';
 import { useRouter } from 'next/router';
 import { path } from 'ramda';
 

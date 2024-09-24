@@ -1,10 +1,8 @@
-import { BiblibSort, IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity, IUserData, SolrSort } from '@/api';
+import { BiblibSort, IADSApiSearchParams, IDocsEntity, SolrSort } from '@/api';
 import { APP_DEFAULTS } from '@/config';
 import { NumPerPageType, SafeSearchUrlParams } from '@/types';
 import axios, { AxiosError } from 'axios';
 import DOMPurify from 'isomorphic-dompurify';
-import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next';
-import { useRouter } from 'next/router';
 import qs from 'qs';
 import { ParsedUrlQuery } from 'querystring';
 import {
@@ -45,7 +43,7 @@ export const normalizeURLParams = <T extends Record<string, string> = Record<str
     if (skipKeys.includes(key)) {
       return acc;
     }
-    const rawValue = query[key];
+    const rawValue: unknown = query[key];
     const value = typeof rawValue === 'string' ? rawValue : Array.isArray(rawValue) ? rawValue.join(',') : undefined;
 
     if (typeof value === 'undefined') {
@@ -60,26 +58,6 @@ export const normalizeURLParams = <T extends Record<string, string> = Record<str
 };
 
 export const isBrowser = (): boolean => typeof window !== 'undefined';
-
-export const initMiddleware =
-  (middleware: (req: NextApiRequest, res: NextApiResponse, cb: (result: unknown) => void) => unknown) =>
-  (req: NextApiRequest, res: NextApiResponse): Promise<unknown> =>
-    new Promise((resolve, reject) =>
-      middleware(req, res, (result) => (result instanceof Error ? reject(result) : resolve(result))),
-    );
-
-export type ADSServerSideContext = GetServerSidePropsContext & {
-  req: GetServerSidePropsContext['req'] & { session: { userData: IUserData } };
-  parsedQuery: ParsedUrlQuery;
-  userData: IUserData;
-};
-
-export interface IOriginalDoc {
-  error?: string;
-  notFound?: boolean;
-  doc?: IDocsEntity;
-  numFound?: number;
-}
 
 // todo: should be moved to somewhere more specific
 export const getFomattedNumericPubdate = (pubdate: string): string | null => {
@@ -109,34 +87,6 @@ export const parsePublicationDate = (pubdate: string): { year: string; month: st
     const monthMatch = /^(\d{4})-(\d{2})$/.exec(pubdate);
     const month = monthMatch ? monthMatch[2] : '00';
     return { year, month, day: '00' };
-  }
-};
-
-/**
- * Parse a JSON string
- * Returns a default value on failure
- */
-export const safeParse = <T>(value: string, defaultValue: T): T => {
-  try {
-    if (typeof value !== 'string') {
-      return defaultValue;
-    }
-
-    return JSON.parse(value) as T;
-  } catch (e) {
-    return defaultValue;
-  }
-};
-
-/**
- * Simple hook for parsing
- */
-export const useBaseRouterPath = (): { basePath: string } => {
-  const { asPath } = useRouter();
-  try {
-    return { basePath: asPath.split('?')[0] };
-  } catch (e) {
-    return { basePath: '/' };
   }
 };
 
@@ -178,10 +128,10 @@ export const isNumPerPageType = (value: number): value is NumPerPageType => {
  * Helper to parse query params into API search parameters
  */
 export const parseQueryFromUrl = <TExtra extends Record<string, string | number | Array<string | number>>>(
-  url: string,
+  url = '',
   { sortPostfix }: { sortPostfix?: SolrSort } = {},
 ) => {
-  const queryString = url.indexOf('?') === -1 ? '' : url.split('?')[1];
+  const queryString = url?.indexOf('?') === -1 ? url : url.split('?')[1];
   const params = parseSearchParams(queryString) as Record<string, string | string[]>;
   const normalizedParams = normalizeURLParams(params, ['fq']);
   const q = decodeURIComponent(normalizedParams?.q ?? '');
@@ -270,13 +220,6 @@ export const normalizeSolrSort = (rawSolrSort: unknown, postfixSort?: SolrSort):
   return uniq(validSort.concat(tieBreaker));
 };
 
-// returns true if value passed in is a valid IADSApiSearchResponse
-export const isApiSearchResponse = (value: unknown): value is IADSApiSearchResponse => {
-  return (
-    propIs(Object, 'responseHeader', value) &&
-    (propIs(Object, 'response', value) || propIs(Object, 'error', value) || propIs(Object, 'stats', value))
-  );
-};
 
 export const isIADSSearchParams = (value: unknown): value is IADSApiSearchParams => {
   return isPlainObject(value) && propIs(String, 'q', value);
@@ -487,6 +430,7 @@ export const asyncDelay = (delay = 1000) => new Promise((resolve) => setTimeout(
  * ]
  * ```
  * @param doc
+ * @param includeAff
  */
 export const coalesceAuthorsFromDoc = (doc: IDocsEntity, includeAff?: boolean) => {
   const { author = [], aff = [], orcid_other = [], orcid_pub = [], orcid_user = [] } = doc;
@@ -536,11 +480,3 @@ export const isValidEmail = (email: string) => {
     return false;
   }
 };
-
-export const immutableInsert = <T>(arr: T[], index: number, newItem: T): T[] => [
-  ...arr.slice(0, index),
-  newItem,
-  ...arr.slice(index),
-];
-
-export const immutableRemove = <T>(arr: T[], index: number): T[] => [...arr.slice(0, index), ...arr.slice(index + 1)];

@@ -27,7 +27,6 @@ import {
   Tooltip,
 } from '@chakra-ui/react';
 import { ChevronRightIcon } from '@chakra-ui/icons';
-import { Pagination, Toggler } from '@/components';
 import { getLevelFromKey, isRootNode, parseRootFromKey, parseTitleFromKey } from '@/components/SearchFacet/helpers';
 import { selectors, useFacetStore } from '@/components/SearchFacet/store/FacetStore';
 import { FacetItem, FacetLogic, OnFilterArgs } from '@/components/SearchFacet/types';
@@ -38,6 +37,8 @@ import { equals, isEmpty } from 'ramda';
 import { forwardRef, KeyboardEvent, memo, MouseEventHandler, useCallback, useEffect, useRef } from 'react';
 import { SearchFacetModal } from './SearchFacetModal';
 import { useColorModeColors } from '@/lib';
+import { Toggler } from '@/components/Toggler';
+import { Pagination } from '@/components/ResultList';
 
 export interface IFacetListProps extends ListProps {
   noLoadMore?: boolean;

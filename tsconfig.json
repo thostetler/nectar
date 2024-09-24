@@ -23,9 +23,14 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
+      ]
     },
-    "incremental": true
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
     "reset.d.ts",
@@ -33,11 +38,12 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "vitest-setup.ts"
+    "vitest-setup.ts",
+    "dist/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "dev",
+    "dev"
   ]
 }

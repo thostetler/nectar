@@ -1,11 +1,11 @@
 import { Preview } from '@storybook/react';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { StoreProvider, useCreateStore } from '../src/store/store';
+import { StoreProvider, useCreateStore } from '../__src/store/store';
 import { initialize, mswLoader } from 'msw-storybook-addon';
-import { handlers } from '../src/mocks/handlers';
-import { theme } from '../src/theme';
-import { MathJaxProvider } from '../src/mathjax';
+import { handlers } from '../__src/mocks/handlers';
+import { theme } from '../__src/theme';
+import { MathJaxProvider } from '../__src/mathjax';
 import { useCreateQueryClient } from '@/lib';
 
 export const parameters = {

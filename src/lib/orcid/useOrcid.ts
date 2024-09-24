@@ -1,10 +1,10 @@
 import { AppState, useStore } from '@/store';
 import { useIsClient } from '@/lib/useIsClient';
 import { ORCID_LOGIN_URL } from '@/config';
-import { useRouter } from 'next/router';
+import { usePathname, useRouter } from 'next/navigation';
 import { useOrcidGetName, useOrcidGetProfile } from '@/api/orcid';
 import { isValidIOrcidUser } from '@/api/orcid/models';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { parseAPIError } from '@/utils';
 import axios from 'axios';
 import { useToast } from '@chakra-ui/react';
@@ -85,16 +85,14 @@ export const useOrcid = () => {
     }
   };
 
-  const logout = () => {
+  const pathname = usePathname();
+  const logout = useCallback(() => {
     // if we're on the orcid page, we need to redirect to the home page
-    if (router.pathname === '/user/orcid' || router.pathname === '/user/orcid/OAuth') {
-      router.replace('/').finally(() => {
-        reset();
-      });
-    } else {
-      reset();
+    if (pathname === '/user/orcid' || pathname === '/user/orcid/OAuth') {
+      router.replace('/');
     }
-  };
+    reset();
+  }, [pathname]);
 
   const toggleOrcidMode = (mode?: boolean) => {
     setOrcidMode(typeof mode === 'boolean' ? mode : !active);

@@ -20,8 +20,8 @@ import { getFomattedNumericPubdate, noop, unwrapStringValue } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import { ChangeEvent, ReactElement } from 'react';
 import { ItemAnnotation } from './ItemAnnotation';
-import { SimpleLink } from '@/components';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import { SimpleLink } from '@/components/SimpleLink';
 
 export interface IItemProps {
   doc: IDocsEntity;

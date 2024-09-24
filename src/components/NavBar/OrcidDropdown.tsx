@@ -3,10 +3,10 @@ import { ItemType, ListType } from './types';
 import { MenuDropdown } from '@/components/NavBar/MenuDropdown';
 import { useOrcid } from '@/lib/orcid/useOrcid';
 import { isBrowser } from '@/utils';
-import { OrcidInactiveLogo, OrcidLogo } from '@/components';
 import { Flex, HStack, Icon, Switch, Text } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
+import { usePathname, useRouter } from 'next/navigation';
 import { AppState, useStore } from '@/store';
+import { OrcidInactiveLogo, OrcidLogo } from '@/components/images';
 
 interface IOrcidDropdownProps {
   type: ListType;
@@ -16,6 +16,8 @@ interface IOrcidDropdownProps {
 export const OrcidDropdown = ({ type, onFinished }: IOrcidDropdownProps): ReactElement => {
   const { toggleOrcidMode, login, logout, isAuthenticated } = useOrcid();
   const router = useRouter();
+  const pathname = usePathname();
+
   const handleSelect: MouseEventHandler<HTMLButtonElement> = (e) => {
     onFinished?.();
     const id = e.currentTarget.dataset['id'];
@@ -34,7 +36,7 @@ export const OrcidDropdown = ({ type, onFinished }: IOrcidDropdownProps): ReactE
   const items: ItemType[] = isAuthenticated
     ? [
         // on the orcid home page route, we don't want to show the toggle
-        ...((router.pathname === '/user/orcid'
+      ...((pathname === '/user/orcid'
           ? []
           : [
               {

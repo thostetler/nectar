@@ -30,15 +30,6 @@ import {
   useBreakpoint,
   useToast,
 } from '@chakra-ui/react';
-import {
-  CustomInfoMessage,
-  ItemsSkeleton,
-  LoadingMessage,
-  Pagination,
-  SearchQueryLink,
-  SimpleLink,
-  Sort,
-} from '@/components';
 import { biblibSortOptions } from '@/components/Sort/model';
 import { BuildingLibraryIcon } from '@heroicons/react/24/solid';
 import { useColorModeColors } from '@/lib';
@@ -48,6 +39,11 @@ import { isBiblibSort, isSolrSort, normalizeSolrSort, parseAPIError } from '@/ut
 import { uniq } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { DocumentList } from './DocumentList/DocumentList';
+import { SimpleLink } from '../SimpleLink/SimpleLink';
+import { CustomInfoMessage, LoadingMessage } from '@/components/Feedbacks';
+import { ItemsSkeleton, Pagination } from '@/components/ResultList';
+import { Sort } from '@/components/Sort';
+import { SearchQueryLink } from '@/components/SearchQueryLink';
 
 export interface ILibraryEntityPaneProps {
   id: LibraryIdentifier;

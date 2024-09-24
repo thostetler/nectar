@@ -1,5 +1,5 @@
 import { isBrowser } from '@/utils';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { ListType } from './types';
@@ -42,10 +42,15 @@ export const FeedbackDropdown = (props: IFeedbackDropdownProps): ReactElement =>
   const handleSelect = (e: MouseEvent<HTMLElement>) => {
     const id = (e.target as HTMLElement).dataset['id'];
     if (isBrowser()) {
-      void router.push({
-        pathname: items.find((item) => id === item.id).path,
-        query: { from: router.asPath.replace(/from=[^&]+(&|$)/, '') }, // remove existing from from query
-      });
+      const item = items.find((item) => id === item.id);
+
+      if (item) {
+        const currentPath = window.location.pathname + window.location.search;
+        const newPath = item.path;
+        const updatedQuery = currentPath.replace(/from=[^&]+(&|$)/, '');
+
+        router.push(`${newPath}?from=${updatedQuery}`);
+      }
 
       if (typeof onFinished === 'function') {
         onFinished();

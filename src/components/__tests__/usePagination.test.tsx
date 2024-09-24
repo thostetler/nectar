@@ -17,7 +17,7 @@ const router = {
   pathname: '/',
   push: vi.fn(),
 };
-vi.mock('next/router', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => router,
 }));
 

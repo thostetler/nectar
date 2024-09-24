@@ -1,3 +1,5 @@
+'use client';
+
 import { FunctionComponent, ReactNode, Suspense } from 'react';
 import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { ErrorBoundary, FallbackProps } from 'react-error-boundary';

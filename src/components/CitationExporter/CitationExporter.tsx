@@ -25,7 +25,7 @@ import {
 } from '@chakra-ui/react';
 import { APP_DEFAULTS } from '@/config';
 import { noop } from '@/utils';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { ChangeEventHandler, Dispatch, HTMLAttributes, ReactElement, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { CitationExporterEvent } from './CitationExporter.machine';

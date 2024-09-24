@@ -12,7 +12,7 @@ import { WrenchIcon } from '@heroicons/react/24/solid';
 import { AppState, useStore } from '@/store';
 import { NumPerPageType } from '@/types';
 import { parseAPIError } from '@/utils';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { AddLibraryModal } from './AddLibraryModal';
 import { ILibraryListTableSort, LibraryListTable } from './LibraryListTable';

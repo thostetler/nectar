@@ -1,6 +1,6 @@
-import nextBuildId from 'next-build-id';
-import { withSentryConfig } from '@sentry/nextjs';
 import withBundleAnalyzer from '@next/bundle-analyzer';
+import { withSentryConfig } from '@sentry/nextjs';
+import nextBuildId from 'next-build-id';
 
 const CSP = `
   default-src 'self';
@@ -29,6 +29,7 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   experimental: {
+    turbo: true,
     newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
     optimisticClientCache: false,

@@ -3,7 +3,7 @@ import { Button } from '@chakra-ui/react';
 import * as Q from '@/query-utils';
 import { AppState, useStore } from '@/store';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { Reducer, useEffect, useReducer } from 'react';
 
 export const SecondOrderOpsLinks = () => {

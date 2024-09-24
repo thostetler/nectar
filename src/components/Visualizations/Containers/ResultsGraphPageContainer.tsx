@@ -1,21 +1,17 @@
 import { IADSApiSearchParams, IDocsEntity, useGetResultsGraph, useVaultBigQuerySearch } from '@/api';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { Box, Flex, List, ListIcon, ListItem, Text, useToast } from '@chakra-ui/react';
-import {
-  CustomInfoMessage,
-  DataDownloader,
-  IBubblePlotNodeData,
-  LoadingMessage,
-  StandardAlertMessage,
-} from '@/components';
 import { Expandable } from '@/components/Expandable';
 import { setFQ } from '@/query-utils';
 import { makeSearchParams } from '@/utils';
 import axios from 'axios';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { BubblePlotPane } from '../GraphPanes';
 import { getResultsGraph } from '../utils';
+import { IBubblePlotNodeData } from '@/components/Visualizations';
+import { CustomInfoMessage, LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
+import { DataDownloader } from '@/components/DataDownloader';
 
 interface IResultsGraphPageContainerProps {
   query: IADSApiSearchParams;

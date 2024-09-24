@@ -6,7 +6,7 @@ import { theme, ThemeProvider } from '@chakra-ui/react';
 
 const { Default: LibraryListTable } = composeStories(stories);
 
-vi.mock('next/router', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: () => Promise.resolve(true),
   }),

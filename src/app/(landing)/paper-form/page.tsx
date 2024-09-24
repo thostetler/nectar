@@ -1,3 +1,4 @@
+'use client';
 import { fetchVaultSearch, vaultKeys } from '@/api';
 import { fetchReferenceText, referenceKeys } from '@/api/reference/reference';
 import { getVaultBigQueryParams } from '@/api/vault/models';
@@ -21,23 +22,21 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { WarningTwoIcon } from '@chakra-ui/icons';
-import { BibstemPicker } from '@/components';
 import { useIsClient } from '@/lib/useIsClient';
-import { composeNextGSSP } from '@/ssr-utils';
 import { stringifySearchParams } from '@/utils';
 import DOMPurify from 'isomorphic-dompurify';
-import { GetServerSideProps, NextPage } from 'next';
+import { NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { usePathname, useRouter } from 'next/navigation';
 import { any, head, isEmpty, join, map, not, omit, pipe, reject, toPairs, values } from 'ramda';
 import { FormEventHandler, useCallback, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useErrorMessage } from '@/lib/useErrorMessage';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
-import { logger } from '@/logger';
 import { useStore } from '@/store';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
+import { BibstemPicker } from '@/components/BibstemPicker';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',
@@ -102,7 +101,7 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
 
   const handleSubmit = useCallback(async (params: PaperFormState[PaperFormType]) => {
     try {
-      await router.push(await getSearchQuery(params, queryClient));
+      router.push(await getSearchQuery(params, queryClient));
     } catch (e) {
       setError({ form: params.form, message: (e as Error).message });
     }
@@ -133,7 +132,7 @@ interface SubFormProps {
 
 const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
   const isClient = useIsClient();
-  const router = useRouter();
+  const pathname = usePathname();
   const {
     handleSubmit,
     reset,
@@ -170,7 +169,7 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
         "Astrophysical Journal", for instance, to find the bibstem "ApJ".
       </Text>
       <Divider mb={5} />
-      <form method="POST" action={router.route} onSubmit={formSubmit} data-testid={PaperFormType.JOURNAL_QUERY}>
+      <form method="POST" action={pathname} onSubmit={formSubmit} data-testid={PaperFormType.JOURNAL_QUERY}>
         <input type="hidden" name="form" value={PaperFormType.JOURNAL_QUERY} {...register('form')} />
         {/* Bibstem picker */}
         <Grid templateColumns="repeat(5, 1fr)" gap={4}>
@@ -233,7 +232,7 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
 };
 
 const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
-  const router = useRouter();
+  const pathname = usePathname();
   const {
     handleSubmit,
     reset,
@@ -254,7 +253,7 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
         Reference Query
       </Heading>
       <Divider mt={2} mb={4} />
-      <form method="POST" onSubmit={formSubmit} action={router.route} data-testid={PaperFormType.REFERENCE_QUERY}>
+      <form method="POST" onSubmit={formSubmit} action={pathname} data-testid={PaperFormType.REFERENCE_QUERY}>
         <input type="hidden" name="form" value={PaperFormType.REFERENCE_QUERY} {...register('form')} />
         <FormControl isRequired>
           <FormLabel htmlFor="reference">Reference</FormLabel>
@@ -290,7 +289,7 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
 };
 
 const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
-  const router = useRouter();
+  const pathname = usePathname();
   const {
     handleSubmit,
     reset,
@@ -311,7 +310,7 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
         Bibliographic Code Query
       </Heading>
       <Divider mt={2} mb={4} />
-      <form method="POST" onSubmit={formSubmit} action={router.route} data-testid={PaperFormType.BIBCODE_QUERY}>
+      <form method="POST" onSubmit={formSubmit} action={pathname} data-testid={PaperFormType.BIBCODE_QUERY}>
         <input type="hidden" name="form" value={PaperFormType.BIBCODE_QUERY} {...register('form')} />
         <FormControl isRequired>
           <FormLabel htmlFor="bibcodes">List of Bibcodes</FormLabel>
@@ -346,38 +345,38 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  if (ctx.req.method == 'POST') {
-    const queryClient = new QueryClient();
-
-    type ReqWithBody = typeof ctx.req & {
-      body: PaperFormState[PaperFormType];
-    };
-    const body = (ctx.req as ReqWithBody).body;
-
-    try {
-      const destination = await getSearchQuery(body, queryClient);
-
-      return {
-        props: {},
-        redirect: {
-          destination,
-          permanent: false,
-        },
-      };
-    } catch (error) {
-      logger.error({ msg: 'GSSP error on paper form', error });
-      return {
-        props: {
-          error: { form: body.form, message: (error as Error)?.message },
-          pageError: error,
-        },
-      };
-    }
-  }
-
-  return { props: {} };
-});
+// export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+//   if (ctx.req.method == 'POST') {
+//     const queryClient = new QueryClient();
+//
+//     type ReqWithBody = typeof ctx.req & {
+//       body: PaperFormState[PaperFormType];
+//     };
+//     const body = (ctx.req as ReqWithBody).body;
+//
+//     try {
+//       const destination = await getSearchQuery(body, queryClient);
+//
+//       return {
+//         props: {},
+//         redirect: {
+//           destination,
+//           permanent: false,
+//         },
+//       };
+//     } catch (error) {
+//       logger.error({ msg: 'GSSP error on paper form', error });
+//       return {
+//         props: {
+//           error: { form: body.form, message: (error as Error)?.message },
+//           pageError: error,
+//         },
+//       };
+//     }
+//   }
+//
+//   return { props: {} };
+// });
 
 const escape = (val?: string): string => (typeof val === 'string' ? DOMPurify.sanitize(val) : '');
 const listSanitizer = (v: string): string[] =>

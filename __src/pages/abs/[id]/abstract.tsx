@@ -24,15 +24,6 @@ import {
   VisuallyHidden,
 } from '@chakra-ui/react';
 import { EditIcon, ExternalLinkIcon, TriangleDownIcon } from '@chakra-ui/icons';
-import {
-  AbstractSources,
-  AddToLibraryModal,
-  CopyMenuItem,
-  feedbackItems,
-  LabeledCopyButton,
-  SearchQueryLink,
-  SimpleLink,
-} from '@/components';
 import { createUrlByType } from '@/components/AbstractSources/linkGenerator';
 import { IAllAuthorsModalProps } from '@/components/AllAuthorsModal';
 import { useGetAuthors } from '@/components/AllAuthorsModal/useGetAuthors';

@@ -1,35 +1,23 @@
+'use client';
 import { IADSApiSearchParams } from '@/api/search/types';
-import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
-import { Box, Center, Flex, Heading, Spinner, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
-import { IPagerProps, ISearchExamplesProps, SearchBar, SearchExamplesPlaceholder, SimpleLink } from '@/components';
+import { Box, Center, Flex, Heading, Stack, Text, VisuallyHidden } from '@chakra-ui/react';
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
-import { YouTubeEmbed } from '@next/third-parties/google';
 import { useStore } from '@/store';
 import { makeSearchParams, normalizeSolrSort } from '@/utils';
-import { NextPage } from 'next';
-import dynamic from 'next/dynamic';
-import Image from 'next/image';
-import { useRouter } from 'next/router';
-import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSettings } from '@/lib/useSettings';
-import { SolrSort } from '@/api';
-import { NotificationId } from '@/store/slices';
+import { DatabaseEnum, IADSApiUserDataResponse, SolrSort } from '@/api';
+import { YouTubeEmbed } from '@next/third-parties/google';
+import Image from 'next/image';
+import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
+import { SearchBar } from '@/components/SearchBar';
+import { Pager } from '@/components/Pager';
+import { SimpleLink } from '@/components/SimpleLink';
+import { SearchExamples } from '@/components/SearchExamples';
 
-const SearchExamples = dynamic<ISearchExamplesProps>(
-  () => import('@/components/SearchExamples').then((m) => m.SearchExamples),
-  { ssr: false, loading: () => <SearchExamplesPlaceholder /> },
-);
-const Pager = dynamic<IPagerProps>(() => import('@/components/Pager').then((m) => m.Pager), {
-  ssr: false,
-  loading: () => (
-    <Center>
-      <Spinner />
-    </Center>
-  ),
-});
 
-const HomePage: NextPage = () => {
+const HomePage = () => {
   const { settings } = useSettings();
   const sort = [`${settings.preferredSearchSort} desc` as SolrSort];
   const submitQuery = useStore((state) => state.submitQuery);
@@ -37,17 +25,6 @@ const HomePage: NextPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { clearQuery, updateQuery } = useIntermediateQuery();
   const clearSelectedDocs = useStore((state) => state.clearAllSelected);
-  const setNotification = useStore((state) => state.setNotification);
-
-  useEffect(() => {
-    const setNotify = () => {
-      if (router.query.notify) {
-        setNotification(router.query.notify as NotificationId);
-      }
-    };
-    router.events.on('routeChangeComplete', setNotify);
-    return () => router.events.off('routeChangeComplete', setNotify);
-  }, [router]);
 
   // clear search on mount
   useEffect(() => {
@@ -87,41 +64,33 @@ const HomePage: NextPage = () => {
         updateQuery(query);
         setIsLoading(true);
         submitQuery();
-        void router
-          .push({
-            pathname: '/search',
-            search: makeSearchParams(applyDefaultFilters({ q: query, sort, p: 1 })),
-          })
-          .finally(() => {
-            setIsLoading(false);
-          });
+        router.push(`/search?${makeSearchParams(applyDefaultFilters({ q: query, sort, p: 1, n: 10 }))}`);
+        setIsLoading(false);
       }
     },
     [router, sort, submitQuery, updateQuery],
   );
 
   return (
-    <Box aria-labelledby="form-title" my={8}>
+    <Center aria-labelledby="form-title" my={8}>
       <form method="get" action="/search" onSubmit={handleOnSubmit}>
         <VisuallyHidden as="h2" id="form-title">
           Modern Search Form
         </VisuallyHidden>
         <Flex direction="column">
-          <Box my={2}>
+          <Box as="section" my={2}>
             <SearchBar isLoading={isLoading} />
           </Box>
-          <Box mb={2} mt={5} minW="md">
+          <Box as="section" mb={2} mt={5} minW="md">
             <Carousel />
           </Box>
         </Flex>
         <input type="hidden" name="sort" value={normalizeSolrSort(sort)} />
         <input type="hidden" name="p" value="1" />
       </form>
-    </Box>
+    </Center>
   );
 };
-
-export default HomePage;
 
 const Carousel = () => {
   const [initialPage, setInitialPage] = useState<number>(0);
@@ -261,4 +230,4 @@ const getListOfAppliedDefaultDatabases = (databases: IADSApiUserDataResponse['de
   return defaultDatabases;
 };
 
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+export default HomePage;

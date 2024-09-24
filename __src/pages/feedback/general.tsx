@@ -14,7 +14,6 @@ import {
   Textarea,
   useDisclosure,
 } from '@chakra-ui/react';
-import { FeedbackAlert, FeedbackLayout, RecaptchaMessage } from '@/components';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useStore } from '@/store';
 import { makeSearchParams, parseAPIError } from '@/utils';
@@ -36,6 +35,8 @@ import { z } from 'zod';
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 import { FormMessage } from '@/components/Feedbacks/FormMessage';
 import { useGetUserEmail } from '@/lib';
+import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage';
+import { FeedbackLayout } from '@/components/Layout';
 
 type FormValues = {
   name: string;
