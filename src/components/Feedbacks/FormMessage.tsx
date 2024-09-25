@@ -1,5 +1,6 @@
 import { IStandardAlertProps, StandardAlertMessage } from '@/components';
-import { parseAPIError } from '@/utils';
+
+import { parseAPIError } from '@/utils/errors';
 
 interface IFormMessage extends IStandardAlertProps {
   show: boolean;

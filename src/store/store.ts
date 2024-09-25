@@ -1,3 +1,4 @@
+'use client';
 import { IUserData } from '@/api';
 import { mergeDeepLeft } from 'ramda';
 import { useEffect } from 'react';

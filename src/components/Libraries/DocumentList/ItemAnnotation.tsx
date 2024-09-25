@@ -5,7 +5,7 @@ import {
   useGetAbstractPreview,
   useUpdateAnnotation,
 } from '@/api';
-import { ChevronUpIcon, ChevronDownIcon, EditIcon, CloseIcon, CheckIcon } from '@chakra-ui/icons';
+import { CheckIcon, ChevronDownIcon, ChevronUpIcon, CloseIcon, EditIcon } from '@chakra-ui/icons';
 import {
   Collapse,
   Flex,
@@ -22,9 +22,9 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { useColorModeColors } from '@/lib';
-import { parseAPIError } from '@/utils';
 import { MathJax } from 'better-react-mathjax';
 import { ChangeEvent, useState } from 'react';
+import { parseAPIError } from '@/utils/errors';
 
 export const ItemAnnotation = ({
   library,

@@ -1,17 +1,13 @@
 import api from '@/api';
 import { APP_DEFAULTS } from '@/config';
-import {
-  coalesceAuthorsFromDoc,
-  normalizeSolrSort,
-  normalizeURLParams,
-  parseAPIError,
-  parsePublicationDate,
-  parseQueryFromUrl,
-  reconcileDocIdentifier,
-  truncateDecimal,
-} from '@/utils';
+import { normalizeURLParams, parseQueryFromUrl } from '@/utils';
 import { beforeEach, describe, expect, test, TestContext } from 'vitest';
 import { rest } from 'msw';
+import { parseAPIError } from '@/utils/errors';
+import { parsePublicationDate, truncateDecimal } from '@/utils/common';
+import { reconcileDocIdentifier } from '@/components/Orcid/helpers';
+import { coalesceAuthorsFromDoc } from '@/utils/doc';
+import { normalizeSolrSort } from '@/utils/searchParams';
 
 const defaultSortPostfix = APP_DEFAULTS.QUERY_SORT_POSTFIX;
 

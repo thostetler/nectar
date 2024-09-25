@@ -3,8 +3,9 @@ import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@chakra-ui/react';
 import { AppMode } from '@/types';
 import { ComponentProps } from 'react';
-import { enumKeys, noop } from '@/utils';
+import { enumKeys } from '@/utils';
 import { useStore } from '@/store';
+import { noop } from '@/utils/common';
 
 type PagePropsAndCustomArgs = ComponentProps<typeof SearchFacets> & { mode: AppMode };
 

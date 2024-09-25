@@ -33,7 +33,8 @@ import { DiffSectionPanel } from './DiffSectionPanel';
 import { AxiosError } from 'axios';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { parsePublicationDate } from '@/utils';
+
+import { parsePublicationDate } from '@/utils/common';
 
 const collections: { value: Database; label: string }[] = [
   { value: 'astronomy', label: 'Astronomy and Astrophysics' },

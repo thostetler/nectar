@@ -27,7 +27,7 @@ import {
 } from '@chakra-ui/react';
 import { useIsClient } from '@/lib/useIsClient';
 import { AppState, useStore, useStoreApi } from '@/store';
-import { makeSearchParams, noop, parseQueryFromUrl } from '@/utils';
+import { parseQueryFromUrl } from '@/utils';
 import { useRouter } from 'next/navigation';
 import { curryN, values } from 'ramda';
 import { isNonEmptyString } from 'ramda-adjunct';
@@ -43,6 +43,8 @@ import { solrSortOptions } from '@/components/Sort/model';
 import { ISortProps, Sort } from '@/components/Sort';
 import { sections } from '@/components/Visualizations';
 import { exportFormats } from '@/components/CitationExporter';
+import { noop } from '@/utils/common';
+import { makeSearchParams } from '@/utils/searchParams';
 
 export interface IListActionsProps {
   onSortChange?: ISortProps<SolrSort, SolrSortField>['onChange'];

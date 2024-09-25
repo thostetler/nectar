@@ -19,7 +19,8 @@ import { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { fetchLinks, resolverKeys } from '@/api/resolver';
 import { logger } from '@/logger';
-import { parseAPIError } from '@/utils';
+
+import { parseAPIError } from '@/utils/errors';
 
 export const withDetailsPage = async (
   ctx: GetServerSidePropsContext,

@@ -2,9 +2,10 @@ import { IADSApiSearchParams, useVaultBigQuerySearch } from '@/api';
 import { Button } from '@chakra-ui/react';
 import * as Q from '@/query-utils';
 import { AppState, useStore } from '@/store';
-import { makeSearchParams, parseQueryFromUrl } from '@/utils';
+import { parseQueryFromUrl } from '@/utils';
 import { useRouter } from 'next/navigation';
 import { Reducer, useEffect, useReducer } from 'react';
+import { makeSearchParams } from '@/utils/searchParams';
 
 export const SecondOrderOpsLinks = () => {
   const { onLimit, onExclude } = useSecondOrderOps();

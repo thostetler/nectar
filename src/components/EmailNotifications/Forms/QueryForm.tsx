@@ -1,9 +1,10 @@
 import { IADSApiAddNotificationParams, NotificationFrequency, useAddNotification, useVaultSearch } from '@/api';
 import { Button, Flex, FormControl, FormLabel, HStack, Input, useToast } from '@chakra-ui/react';
 import { useStore } from '@/store';
-import { noop, parseAPIError } from '@/utils';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { Select, SelectOption } from '@/components/Select';
+import { parseAPIError } from '@/utils/errors';
+import { noop } from '@/utils/common';
 
 const frequencyOptions: SelectOption<NotificationFrequency>[] = [
   {

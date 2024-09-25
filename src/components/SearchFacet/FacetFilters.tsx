@@ -1,12 +1,14 @@
 import { Box, BoxProps, Button, Flex, Tag, TagCloseButton, TagLabel, Tooltip } from '@chakra-ui/react';
 import { clearFQs, removeFQClause } from '@/query-utils';
-import { isIADSSearchParams, makeSearchParams, parseQueryFromUrl } from '@/utils';
+import { parseQueryFromUrl } from '@/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { curryN } from 'ramda';
 import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { FilterTuple, getFilters, getObjectName } from './helpers';
 import { useObjects } from '@/api';
 import { useQueryClient } from '@tanstack/react-query';
+import { makeSearchParams } from '@/utils/searchParams';
+import { isIADSSearchParams } from '@/utils/typeGuards';
 
 export const FacetFilters = (props: BoxProps): ReactElement => {
   const router = useRouter();

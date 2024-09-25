@@ -1,8 +1,9 @@
-import { Providers } from './providers';
 import { ReactNode } from 'react';
 import { Root } from '@/app/layouts/root';
+import { SessionProvider } from 'next-auth/react';
+import { auth } from '@/auth';
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: ReactNode,
@@ -10,11 +11,11 @@ export default function RootLayout({
   return (
     <html lang="en">
     <body>
-    <Providers>
+    <SessionProvider session={await auth()}>
       <Root>
         {children}
       </Root>
-    </Providers>
+    </SessionProvider>
     </body>
     </html>
   );

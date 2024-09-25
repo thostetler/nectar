@@ -18,9 +18,9 @@ import {
 import { customFormatDescription, DescriptionCollapse } from '@/components';
 import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { useEffect, useState } from 'react';
-import { noop } from '@/utils';
 import { sort } from 'ramda';
 import { useColorModeColors } from '@/lib';
+import { noop } from '@/utils/common';
 
 export interface ICustomFormatsTableProps {
   customFormats: CustomFormat[];

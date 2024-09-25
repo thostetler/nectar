@@ -13,10 +13,11 @@ import {
 } from '@chakra-ui/react';
 import { TOAST_DEFAULTS } from '@/components/Orcid/helpers';
 import { useRemoveWorks } from '@/lib/orcid/useRemoveWorks';
-import { parseAPIError, pluralize } from '@/utils';
 import { AppState, useStore } from '@/store';
 import React, { useCallback } from 'react';
 import { IOrcidResponse } from '@/api/orcid/types';
+import { parseAPIError } from '@/utils/errors';
+import { pluralize } from '@/utils/common';
 
 const selectedDocsSelector = (state: AppState) => state.docs.selected;
 export const BulkDeleteMenuItem = (props: MenuItemProps) => {

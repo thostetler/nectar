@@ -1,5 +1,4 @@
-import { isString } from '@/utils';
-import { isNilOrEmpty, isNumber, isObject } from 'ramda-adjunct';
+import { isNilOrEmpty, isNumber, isObject, isString } from 'ramda-adjunct';
 import { IOrcidUser } from '@/api/orcid/types';
 import { allPass, has } from 'ramda';
 import { addSeconds, isValid } from 'date-fns';

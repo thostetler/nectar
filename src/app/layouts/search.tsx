@@ -10,9 +10,7 @@ export const metadata: Metadata = {
 };
 
 export const SearchLayout = ({ children }: { children: ReactNode }) => {
-  return <>
-    <Container as="main" maxW="container.xl" id="main-content">
+  return <Container as="main" maxW="container.xl" id="main-content">
       {children}
     </Container>;
-  </>;
 };

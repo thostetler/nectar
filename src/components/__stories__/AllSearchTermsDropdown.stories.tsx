@@ -1,6 +1,7 @@
 import { AllSearchTermsDropdown } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
-import { noop } from '@/utils';
+
+import { noop } from '@/utils/common';
 
 const meta: Meta<typeof AllSearchTermsDropdown> = {
   title: 'SearchBar/AllSearchTermsDropdown',

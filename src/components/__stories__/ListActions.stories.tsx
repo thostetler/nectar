@@ -1,6 +1,7 @@
 import { ListActions } from '@/components';
 import { Meta, StoryObj } from '@storybook/react';
-import { noop } from '@/utils';
+
+import { noop } from '@/utils/common';
 
 const meta: Meta = {
   title: 'ResultList/ListActions',

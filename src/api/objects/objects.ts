@@ -7,8 +7,7 @@ import {
   ObjectService,
 } from '@/api/objects/types';
 import { useQuery } from '@tanstack/react-query';
-import { isString } from '@/utils';
-import { isNotEmpty } from 'ramda-adjunct';
+import { isNotEmpty, isString } from 'ramda-adjunct';
 import { hasObjectTerm, replaceObjectTerms } from '@/api/objects/helpers';
 import { APP_DEFAULTS, TRACING_HEADERS } from '@/config';
 import { defaultRequestConfig } from '../config';

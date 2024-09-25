@@ -35,7 +35,7 @@ import { BuildingLibraryIcon } from '@heroicons/react/24/solid';
 import { useColorModeColors } from '@/lib';
 import { AppState, useStore } from '@/store';
 import { NumPerPageType } from '@/types';
-import { isBiblibSort, isSolrSort, normalizeSolrSort, parseAPIError } from '@/utils';
+import { isSolrSort } from '@/utils';
 import { uniq } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { DocumentList } from './DocumentList/DocumentList';
@@ -44,12 +44,17 @@ import { CustomInfoMessage, LoadingMessage } from '@/components/Feedbacks';
 import { ItemsSkeleton, Pagination } from '@/components/ResultList';
 import { Sort } from '@/components/Sort';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
+import { parseAPIError } from '@/utils/errors';
+import { normalizeSolrSort } from '@/utils/searchParams';
 
 export interface ILibraryEntityPaneProps {
   id: LibraryIdentifier;
   publicView: boolean;
 }
 
+export const isBiblibSort = (maybeBiblibSort: string): maybeBiblibSort is BiblibSort => {
+  return ['time asc', 'time desc'].includes(maybeBiblibSort);
+};
 export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) => {
   const pageSize = useStore((state: AppState) => state.numPerPage);
 

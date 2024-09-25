@@ -3,7 +3,6 @@ import { IADSApiAuthorNetworkNode, IBibcodeDict } from '@/api/vis/types';
 import { useGetAuthorNetwork } from '@/api/vis/vis';
 import { Box, Center, SimpleGrid, useBreakpointValue, useToast } from '@chakra-ui/react';
 import { setFQ } from '@/query-utils';
-import { makeSearchParams } from '@/utils';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { uniq } from 'ramda';
@@ -22,6 +21,7 @@ import { CustomInfoMessage, LoadingMessage, StandardAlertMessage } from '@/compo
 import { Expandable } from '@/components/Expandable';
 import { SimpleLink } from '@/components/SimpleLink';
 import { DataDownloader } from '@/components/DataDownloader';
+import { makeSearchParams } from '@/utils/searchParams';
 
 interface IAuthorNetworkPageContainerProps {
   query: IADSApiSearchParams;

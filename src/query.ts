@@ -1,11 +1,10 @@
-import { isEmptyObject } from '@/utils';
-import lucene from 'lucene';
 import {
   always,
   curry,
   defaultTo,
   equals,
   is,
+  isEmpty,
   join,
   map,
   pathOr,
@@ -17,6 +16,8 @@ import {
   when,
   without,
 } from 'ramda';
+import lucene from 'lucene';
+import { isPlainObject } from 'ramda-adjunct';
 
 export type Operator = 'AND' | 'OR' | 'NOT';
 const DEFAULT_OPERATOR = 'AND' as const;
@@ -177,7 +178,7 @@ const walker = <T = string[], R = string>(
   initialValue: T,
   root: lucene.AST,
 ) => {
-  if (isEmptyObject(root)) {
+  if (isPlainObject(root) && isEmpty(root)) {
     return initialValue;
   }
   const q: (lucene.AST | lucene.Node)[] = [root];

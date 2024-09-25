@@ -4,7 +4,6 @@ import { Box, Center, Flex, Heading, Stack, Text, VisuallyHidden } from '@chakra
 import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { useStore } from '@/store';
-import { makeSearchParams, normalizeSolrSort } from '@/utils';
 import { useRouter } from 'next/navigation';
 import { useSettings } from '@/lib/useSettings';
 import { DatabaseEnum, IADSApiUserDataResponse, SolrSort } from '@/api';
@@ -15,6 +14,7 @@ import { SearchBar } from '@/components/SearchBar';
 import { Pager } from '@/components/Pager';
 import { SimpleLink } from '@/components/SimpleLink';
 import { SearchExamples } from '@/components/SearchExamples';
+import { makeSearchParams, normalizeSolrSort } from '@/utils/searchParams';
 
 
 const HomePage = () => {

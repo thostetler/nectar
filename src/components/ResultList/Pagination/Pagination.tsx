@@ -23,7 +23,6 @@ import {
 import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { APP_DEFAULTS } from '@/config';
 import { NumPerPageType, SafeSearchUrlParams } from '@/types';
-import { makeSearchParams, stringifySearchParams } from '@/utils';
 import { useRouter } from 'next/navigation';
 import { clamp, curryN } from 'ramda';
 import { Dispatch, FC, KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
@@ -31,6 +30,7 @@ import { MenuPlacement } from 'react-select';
 import { calculatePagination, PaginationAction, PaginationResult } from './usePagination';
 import { Select, SelectOption } from '@/components/Select';
 import { ISimpleLinkProps, SimpleLink } from '@/components/SimpleLink';
+import { makeSearchParams, stringifySearchParams } from '@/utils/searchParams';
 
 type NumPerPageProp =
   | {

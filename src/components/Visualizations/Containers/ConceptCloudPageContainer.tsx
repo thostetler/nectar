@@ -1,6 +1,5 @@
 import { IADSApiSearchParams, useGetWordCloud } from '@/api';
 import { Box, Flex, Text, useBreakpointValue } from '@chakra-ui/react';
-import { makeSearchParams } from '@/utils';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { ReactElement, Reducer, useMemo, useReducer } from 'react';
@@ -12,6 +11,7 @@ import { ITagItem } from '@/components/Tags';
 import { LoadingMessage, StandardAlertMessage } from '@/components/Feedbacks';
 import { Expandable } from '@/components/Expandable';
 import { SimpleLink } from '@/components/SimpleLink';
+import { makeSearchParams } from '@/utils/searchParams';
 
 const MAX_ROWS_TO_FETCH = 100;
 

@@ -2,11 +2,11 @@ import { MouseEventHandler, ReactElement } from 'react';
 import { ItemType, ListType } from './types';
 import { MenuDropdown } from '@/components/NavBar/MenuDropdown';
 import { useOrcid } from '@/lib/orcid/useOrcid';
-import { isBrowser } from '@/utils';
 import { Flex, HStack, Icon, Switch, Text } from '@chakra-ui/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { AppState, useStore } from '@/store';
 import { OrcidInactiveLogo, OrcidLogo } from '@/components/images';
+import { isBrowser } from '@/utils/common';
 
 interface IOrcidDropdownProps {
   type: ListType;

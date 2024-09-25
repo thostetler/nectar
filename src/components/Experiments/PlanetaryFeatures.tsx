@@ -8,8 +8,8 @@ import { isNil } from 'ramda';
 import { GlobeAltIcon } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/navigation';
 import { IADSApiSearchParams, useVaultBigQuerySearch } from '@/api';
-import { makeSearchParams } from '@/utils';
 import * as Q from '@/query-utils';
+import { makeSearchParams } from '@/utils/searchParams';
 
 const BIGQUERY_THRESHOLD = 20;
 

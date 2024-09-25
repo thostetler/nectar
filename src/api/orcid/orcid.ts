@@ -4,7 +4,6 @@ import { IOrcidMutationParams, IOrcidParams, IOrcidResponse, IOrcidUser, IOrcidW
 import { isValidIOrcidUser } from '@/api/orcid/models';
 import { omit } from 'ramda';
 import { ORCID_BULK_DELETE_CHUNK_SIZE, ORCID_BULK_DELETE_DELAY } from '@/config';
-import { asyncDelay } from '@/utils';
 import { getExIds } from '@/lib/orcid/helpers';
 import { OrcidErrorResponse } from '@/api/orcid/types/common';
 
@@ -187,6 +186,8 @@ export const fetchProfile: QueryFunction<IOrcidResponse['profile']> = async ({ m
   const { data } = await api.request<IOrcidResponse['profile']>(config);
   return data;
 };
+
+const asyncDelay = (delay = 1000) => new Promise((resolve) => setTimeout(resolve, delay));
 
 const removeWorks: MutationFunction<IOrcidResponse['removeWorks'], IOrcidMutationParams['removeWorks']> = async ({
   params,

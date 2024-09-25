@@ -5,9 +5,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useOrcidGetName, useOrcidGetProfile } from '@/api/orcid';
 import { isValidIOrcidUser } from '@/api/orcid/models';
 import { useCallback, useEffect, useState } from 'react';
-import { parseAPIError } from '@/utils';
 import axios from 'axios';
 import { useToast } from '@chakra-ui/react';
+import { parseAPIError } from '@/utils/errors';
 
 const setOrcidModeSelector = (state: AppState) => state.setOrcidMode;
 const activeSelector = (state: AppState) => state.orcid.active;

@@ -1,7 +1,8 @@
 import { PaperNetworkGraph } from '@/components';
 import { response } from '@/components/__mocks__/paperNetworkResponseData';
 import { Meta, StoryObj } from '@storybook/react';
-import { noop } from '@/utils';
+
+import { noop } from '@/utils/common';
 
 const meta: Meta = {
   title: 'Visualizations/Graphs/PaperNetworkGraph',

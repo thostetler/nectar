@@ -32,13 +32,13 @@ import { selectors, useFacetStore } from '@/components/SearchFacet/store/FacetSt
 import { FacetItem, FacetLogic, OnFilterArgs } from '@/components/SearchFacet/types';
 import { IUseGetFacetDataProps, useGetFacetData } from '@/components/SearchFacet/useGetFacetData';
 import { EllipsisHorizontalIcon, ExclamationTriangleIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
-import { kFormatNumber, noop } from '@/utils';
 import { equals, isEmpty } from 'ramda';
 import { forwardRef, KeyboardEvent, memo, MouseEventHandler, useCallback, useEffect, useRef } from 'react';
 import { SearchFacetModal } from './SearchFacetModal';
 import { useColorModeColors } from '@/lib';
 import { Toggler } from '@/components/Toggler';
 import { Pagination } from '@/components/ResultList';
+import { noop } from '@/utils/common';
 
 export interface IFacetListProps extends ListProps {
   noLoadMore?: boolean;
@@ -499,6 +499,15 @@ interface INodeCheckboxProps extends CheckboxProps {
   node: FacetItem;
   variant?: 'basic' | 'modal';
 }
+
+/**
+ * @see https://stackoverflow.com/a/9461657
+ */
+export const kFormatNumber = (value: number): string | number => {
+  const absV = Math.abs(value);
+  const sign = Math.sign(value);
+  return absV > 999 ? `${sign * (Math.round(absV / 100) / 10)}k` : sign * absV;
+};
 
 export const NodeCheckbox = forwardRef<HTMLInputElement, INodeCheckboxProps>((props, ref) => {
   const { node, variant, ...checkboxProps } = props;

@@ -30,6 +30,7 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     turbo: true,
+    typedRoutes: true,
     newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
     optimisticClientCache: false,

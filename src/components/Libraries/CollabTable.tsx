@@ -3,12 +3,13 @@ import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
 import { HStack, Icon, IconButton, Input, Table, Tbody, Td, Text, Th, Thead, Tr, useToast } from '@chakra-ui/react';
 import { Select, SelectOption } from '@/components/Select';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
-import { isValidEmail, parseAPIError } from '@/utils';
 import { keys, values } from 'ramda';
 import { ChangeEvent, useMemo, useRef, useState } from 'react';
 import { SelectInstance } from 'react-select';
 import { TableSkeleton } from './TableSkeleton';
 import { CustomInfoMessage } from '@/components/Feedbacks';
+import { parseAPIError } from '@/utils/errors';
+import { isValidEmail } from '@/components/Libraries/helpers';
 
 const permissionOptions: SelectOption<LibraryPermission>[] = permissions
   .filter((p) => p !== 'owner')

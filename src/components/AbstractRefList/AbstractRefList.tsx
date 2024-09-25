@@ -5,9 +5,11 @@ import { Pagination, PaginationProps } from '@/components/ResultList/Pagination'
 import { calculateStartIndex } from '@/components/ResultList/Pagination/usePagination';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
 import { APP_DEFAULTS } from '@/config';
-import { noop, parseQueryFromUrl, stringifySearchParams } from '@/utils';
+import { parseQueryFromUrl } from '@/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ReactElement } from 'react';
+import { noop } from '@/utils/common';
+import { stringifySearchParams } from '@/utils/searchParams';
 
 export interface IAbstractRefListProps {
   doc: IDocsEntity;
