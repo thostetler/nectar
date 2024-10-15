@@ -108,7 +108,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   const simpleFullSourceItemsLabel = (
     <IconButton
       aria-label={fullSourceItems.length > 0 ? 'Full text sources' : 'No full text sources'}
-      icon={<DocumentTextIcon />}
+      icon={<DocumentTextIcon width="18px" height="18px" />}
       isDisabled={fullSourceItems.length === 0}
       variant="link"
       size="xs"
@@ -118,7 +118,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   const simpleRefItemsLabel = (
     <IconButton
       aria-label={referenceItems.length > 0 ? 'References and citations' : 'No references and citations'}
-      icon={<Bars4Icon />}
+      icon={<Bars4Icon width="18px" height="18px" />}
       isDisabled={referenceItems.length === 0}
       variant="link"
       size="xs"
@@ -128,7 +128,7 @@ export const ItemResourceDropdowns = ({ doc }: IItemResourceDropdownsProps): Rea
   const simpleDataItemsLabel = (
     <IconButton
       aria-label={dataProductItems.length > 0 ? 'Data products' : 'No data products'}
-      icon={<CircleStackIcon />}
+      icon={<CircleStackIcon width="18px" height="18px" />}
       isDisabled={dataProductItems.length === 0}
       variant="link"
       size="xs"

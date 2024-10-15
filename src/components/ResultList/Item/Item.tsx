@@ -7,6 +7,7 @@ import {
   CircularProgress,
   Fade,
   Flex,
+  Spacer,
   Stack,
   Text,
   Tooltip,
@@ -17,10 +18,8 @@ import { APP_DEFAULTS } from '@/config';
 import { useIsClient } from '@/lib/useIsClient';
 import { useStore } from '@/store';
 import { MathJax } from 'better-react-mathjax';
-import dynamic from 'next/dynamic';
 import { ChangeEvent, ReactElement, useCallback, useEffect, useState } from 'react';
 import shallow from 'zustand/shallow';
-import { IAbstractPreviewProps } from './AbstractPreview';
 import { ItemResourceDropdowns } from './ItemResourceDropdowns';
 
 import { HideOnPrint } from '@/components/HideOnPrint';
@@ -29,10 +28,6 @@ import { useColorModeColors } from '@/lib/useColorModeColors';
 
 import { getFormattedNumericPubdate, unwrapStringValue } from '@/utils/common/formatters';
 
-const AbstractPreview = dynamic<IAbstractPreviewProps>(
-  () => import('./AbstractPreview').then((mod) => mod.AbstractPreview),
-  { ssr: false },
-);
 export interface IItemProps {
   doc: IDocsEntity;
   index: number;
@@ -87,7 +82,7 @@ export const Item = (props: IItemProps): ReactElement => {
   ) : null;
 
   return (
-    <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md">
+    <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md" h="100px">
       <Flex
         as={HideOnPrint}
         direction="row"
@@ -98,29 +93,35 @@ export const Item = (props: IItemProps): ReactElement => {
         px="2"
         borderLeftRadius="md"
         w="64px"
+        h="100px"
       >
         <Text
           color={isChecked ? colors.background : 'initial'}
           display={{ base: 'none', md: 'initial' }}
           mr={1}
           data-testid="results-index"
+          minWidth="24px"
         >
           {index.toLocaleString()}
         </Text>
-        {hideCheckbox ? null : <ItemCheckbox index={index} bibcode={bibcode} label={title} isChecked={isChecked} />}
+        {hideCheckbox ? (
+          <Spacer />
+        ) : (
+          <ItemCheckbox index={index} bibcode={bibcode} label={title} isChecked={isChecked} />
+        )}
       </Flex>
-      <Stack direction="column" width="full" spacing={0} mx={3} mt={2}>
+      <Stack direction="column" width="full" spacing={0} mx={3} my={2}>
         <Flex justifyContent="space-between">
           <SimpleLink href={`/abs/${bibcode}/abstract`} fontWeight="semibold">
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>
           <Flex alignItems="start" ml={1}>
-            {!isClient || hideActions ? null : <ItemResourceDropdowns doc={doc} />}
+            {!isClient || hideActions ? <Box /> : <ItemResourceDropdowns doc={doc} />}
           </Flex>
         </Flex>
         <Flex direction="column">
-          {author_count > 0 && <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} />}
-          <Flex fontSize="xs" mt={0.5}>
+          <AuthorList author={author} authorCount={author_count} bibcode={doc.bibcode} />
+          <Flex fontSize="xs">
             {formattedPubDate}
             {formattedPubDate && pub ? <Text px="2">·</Text> : ''}
             <Tooltip label={pub} aria-label="publication tooltip" placement="top">
@@ -132,7 +133,6 @@ export const Item = (props: IItemProps): ReactElement => {
             {extraInfo}
           </Flex>
           {showHighlights && <Highlights highlights={highlights} isFetchingHighlights={isFetchingHighlights} />}
-          <AbstractPreview bibcode={bibcode} />
         </Flex>
       </Stack>
     </Flex>

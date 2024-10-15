@@ -32,7 +32,7 @@ import { OrcidActiveIcon } from '@/components/icons/Orcid';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { APP_DEFAULTS, EXTERNAL_URLS } from '@/config';
 import { useIsClient } from '@/lib/useIsClient';
-import { composeNextGSSP } from '@/ssr-utils';
+import { addCacheHeader, composeNextGSSP } from '@/ssr-utils';
 import { MathJax } from 'better-react-mathjax';
 import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
@@ -384,26 +384,29 @@ const Detail = <T,>(props: IDetailProps<T>): ReactElement => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  try {
-    const { id } = ctx.params as { id: string };
-    const params = getAbstractParams(id);
-    const queryClient = new QueryClient();
-    await queryClient.fetchQuery({
-      queryKey: searchKeys.abstract(id),
-      queryFn: (qfCtx) => fetchSearchSSR(params, ctx, qfCtx),
-    });
-    return {
-      props: {
-        dehydratedState: dehydrate(queryClient),
-      },
-    };
-  } catch (err) {
-    logger.error({ err, url: ctx.resolvedUrl }, 'Error fetching details');
-    return {
-      props: {
-        pageError: parseAPIError(err),
-      },
-    };
-  }
-});
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(
+  addCacheHeader('public, max-age 172800, stale-while-revalidate 86400, stale-if-error 86400'),
+  async (ctx) => {
+    try {
+      const { id } = ctx.params as { id: string };
+      const params = getAbstractParams(id);
+      const queryClient = new QueryClient();
+      await queryClient.fetchQuery({
+        queryKey: searchKeys.abstract(id),
+        queryFn: (qfCtx) => fetchSearchSSR(params, ctx, qfCtx),
+      });
+      return {
+        props: {
+          dehydratedState: dehydrate(queryClient),
+        },
+      };
+    } catch (err) {
+      logger.error({ err, url: ctx.resolvedUrl }, 'Error fetching details');
+      return {
+        props: {
+          pageError: parseAPIError(err),
+        },
+      };
+    }
+  },
+);

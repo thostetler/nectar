@@ -51,6 +51,13 @@ type IncomingGSSP = (
   },
 ) => Promise<GetServerSidePropsResult<Record<string, unknown>>>;
 
+export const addCacheHeader: (cacheOpts?: string) => IncomingGSSP =
+  (cacheOpts = 's-max-age=60, stale-while-revalidate=300') =>
+  async (ctx, prevProps) => {
+    ctx.res.setHeader('Cache-Control', cacheOpts);
+    return Promise.resolve({ props: prevProps });
+  };
+
 /**
  * Composes multiple GetServerSideProps functions
  * invoking left to right
@@ -60,8 +67,6 @@ export const composeNextGSSP = (...fns: IncomingGSSP[]) =>
   withIronSessionSsr(async (ctx: GetServerSidePropsContext): Promise<
     GetServerSidePropsResult<Record<string, unknown>>
   > => {
-    ctx.res.setHeader('Cache-Control', 's-max-age=60, stale-while-revalidate=300');
-
     // only push if the list of fns does not already have the updater
     if (!fns.includes(updateUserStateSSR)) {
       fns.push(updateUserStateSSR);
