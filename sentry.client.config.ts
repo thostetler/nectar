@@ -11,7 +11,7 @@ Sentry.init({
   tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false,
+  debug: process.env.NODE_ENV === 'development',
 
   replaysOnErrorSampleRate: 1.0,
 
@@ -19,7 +19,6 @@ Sentry.init({
   // in development and sample at a lower rate in production
   replaysSessionSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
 
-  // You can remove this option if you're not planning to use the Sentry Session Replay feature:
   integrations: [
     Sentry.replayIntegration({
       maskAllText: false,
@@ -30,5 +29,6 @@ Sentry.init({
     Sentry.browserTracingIntegration({
       enableInp: true,
     }),
+    Sentry.browserProfilingIntegration(),
   ],
 });

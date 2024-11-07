@@ -6,6 +6,7 @@ import { last, omit, path } from 'ramda';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
+import * as Sentry from '@sentry/nextjs';
 
 import {
   Alert,
@@ -53,6 +54,7 @@ import { IADSApiSearchParams, IADSApiSearchResponse } from '@/api/search/types';
 import { SEARCH_API_KEYS, useSearch } from '@/api/search/search';
 import { defaultParams } from '@/api/search/models';
 import { SolrSort } from '@/api/models';
+import { logger } from '@/logger';
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () =>
@@ -170,6 +172,16 @@ const SearchPage: NextPage = () => {
       submitQuery();
     }
   }, [data]);
+
+  useEffect(() => {
+    logger.info('SearchPage: data changed');
+    if (data?.docs.length > 0) {
+      Sentry.addBreadcrumb({
+        category: 'search.results-loaded',
+        message: 'Search results loaded',
+      });
+    }
+  }, [data, Sentry]);
 
   /**
    * When updating perPage, this updates the store with both the current
