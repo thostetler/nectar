@@ -26,20 +26,14 @@ const CSP = `
  **/
 const nextConfig = {
   distDir: process.env.DIST_DIR || 'dist',
-  generateBuildId: async () =>
-    nextBuildId({ dir: process.env.__dirname, describe: true }),
+  generateBuildId: async () => nextBuildId({ dir: process.env.__dirname, describe: true }),
   generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
   experimental: {
     newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
-    optimizePackageImports: [
-      '@api',
-      '@components',
-      '@chakra-ui/react',
-      'ramda',
-    ],
+    optimizePackageImports: ['@chakra-ui/react', 'ramda', 'ramda-adjunct'],
   },
   async rewrites() {
     if (process.env.NODE_ENV !== 'production') {
@@ -200,14 +194,7 @@ const sentryConfig = {
   disableLogger: true,
 };
 
-const config =
-  process.env.ANALYZE === 'true' ? withBundleAnalyzer(nextConfig) : nextConfig;
-const nextConfigWithSentry = withSentryConfig(
-  config,
-  sentrySettings,
-  sentryConfig,
-);
+const config = process.env.ANALYZE === 'true' ? withBundleAnalyzer(nextConfig) : nextConfig;
+const nextConfigWithSentry = withSentryConfig(config, sentrySettings, sentryConfig);
 
-export default process.env.NODE_ENV === 'production'
-  ? nextConfigWithSentry
-  : config;
+export default process.env.NODE_ENV === 'production' ? nextConfigWithSentry : config;
