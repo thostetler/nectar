@@ -27,6 +27,7 @@ import { Layout } from '@/components/Layout';
 import { useIsClient } from '@/lib/useIsClient';
 import api, { checkUserData } from '@/api/api';
 import { userKeys } from '@/api/user/user';
+import * as Sentry from '@sentry/nextjs';
 
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled' && process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -85,15 +86,71 @@ const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => 
       <MathJaxProvider>
         <ChakraProvider theme={theme}>
           <StoreProvider createStore={createStore}>
-            <QCProvider>
-              <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
-              <ReactQueryDevtools />
-            </QCProvider>
+            <SentryEmitterProvider>
+              <QCProvider>
+                <Hydrate state={pageProps.dehydratedState}>{children}</Hydrate>
+                <ReactQueryDevtools />
+              </QCProvider>
+            </SentryEmitterProvider>
           </StoreProvider>
         </ChakraProvider>
       </MathJaxProvider>
     </GoogleReCaptchaProvider>
   );
+};
+
+const SentryEmitterProvider: FC = ({ children }) => {
+  const query = useStore((state) => state.query);
+  const user = useStore((state) => state.user);
+  const docs = useStore((state) => state.docs.current);
+
+  // send the query data
+  useEffect(() => {
+    if (query && Sentry.isInitialized()) {
+      try {
+        Sentry.setTags({
+          [`query.q`]: query.q,
+          [`query.fl`]: query.fl.join(','),
+          [`query.sort`]: query.sort.join(','),
+          [`query.start`]: query.start,
+          [`query.rows`]: query.rows,
+        });
+      } catch (error) {
+        logger.error({ error }, 'Issue setting Sentry tags');
+      }
+    }
+  }, [query, Sentry]);
+
+  // set the user data
+  useEffect(() => {
+    if (user && Sentry.isInitialized()) {
+      try {
+        Sentry.setUser({
+          id: user.username,
+          anonymous: user.anonymous,
+        });
+      } catch (error) {
+        logger.error({ error }, 'Issue setting Sentry user');
+      }
+    }
+  }, [user, Sentry]);
+
+  // measure the time it takes to show the results
+  useEffect(() => {
+    if (docs && docs.length > 0 && Sentry.isInitialized()) {
+      try {
+        const rootSpan = Sentry.getRootSpan(Sentry.getActiveSpan());
+        if (rootSpan) {
+          const time = new Date().getTime() - Sentry.spanToJSON(rootSpan).start_timestamp;
+          Sentry.setMeasurement('timing.results.shown', time, 'millisecond');
+        }
+      } catch (error) {
+        logger.error({ error }, 'Issue setting Sentry user');
+      }
+    }
+  }, [docs, Sentry]);
+
+  return <>{children}</>;
 };
 
 const QCProvider: FC = ({ children }) => {
