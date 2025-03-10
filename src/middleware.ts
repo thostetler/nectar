@@ -113,7 +113,7 @@ const emitAnalytics = async (req: NextRequest): Promise<void> => {
 
   // For abs/ routes we want to send emit an event to the link gateway
   if (path.startsWith('/abs')) {
-    const url = `${process.env.BASE_URL}/link_gateway${path.replace('/abs', '')}`;
+    const url = `${process.env.API_HOST}/link_gateway${path.replace('/abs', '')}`;
     log.debug({ path, url }, 'Emitting abs route event to link gateway');
 
     try {

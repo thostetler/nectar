@@ -52,7 +52,7 @@ const bootstrap = async (cookie?: string) => {
     };
   }
 
-  const url = `${process.env.API_HOST_SERVER}${ApiTargets.BOOTSTRAP}`;
+  const url = `${process.env.API_HOST}${ApiTargets.BOOTSTRAP}`;
   const headers = new Headers();
 
   // use the incoming session cookie to perform the bootstrap

@@ -57,9 +57,9 @@ export default defineConfig({
   webServer: [
     {
       env: {
-        BASE_CANONICAL_URL: process.env.BASE_CANONICAL_URL || 'https://ui.adsabs.harvard.edu',
-        API_HOST_CLIENT: process.env.API_HOST_CLIENT || 'https://devapi.adsabs.harvard.edu/v1',
-        API_HOST_SERVER: process.env.API_HOST_SERVER || 'https://devapi.adsabs.harvard.edu/v1',
+        API_HOST: process.env.API_HOST || 'https://devapi.adsabs.harvard.edu',
+        NEXT_PUBLIC_API_PATH: process.env.NEXT_PUBLIC_API_PATH || '/v1',
+        NEXT_PUBLIC_BASE_CANONICAL_URL: process.env.NEXT_PUBLIC_BASE_CANONICAL_URL || 'https://ui.adsabs.harvard.edu',
         COOKIE_SECRET: process.env.COOKIE_SECRET || 'secret_secret_secret_secret_secret',
         ADS_SESSION_COOKIE_NAME: process.env.ADS_SESSION_COOKIE_NAME || 'ads_session',
         SCIX_SESSION_COOKIE_NAME: process.env.SCIX_SESSION_COOKIE_NAME || 'scix_session',

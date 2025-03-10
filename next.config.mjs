@@ -43,7 +43,7 @@ const nextConfig = {
         beforeFiles: [
           {
             source: '/link_gateway/:path*',
-            destination: `${process.env.BASE_CANONICAL_URL}/link_gateway/:path*`,
+            destination: `${process.env.NEXT_PUBLIC_BASE_CANONICAL_URL}/link_gateway/:path*`,
           },
         ],
       };
@@ -143,14 +143,6 @@ const nextConfig = {
     ];
   },
   trailingSlash: false,
-  publicRuntimeConfig: {
-    apiHost: process.env.API_HOST_CLIENT,
-    experiments: process.env.NEXT_PUBLIC_ENABLE_EXPERIMENTS?.split(',') || [],
-  },
-  serverRuntimeConfig: {
-    apiHost: process.env.API_HOST_SERVER,
-    baseCanonicalUrl: process.env.BASE_CANONICAL_URL,
-  },
   images: {
     remotePatterns: [
       {

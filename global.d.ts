@@ -24,10 +24,9 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       [key: string]: string | undefined;
-      BASE_CANONICAL_URL: string;
-      API_HOST_CLIENT: string;
-      API_HOST_SERVER: string;
-      NEXT_PUBLIC_API_HOST_CLIENT: string;
+      NEXT_PUBLIC_BASE_CANONICAL_URL: string;
+      API_HOST: string;
+      NEXT_PUBLIC_API_PATH: string;
       COOKIE_SECRET: string;
       ADS_SESSION_COOKIE_NAME: string;
       SCIX_SESSION_COOKIE_NAME: string;
