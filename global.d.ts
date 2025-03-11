@@ -1,4 +1,5 @@
 import { SetupServerApi } from 'msw/node';
+import { IUserData } from '@/api/user/types';
 
 declare module 'vitest' {
   export interface TestContext {
@@ -8,12 +9,7 @@ declare module 'vitest' {
 
 declare module 'iron-session' {
   interface IronSessionData {
-    token?: {
-      access_token: string;
-      anonymous: boolean;
-      expire_in: string;
-      username: string;
-    };
+    token?: IUserData;
     isAuthenticated?: boolean;
     apiCookieHash?: string;
     bot?: boolean;

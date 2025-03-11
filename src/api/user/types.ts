@@ -41,12 +41,20 @@ export interface IBootstrapPayload {
   ratelimit: number;
   anonymous: boolean;
   client_secret: string;
+
+  // ADSWS ONLY
   expire_in: string;
+  expires_at: string;
   refresh_token: string;
+  given_name: string;
+  family_name: string;
   message?: string;
 }
 
-export type IUserData = Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expire_in'>;
+export type IUserData =
+  // ADSWS ONLY
+  | Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expire_in'>
+  | Pick<IBootstrapPayload, 'username' | 'anonymous' | 'access_token' | 'expires_at'>;
 
 export interface IUserForgotPasswordCredentials {
   email: string;

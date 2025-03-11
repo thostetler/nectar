@@ -14,18 +14,49 @@ const log = edgeLogger.child({}, { msgPrefix: '[initSession] ' });
  * Checks if the user data is valid
  * @param userData
  */
-const isUserData = (userData?: IUserData): userData is IUserData =>
-  !isNil(userData) &&
-  typeof userData.access_token === 'string' &&
-  typeof userData.expire_in === 'string' &&
-  userData.access_token.length > 0 &&
-  userData.expire_in.length > 0;
+const isUserData = (userData?: IUserData): userData is IUserData => {
+  if (isNil(userData)) {
+    return false;
+  }
+
+  // ADSWS ONLY
+  if ('expire_in' in userData) {
+    return (
+      typeof userData.access_token === 'string' &&
+      typeof userData.expire_in === 'string' &&
+      userData.access_token.length > 0 &&
+      userData.expire_in.length > 0
+    );
+  }
+
+  return (
+    typeof userData.access_token === 'string' &&
+    typeof userData.expires_at === 'string' &&
+    userData.access_token.length > 0 &&
+    userData.expires_at.length > 0
+  );
+};
 
 /**
  * Checks if the token is valid
  * @param userData
  */
-const isValidToken = (userData?: IUserData): boolean => isUserData(userData) && !isPast(parseISO(userData.expire_in));
+const isValidToken = (userData?: IUserData): boolean => {
+  if (!isUserData(userData)) {
+    return false;
+  }
+
+  // ADSWS ONLY
+  if ('expire_in' in userData) {
+    return !isPast(parseISO(userData.expire_in));
+  }
+
+  if ('expires_at' in userData) {
+    const currentTime = Math.floor(Date.now() / 1000);
+    const tokenExpiryTime = parseInt(userData.expires_at, 10);
+    return currentTime >= tokenExpiryTime;
+  }
+};
 
 /**
  * Checks if the user is authenticated
@@ -44,7 +75,7 @@ const bootstrap = async (cookie?: string) => {
         access_token: 'mocked',
         username: 'mocked',
         anonymous: false,
-        expire_in: 'mocked',
+        expires_at: 'mocked',
       },
       headers: new Headers({
         'set-cookie': `${process.env.ADS_SESSION_COOKIE_NAME}=mocked`,
@@ -148,5 +179,7 @@ export const initSession = async (req: NextRequest, res: NextResponse, session: 
     session.apiCookieHash = await hash(res.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value);
     await session.save();
     log.debug('Saved to session');
+  } else {
+    log.debug({ token }, 'Token is invalid');
   }
 };
