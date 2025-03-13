@@ -23,21 +23,27 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ],
+      ]
     },
-    "incremental": true
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "include": [
-    "reset.d.ts",
-    "global.d.ts",
-    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "vitest-setup.ts"
+    "global.d.ts",
+    "next-env.d.ts",
+    "reset.d.ts",
+    "vitest-setup.ts",
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "dev",
+    "dev"
   ]
 }

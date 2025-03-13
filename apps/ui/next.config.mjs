@@ -1,6 +1,7 @@
 import nextBuildId from 'next-build-id';
 import { withSentryConfig } from '@sentry/nextjs';
 import withBundleAnalyzer from '@next/bundle-analyzer';
+import path from 'path';
 
 const CSP = `
   default-src 'self';
@@ -25,7 +26,6 @@ const CSP = `
  * @type {import('next').NextConfig}
  **/
 const nextConfig = {
-  distDir: process.env.DIST_DIR || 'dist',
   generateBuildId: async () => nextBuildId({ dir: process.env.__dirname, describe: true }),
   generateEtags: true,
   poweredByHeader: false,
@@ -163,7 +163,8 @@ const nextConfig = {
     reactRemoveProperties: false,
   },
   // set standalone output on
-  output: process.env.STANDALONE ? 'standalone' : undefined,
+  output: 'export',
+  outputFileTracing: path.join(import.meta.dirname, '../..'),
   // we do not need to check eslint during build
   eslint: { dirs: ['src'], ignoreDuringBuilds: true },
   // we do not need to check types during build
