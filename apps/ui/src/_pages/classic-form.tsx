@@ -31,30 +31,3 @@ const ClassicFormPage: NextPage<{ ssrError?: string }> = ({ ssrError }) => {
 };
 
 export default ClassicFormPage;
-
-type ReqWithBody = GetServerSidePropsContext['req'] & {
-  body: IClassicFormState;
-};
-export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
-  if (ctx.req.method == 'POST') {
-    const body = (ctx.req as ReqWithBody).body;
-    try {
-      return Promise.resolve({
-        props: {},
-        redirect: {
-          destination: `/search?${getSearchQuery(body)}`,
-          permanent: false,
-        },
-      });
-    } catch (error) {
-      logger.error({ msg: 'GSSP error on classic form page', error });
-      return Promise.resolve({
-        props: {
-          pageError: parseAPIError(error),
-        },
-      });
-    }
-  }
-
-  return Promise.resolve({ props: {} });
-});

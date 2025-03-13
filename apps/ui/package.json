@@ -1,5 +1,5 @@
 {
-  "name": "nectar",
+  "name": "ui",
   "private": true,
   "version": "0.0.1",
   "engines": {
@@ -9,7 +9,7 @@
     "preinstall": "npx only-allow pnpm",
     "dev": "PORT=8000 next dev | pino-pretty --colorizeObjects=false -S",
     "dev:mocks": "NEXT_PUBLIC_API_MOCKING=enabled PORT=8000 next dev | pino-pretty --colorizeObjects=false -S",
-    "build": "NEXT_TELEMETRY_DISABLED=1 STANDALONE=1 DIST_DIR=./dist/ pnpm build-bibstem-index && next build",
+    "build": "NEXT_TELEMETRY_DISABLED=1 pnpm build-bibstem-index && next build",
     "build:local": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ pnpm build-bibstem-index && next build",
     "start": "NODE_ENV=production PORT=8000 DIST_DIR=./dist/ node dist/standalone/server.js",
     "start:local": "NODE_ENV=production PORT=8000 DIST_DIR=./dist/ next start",
@@ -18,14 +18,13 @@
     "test:coverage": "NODE_ENV=test vitest --run --coverage",
     "integration": "playwright test --config=./playwright.config.ts",
     "storybook": "storybook dev -p 8001 --no-open --disable-telemetry",
-    "build-storybook": "storybook build",
     "build-bibstem-index": "node ./scripts/gen-bibstem-index",
     "lint": "next lint",
     "prepare": "husky"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.0",
-    "@chakra-ui/next-js": "^2.2.0",
+    "@chakra-ui/next-js": "^2.4.2",
     "@chakra-ui/react": "^2.4.6",
     "@chakra-ui/skip-nav": "^2.1.0",
     "@chakra-ui/theme-tools": "^2.1.2",

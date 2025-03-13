@@ -1,0 +1,9 @@
+{
+  "name": "backend",
+  "version": "0.0.0",
+  "scripts": {
+    "start": "go run main.go"
+  },
+  "author": "Tim Hostetler",
+  "license": "ISC"
+}

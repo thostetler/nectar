@@ -164,7 +164,8 @@ const nextConfig = {
   },
   // set standalone output on
   output: 'export',
-  outputFileTracing: path.join(import.meta.dirname, '../..'),
+  outputFileTracingRoot: path.join(import.meta.dirname, '../..'),
+  distDir: 'dist',
   // we do not need to check eslint during build
   eslint: { dirs: ['src'], ignoreDuringBuilds: true },
   // we do not need to check types during build
