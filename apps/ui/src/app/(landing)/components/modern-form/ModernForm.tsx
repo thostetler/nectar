@@ -1,18 +1,10 @@
-import { IADSApiSearchParams } from '@/api/search/types';
-import { DatabaseEnum, IADSApiUserDataResponse } from '@/api/user/types';
 import { Box, Center, Flex, Heading, Stack, Text, useMediaQuery, VisuallyHidden } from '@chakra-ui/react';
-
-import { applyFiltersToQuery } from '@/components/SearchFacet/helpers';
-import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
-import { useStore } from '@/store';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSettings } from '@/lib/useSettings';
 
-// import { SearchBar } from '@/components/SearchBar';
 import { SimpleLink } from '@/components/SimpleLink';
-import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
+import { normalizeSolrSort } from '@/utils/common/search';
 import { SolrSort } from '@/api/models';
 import { SearchExamples } from '@/components/SearchExamples/SearchExamples';
 import { Pager } from '@/components/Pager/Pager';
@@ -20,11 +12,11 @@ import { Pager } from '@/components/Pager/Pager';
 export const ModernForm = () => {
   const { settings } = useSettings();
   const sort = [`${settings.preferredSearchSort} desc` as SolrSort];
-  const submitQuery = useStore((state) => state.submitQuery);
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const { clearQuery, updateQuery } = useIntermediateQuery();
-  const clearSelectedDocs = useStore((state) => state.clearAllSelected);
+  // const submitQuery = useStore((state) => state.submitQuery);
+  // const router = useRouter();
+  // const [isLoading, setIsLoading] = useState(false);
+  // const { clearQuery, updateQuery } = useIntermediateQuery();
+  // const clearSelectedDocs = useStore((state) => state.clearAllSelected);
   // const setNotification = useStore((state) => state.setNotification);
 
   // useEffect(() => {
@@ -38,62 +30,66 @@ export const ModernForm = () => {
   // }, [router]);
 
   // clear search on mount
-  useEffect(() => {
-    clearSelectedDocs();
-    clearQuery();
-  }, []);
+  // useEffect(() => {
+  //   // clearSelectedDocs();
+  //   clearQuery();
+  // }, []);
 
   /**
    * Take in a query object and apply any FQ filters
    * These will either be any default ON filters or whatever has been set by the user in the preferences
    */
-  const applyDefaultFilters = useCallback(
-    (query: IADSApiSearchParams) => {
-      const defaultDatabases = getListOfAppliedDefaultDatabases(settings.defaultDatabase);
-      if (Array.isArray(defaultDatabases) && defaultDatabases.length > 0) {
-        return applyFiltersToQuery({
-          query,
-          values: defaultDatabases,
-          field: 'database',
-          logic: 'or',
-        });
-      }
-      return query;
-    },
-    [settings.defaultDatabase],
-  );
+  // const applyDefaultFilters = useCallback(
+  //   (query: IADSApiSearchParams) => {
+  //     const defaultDatabases = getListOfAppliedDefaultDatabases(settings.defaultDatabase);
+  //     if (Array.isArray(defaultDatabases) && defaultDatabases.length > 0) {
+  //       return applyFiltersToQuery({
+  //         query,
+  //         values: defaultDatabases,
+  //         field: 'database',
+  //         logic: 'or',
+  //       });
+  //     }
+  //     return query;
+  //   },
+  //   [settings.defaultDatabase],
+  // );
 
   /**
    * update route and start searching
    */
-  const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = useCallback(
-    (e) => {
-      e.preventDefault();
-      const query = new FormData(e.currentTarget).get('q') as string;
-
-      if (query && query.trim().length > 0) {
-        updateQuery(query);
-        setIsLoading(true);
-        submitQuery();
-        router.push(`/search${makeSearchParams(applyDefaultFilters({ q: query, sort, p: 1 }))}`)
-        setIsLoading(false);
-      }
-    },
-    [router, sort, submitQuery, updateQuery],
-  );
-
-  const [isMobile] = useMediaQuery('(max-width: 800px)');
+  // const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = useCallback(
+  //   (e) => {
+  //     e.preventDefault();
+  //     const query = new FormData(e.currentTarget).get('q') as string;
+  //
+  //     if (query && query.trim().length > 0) {
+  //       updateQuery(query);
+  //       // setIsLoading(true);
+  //       // submitQuery();
+  //       router.push(`/search${makeSearchParams(applyDefaultFilters({ q: query, sort, p: 1 }))}`)
+  //       // setIsLoading(false);
+  //     }
+  //   },
+  //   [router, sort, submitQuery, updateQuery],
+  // );
+  //
+  const [isMobile] = useMediaQuery(['(max-width: 800px)'], { fallback: [false] });
 
   return (
     <Box aria-labelledby="form-title" my={8}>
-      <form method="get" action="/search" onSubmit={handleOnSubmit}>
+      <form
+        method="get"
+        action="/search"
+        onSubmit={() => {
+          console.log('submit');
+        }}
+      >
         <VisuallyHidden as="h2" id="form-title">
           Modern Search Form
         </VisuallyHidden>
         <Flex direction="column">
-          <Box my={2}>
-            {/*<SearchBar isLoading={isLoading} />*/}
-          </Box>
+          <Box my={2}>{/*<SearchBar isLoading={isLoading} />*/}</Box>
           {isMobile ? (
             <>
               <Heading as="h3" my={5}>
@@ -135,7 +131,7 @@ const Carousel = () => {
         {
           uniqueId: 'welcome',
           content: (
-            <Stack flexDirection="column" textAlign="left" spacing="4">
+            <Stack flexDirection="column" textAlign="left">
               <Heading as="h3">
                 <Text fontWeight="thin">WELCOME TO THE</Text>
                 <Text fontWeight="bold">SciX Digital Library</Text>
@@ -232,18 +228,17 @@ const Carousel = () => {
  * Get a list of default databases that have been applied
  * @param databases
  */
-const getListOfAppliedDefaultDatabases = (databases: IADSApiUserDataResponse['defaultDatabase']): Array<string> => {
-  const defaultDatabases = [];
-  for (const db of databases) {
-    // if All is selected, exit early here and return an empty array (no filters to apply)
-    if (db.name === DatabaseEnum.All && db.value) {
-      return [];
-    }
-
-    if (db.value) {
-      defaultDatabases.push(db.name);
-    }
-  }
-  return defaultDatabases;
-};
-
+// const getListOfAppliedDefaultDatabases = (databases: IADSApiUserDataResponse['defaultDatabase']): Array<string> => {
+//   const defaultDatabases = [];
+//   for (const db of databases) {
+//     // if All is selected, exit early here and return an empty array (no filters to apply)
+//     if (db.name === DatabaseEnum.All && db.value) {
+//       return [];
+//     }
+//
+//     if (db.value) {
+//       defaultDatabases.push(db.name);
+//     }
+//   }
+//   return defaultDatabases;
+// };

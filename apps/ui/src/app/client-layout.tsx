@@ -11,7 +11,7 @@ import { LandingTabs } from '@/components/LandingTabs';
 export default function ClientLayout({ children }: { children: ReactNode }) {
   return (
     <Providers>
-      <Stack spacing="0">
+      <Stack gap="0">
         <SkipNavLink id="main-content">Skip to content</SkipNavLink>
         <NavBar/>
         <main>
