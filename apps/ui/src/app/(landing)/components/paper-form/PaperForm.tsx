@@ -23,21 +23,19 @@ import { WarningTwoIcon } from '@chakra-ui/icons';
 
 import { useIsClient } from '@/lib/useIsClient';
 import DOMPurify from 'isomorphic-dompurify';
-import { NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { any, head, isEmpty, join, map, not, omit, pipe, reject, toPairs, values } from 'ramda';
 import { FormEventHandler, useCallback, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { QueryClient, useQueryClient } from '@tanstack/react-query';
-import { useErrorMessage } from '@/lib/useErrorMessage';
 import { APP_DEFAULTS, BRAND_NAME_FULL } from '@/config';
-import { logger } from '@/logger';
 import { useStore } from '@/store';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { BibstemPicker } from '@/components/BibstemPicker';
 import { stringifySearchParams } from '@/utils/common/search';
 import { fetchVaultSearch, vaultKeys } from '@/api/vault/vault';
+import { usePathname, useRouter } from 'next/navigation';
+import { logger } from '@/logger';
 
 enum PaperFormType {
   JOURNAL_QUERY = 'journal-query',
@@ -68,10 +66,9 @@ interface IPaperFormServerError {
   message: string;
 }
 
-const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrError }) => {
+export const PaperForm = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [error, setError] = useErrorMessage(ssrError);
 
   const clearSelectedDocs = useStore((state) => state.clearAllSelected);
   const { clearQuery } = useIntermediateQuery();
@@ -85,12 +82,13 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
   const handleSubmit = useCallback(
     async (params: PaperFormState[PaperFormType]) => {
       try {
-        await router.push(await getSearchQuery(params, queryClient));
+        router.push(await getSearchQuery(params, queryClient));
       } catch (e) {
-        setError({ form: params.form, message: (e as Error).message });
+        logger.error(e)
+        // setError({ form: params.form, message: (e as Error).message });
       }
     },
-    [queryClient, router, setError],
+    [queryClient, router],
   );
 
   return (
@@ -98,16 +96,15 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
       <Head>
         <title>{`${BRAND_NAME_FULL} Paper Form`}</title>
       </Head>
-      <JournalQueryForm onSubmit={handleSubmit} error={error?.form === PaperFormType.JOURNAL_QUERY ? error : null} />
+      <JournalQueryForm onSubmit={handleSubmit} error={null} />
       <ReferenceQueryForm
         onSubmit={handleSubmit}
-        error={error?.form === PaperFormType.REFERENCE_QUERY ? error : null}
+        error={null}
       />
-      <BibcodeQueryForm onSubmit={handleSubmit} error={error?.form === PaperFormType.BIBCODE_QUERY ? error : null} />
+      <BibcodeQueryForm onSubmit={handleSubmit} error={null} />
     </VStack>
   );
 };
-export default PaperForm;
 
 const validateNotEmpty = pipe(isEmpty, not);
 
@@ -117,8 +114,8 @@ interface SubFormProps {
 }
 
 const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
+  const pathname = usePathname();
   const isClient = useIsClient();
-  const router = useRouter();
   const {
     handleSubmit,
     reset,
@@ -148,14 +145,12 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
       </Heading>
       <Text fontSize="sm">
         A bibstem is an abbreviation that the ADS uses to identify a journal. A full list is available{' '}
-        <Link isExternal href="/journalsdb">
-          here
-        </Link>
+        <Link isExternal href="/journalsdb">here</Link>
         . The input field below will autocomplete on our current database of journal names, allowing you to type
         &#34;Astrophysical Journal&#34;, for instance, to find the bibstem &#34;ApJ&#34;.
       </Text>
       <Divider mb={5} />
-      <form method="POST" action={router.route} onSubmit={formSubmit} data-testid={PaperFormType.JOURNAL_QUERY}>
+      <form method="POST" action={pathname} onSubmit={formSubmit} data-testid={PaperFormType.JOURNAL_QUERY}>
         <input type="hidden" name="form" defaultValue={PaperFormType.JOURNAL_QUERY} {...register('form')} />
         {/* Bibstem picker */}
         <Grid templateColumns="repeat(5, 1fr)" gap={4}>
@@ -218,7 +213,7 @@ const JournalQueryForm = ({ onSubmit, error }: SubFormProps) => {
 };
 
 const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
-  const router = useRouter();
+  const pathname = usePathname();
   const {
     handleSubmit,
     reset,
@@ -239,7 +234,7 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
         Reference Query
       </Heading>
       <Divider mt={2} mb={4} />
-      <form method="POST" onSubmit={formSubmit} action={router.route} data-testid={PaperFormType.REFERENCE_QUERY}>
+      <form method="POST" onSubmit={formSubmit} action={pathname} data-testid={PaperFormType.REFERENCE_QUERY}>
         <input type="hidden" name="form" defaultValue={PaperFormType.REFERENCE_QUERY} {...register('form')} />
         <FormControl isRequired>
           <FormLabel htmlFor="reference">Reference</FormLabel>
@@ -275,7 +270,7 @@ const ReferenceQueryForm = ({ onSubmit, error }: SubFormProps) => {
 };
 
 const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
-  const router = useRouter();
+  const pathname = usePathname();
   const {
     handleSubmit,
     reset,
@@ -296,7 +291,7 @@ const BibcodeQueryForm = ({ onSubmit, error }: SubFormProps) => {
         Bibliographic Code Query
       </Heading>
       <Divider mt={2} mb={4} />
-      <form method="POST" onSubmit={formSubmit} action={router.route} data-testid={PaperFormType.BIBCODE_QUERY}>
+      <form method="POST" onSubmit={formSubmit} action={pathname} data-testid={PaperFormType.BIBCODE_QUERY}>
         <input type="hidden" name="form" defaultValue={PaperFormType.BIBCODE_QUERY} {...register('form')} />
         <FormControl isRequired>
           <FormLabel htmlFor="bibcodes">List of Bibcodes</FormLabel>

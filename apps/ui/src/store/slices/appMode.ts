@@ -10,7 +10,7 @@ export interface IAppModeAction {
 }
 
 export const appModeSlice: StoreSlice<IAppModeState & IAppModeAction> = (set, get) => ({
-  mode: AppMode.GENERAL,
+  mode: AppMode.ASTROPHYSICS,
   setMode: (mode) => {
     set({ mode }, false, 'mode/setMode');
 

@@ -1,10 +1,10 @@
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { MathJaxProvider } from '@/mathjax';
 import { ChakraProvider } from '@chakra-ui/react';
-import { AppState, StoreProvider, useCreateStore, useStore } from '@/store';
-import { DehydratedState, Hydrate, QueryClientProvider } from '@tanstack/react-query';
+import { StoreProvider, useCreateStore, useStore } from '@/store';
+import { Hydrate, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { FC, PropsWithChildren, ReactNode, useEffect } from 'react';
+import { FC, ReactNode, useEffect } from 'react';
 import { useCreateQueryClient } from '@/lib/useCreateQueryClient';
 import { logger } from '@/logger';
 import { theme } from '@/theme';

@@ -14,7 +14,7 @@ import {
 
 import { removeFQ, setFQ } from '@/query-utils';
 import axios from 'axios';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { ReactElement } from 'react';
 import { FacetField } from '../types';
 import { fqNameYearRange } from '@/components/SearchFacet/YearHistogramSlider';

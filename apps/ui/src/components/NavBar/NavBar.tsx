@@ -19,7 +19,7 @@ export const NavBar: FC = () => {
           </SimpleLink>
           <AppModeDropdown />
         </HStack>
-        <NavMenus />
+        {/*<NavMenus />*/}
       </Flex>
     </Box>
   );

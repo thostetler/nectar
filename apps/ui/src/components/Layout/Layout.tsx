@@ -1,6 +1,6 @@
 import { Container, Flex, useMediaQuery } from '@chakra-ui/react';
 import { SkipNavLink } from '@chakra-ui/skip-nav';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { FC } from 'react';
 import { Footer } from '../Footer';
 import { NavBar } from '../NavBar';

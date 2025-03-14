@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { MouseEvent, ReactElement } from 'react';
 import { MenuDropdown } from './MenuDropdown';
 import { DividerItem, ItemItem, ItemType, ListType } from './types';

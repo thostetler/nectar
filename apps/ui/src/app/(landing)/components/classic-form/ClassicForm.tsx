@@ -1,8 +1,4 @@
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
   Button,
   Checkbox,
   CheckboxGroup,
@@ -25,10 +21,8 @@ import {
 import { CalendarIcon } from '@chakra-ui/icons';
 
 import { APP_DEFAULTS } from '@/config';
-import { useErrorMessage } from '@/lib/useErrorMessage';
 import { useIsClient } from '@/lib/useIsClient';
-import { useRouter } from 'next/router';
-import PT from 'prop-types';
+import { usePathname } from 'next/navigation';
 import { FormEventHandler, useMemo } from 'react';
 import { Control, Controller, useForm, UseFormRegisterReturn, useWatch } from 'react-hook-form';
 import { getSearchQuery } from './helpers';
@@ -42,10 +36,7 @@ import { Expandable } from '@/components/Expandable';
 import { SimpleCopyButton } from '@/components/CopyButton';
 import { normalizeSolrSort } from '@/utils/common/search';
 import { SolrSort, SolrSortField } from '@/api/models';
-
-const propTypes = {
-  ssrError: PT.string,
-};
+import { logger } from '@/logger';
 
 export const defaultClassicFormState: IClassicFormState = {
   limit: ['astronomy'],
@@ -64,14 +55,9 @@ export const defaultClassicFormState: IClassicFormState = {
   sort: APP_DEFAULTS.SORT,
 };
 
-export interface IClassicFormProps {
-  ssrError: string;
-}
-
-export const ClassicForm = (props: IClassicFormProps) => {
+export const ClassicForm = () => {
   const isClient = useIsClient();
-  const router = useRouter();
-  const [queryError, setQueryError] = useErrorMessage<string>(props.ssrError);
+  const pathname = usePathname()
 
   const { register, control, handleSubmit } = useForm<IClassicFormState>({
     defaultValues: defaultClassicFormState,
@@ -82,15 +68,15 @@ export const ClassicForm = (props: IClassicFormProps) => {
 
     void handleSubmit((params) => {
       try {
-        void router.push({ pathname: '/search', search: getSearchQuery(params) });
+        logger.debug({params, query: getSearchQuery(params)}, 'ClassicForm: formSubmit');
+        // void router.push({ pathname: '/search', search: getSearchQuery(params) });
       } catch (e) {
-        setQueryError((e as Error)?.message);
       }
     })(e);
   };
 
   return (
-    <form method="post" action={router.route} onSubmit={formSubmit} aria-describedby="form-title">
+    <form method="post" action={pathname} onSubmit={formSubmit} aria-describedby="form-title">
       <Stack direction="column" spacing={5} aria-describedby="form-title">
         <VisuallyHidden as="h2" id="form-title">
           Classic Form
@@ -277,27 +263,14 @@ export const ClassicForm = (props: IClassicFormProps) => {
             )}
           />
         </FormControl>
-
-        {/* Error processing form */}
-        {queryError && (
-          <Alert status="error">
-            <AlertIcon />
-            <AlertTitle>There was a problem parsing input!</AlertTitle>
-            <AlertDescription>{queryError}</AlertDescription>
-          </Alert>
-        )}
-
         <FormControl>
           <Button type="submit">Search</Button>
         </FormControl>
-
         <CurrentQuery control={control} />
       </Stack>
     </form>
   );
 };
-
-ClassicForm.propTypes = propTypes;
 
 const LogicRadios = (props: { variant: 'andor' | 'all'; radioProps: UseFormRegisterReturn }) => {
   const { variant, radioProps } = props;

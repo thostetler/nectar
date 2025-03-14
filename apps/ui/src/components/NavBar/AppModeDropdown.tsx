@@ -17,10 +17,7 @@ export const AppModeDropdown = (): ReactElement => {
 
   const handleThemeChange = ({ id: mode }: SelectOption<AppMode>) => {
     setMode(mode);
-    sendGTMEvent({
-      event: 'app_mode_change',
-      mode,
-    });
+    sendGTMEvent({ event: 'app_mode_change', mode });
   };
 
   return (

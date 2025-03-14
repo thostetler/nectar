@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { NotificationId } from '@/store/slices';
 import { useStore } from '@/store';
 

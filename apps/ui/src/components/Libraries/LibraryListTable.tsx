@@ -35,7 +35,7 @@ import { TimeSince } from '@/components/TimeSince';
 import { UserGroupIcon, UserIcon } from '@heroicons/react/24/solid';
 
 import { NumPerPageType } from '@/types';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { uniq } from 'ramda';
 import { Fragment, MouseEvent, useMemo } from 'react';
 import { DeleteLibrary } from './DeleteLibrary';

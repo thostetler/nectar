@@ -18,7 +18,7 @@ const router = {
   },
   beforePopState: vi.fn(),
 };
-vi.mock('next/router', () => ({
+vi.mock('next/compat/router', () => ({
   useRouter: () => router,
 }));
 

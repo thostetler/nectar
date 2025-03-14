@@ -1,6 +1,3 @@
-import {Footer} from '@/components/Footer';
-import {Providers} from '@/app/providers';
-import {NavBar} from '@/components/NavBar';
 import ClientLayout from '@/app/client-layout';
 import { ReactNode } from 'react';
 

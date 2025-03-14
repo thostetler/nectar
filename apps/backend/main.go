@@ -25,7 +25,9 @@ func main() {
 	workDir, _ := os.Getwd()
 	baseDir := filepath.Join(workDir, "../ui/dist")
 	staticDir := http.Dir(filepath.Join(workDir, "../ui/dist/_next/static"))
+	imagesDir := http.Dir(filepath.Join(workDir, "../ui/dist/images"))
 	FileServer(r, "/_next/static", staticDir)
+	FileServer(r, "/images", imagesDir)
 
 	AddHTMLRoute(r, "/", filepath.Join(baseDir, "index.html"))
 	AddHTMLRoute(r, "/classic-form", filepath.Join(baseDir, "classic-form.html"))

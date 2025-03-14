@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useUser } from '@/lib/useUser';
 import { useMutation } from '@tanstack/react-query';
 import { ILogoutResponse } from '@/pages/api/auth/logout';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { isAuthenticated } from '@/auth-utils';
 
 /**

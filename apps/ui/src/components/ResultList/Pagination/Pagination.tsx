@@ -24,7 +24,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 
 import { APP_DEFAULTS } from '@/config';
 import { NumPerPageType, SafeSearchUrlParams } from '@/types';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { clamp, curryN } from 'ramda';
 import { Dispatch, FC, KeyboardEventHandler, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
 import { MenuPlacement } from 'react-select';

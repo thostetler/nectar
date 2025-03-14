@@ -4,7 +4,7 @@ import { MenuDropdown } from '@/components/NavBar/MenuDropdown';
 import { useOrcid } from '@/lib/orcid/useOrcid';
 
 import { Flex, HStack, Icon, Switch, Text } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { AppState, useStore } from '@/store';
 import { OrcidInactiveLogo, OrcidLogo } from '@/components/images';
 import { isBrowser } from '@/utils/common/guards';
