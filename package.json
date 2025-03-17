@@ -7,7 +7,7 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "dev": "PORT=8000 next dev | pino-pretty --colorizeObjects=false -S",
+    "dev": "PORT=8000 next --turbopack | pino-pretty --colorizeObjects=false -S",
     "dev:mocks": "NEXT_PUBLIC_API_MOCKING=enabled PORT=8000 next dev | pino-pretty --colorizeObjects=false -S",
     "build": "NEXT_TELEMETRY_DISABLED=1 STANDALONE=1 DIST_DIR=./dist/ pnpm build-bibstem-index && next build",
     "build:local": "NEXT_TELEMETRY_DISABLED=1 DIST_DIR=./dist/ pnpm build-bibstem-index && next build",
