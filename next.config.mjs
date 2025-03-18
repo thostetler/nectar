@@ -25,14 +25,21 @@ const CSP = `
  * @type {import('next').NextConfig}
  **/
 const nextConfig = {
-  distDir: process.env.DIST_DIR || 'dist',
   generateBuildId: async () => nextBuildId({ dir: process.env.__dirname, describe: true }),
   generateEtags: true,
   poweredByHeader: false,
   reactStrictMode: true,
+  cacheMaxMemorySize: 0,
+  cacheHandler:
+    process.env.NODE_ENV === 'production'
+      ? import.meta
+          .resolve('./cache-handler.mjs')
+          // @see https://github.com/vercel/next.js/issues/73796#issuecomment-2535931359
+          .replace('file://', '')
+      : undefined,
   transpilePackages: ['@nivo'],
   experimental: {
-    // esmExternals: 'loose',
+    esmExternals: 'loose',
     newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
     optimizePackageImports: ['@api', '@components', '@chakra-ui/react', 'ramda'],
