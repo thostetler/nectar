@@ -56,6 +56,13 @@ export default class App {
   }
 
   private initializeRoutes() {
+    this.app.route({
+      method: 'GET',
+      url: '/',
+      handler: async () => {
+        return { hello: 'world1' };
+      },
+    });
     // this.app.register(initializeRoutes, { prefix: `api/${API_VERSION}` });
   }
 
