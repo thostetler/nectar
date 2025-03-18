@@ -1,0 +1,28 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "concurrently pnpm:build:watch pnpm:start:watch",
+    "start:watch": "node --watch-path=./dist dist/server.cjs",
+    "build:watch": "pnpm build --watch",
+    "build": "pnpm esbuild --bundle --platform=node --outfile=../.next/standalone/server.cjs --external:next --external:react src/server.ts"
+  },
+  "keywords": [],
+  "author": "Tim Hostetler",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@fastify/env": "^5.0.2",
+    "@fastify/type-provider-typebox": "^5.1.0",
+    "@tsconfig/recommended": "^1.0.8",
+    "@types/node": "^22.13.10",
+    "ajv": "^8.17.1",
+    "concurrently": "^9.1.2",
+    "esbuild": "^0.25.1",
+    "fastify": "^5.2.1",
+    "json-schema-to-ts": "^3.1.1",
+    "next": "^15.2.3"
+  }
+}

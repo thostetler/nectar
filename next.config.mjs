@@ -25,7 +25,7 @@ const CSP = `
  * @type {import('next').NextConfig}
  **/
 const nextConfig = {
-  distDir: process.env.DIST_DIR || 'dist',
+  distDir: '.next',
   generateBuildId: async () => nextBuildId({ dir: process.env.__dirname, describe: true }),
   generateEtags: true,
   poweredByHeader: false,
@@ -163,7 +163,7 @@ const nextConfig = {
     reactRemoveProperties: false,
   },
   // set standalone output on
-  output: process.env.STANDALONE ? 'standalone' : undefined,
+  output: 'standalone',
   // we do not need to check eslint during build
   eslint: { dirs: ['src'], ignoreDuringBuilds: true },
   // we do not need to check types during build
