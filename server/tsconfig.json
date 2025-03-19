@@ -9,5 +9,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["server.d.ts", "src/**/*.ts"],
+  "include": [
+    "declarations.ts", "src/**/*.ts"],
 }
