@@ -1,6 +1,6 @@
 import { render } from '@/test-utils';
 import { test } from 'vitest';
-import { Pager } from '../Pager';
+import { Pager } from './Pager';
 
 const pages = [
   { title: 'First', content: 'Page 1', uniqueId: 'first' },

@@ -1,6 +1,6 @@
 import { render } from '@/test-utils';
 import { beforeEach, describe, test, vi } from 'vitest';
-import PaperForm from '../pages/paper-form';
+import PaperForm_bak from '../pages/paper-form_bak';
 
 const router = {
   pathname: '/',
@@ -15,7 +15,7 @@ describe('Paper Form', () => {
   beforeEach(() => router.push.mockReset());
 
   test('renders without error', () => {
-    render(<PaperForm />);
+    render(<PaperForm_bak />);
   });
 
   test.todo('journal search works');

@@ -17,7 +17,7 @@ import { SimpleLink } from '@/components/SimpleLink';
 import { makeSearchParams, normalizeSolrSort } from '@/utils/common/search';
 import { SolrSort } from '@/api/models';
 import { SearchExamples } from '@/components/SearchExamples/SearchExamples';
-import { Pager } from '@/components/Pager/Pager';
+import { Pager } from '@/components/Pager';
 
 const HomePage: NextPage = () => {
   const { settings } = useSettings();
@@ -131,7 +131,7 @@ const Carousel = () => {
 
   useEffect(() => {
     setInitialPage(parseInt(localStorage.getItem('carousel') ?? '0', 10));
-  });
+  }, []);
 
   const handlePageChange = (page: number) => {
     localStorage.setItem('carousel', page.toString());

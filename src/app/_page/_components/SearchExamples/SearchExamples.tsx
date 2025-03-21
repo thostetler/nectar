@@ -1,6 +1,6 @@
-import { Box, Flex, Grid, GridItem, Text } from '@chakra-ui/react';
+import { Box, Flex, FlexProps, forwardRef, Grid, GridItem, Text } from '@chakra-ui/react';
 import { useStore } from '@/store';
-import { FC, HTMLAttributes, MouseEventHandler, useMemo } from 'react';
+import { HTMLAttributes, MouseEventHandler, useCallback, useMemo } from 'react';
 import { examples } from './examples';
 import { useIsClient } from '@/lib/useIsClient';
 import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
@@ -9,16 +9,16 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { noop } from '@/utils/common/noop';
 
-export interface ISearchExamplesProps extends HTMLAttributes<HTMLDivElement> {
+export interface ISearchExamplesProps extends FlexProps {
   onSelect?: () => void;
 }
 
-export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
+export const SearchExamples = forwardRef<ISearchExamplesProps, 'div'>((props, ref) => {
   const { onSelect = noop, ...divProps } = props;
   const mode = useStore((state) => state.mode);
   const { appendToQuery } = useIntermediateQuery();
 
-  const handleClick: MouseEventHandler<HTMLButtonElement> = (e) => {
+  const handleClick= useCallback<MouseEventHandler<HTMLButtonElement>>((e) => {
     const text = e.currentTarget.dataset['text'];
 
     // Add our text to the end of the query
@@ -31,7 +31,7 @@ export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
 
     // fire select callback
     onSelect();
-  };
+  }, [appendToQuery, onSelect]);
 
   // memoize left/right examples
   const [leftExamples, rightExamples] = useMemo(
@@ -43,18 +43,18 @@ export const SearchExamples: FC<ISearchExamplesProps> = (props) => {
         <SearchExample label={label} example={text} key={label} data-text={text} onClick={handleClick} />
       )),
     ],
-    [mode],
+    [handleClick, mode],
   );
 
   return (
-    <Flex justifyContent="center" direction="column" alignItems="center" {...divProps}>
+    <Flex justifyContent="center" direction="column" alignItems="center" ref={ref} {...divProps}>
       <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={5}>
         <GridItem>{leftExamples}</GridItem>
         <GridItem>{rightExamples}</GridItem>
       </Grid>
     </Flex>
   );
-};
+});
 
 interface ISearchExampleProps extends HTMLAttributes<HTMLElement> {
   label: string;
@@ -67,7 +67,7 @@ export const SearchExample = (props: ISearchExampleProps) => {
   const colors = useColorModeColors();
 
   return (
-    <Grid templateColumns="1fr 2fr" gap={3} my={1}>
+    <Grid templateColumns="1fr 2fr" gap={3} my={3}>
       <Text align="right" fontWeight="semibold" py={2}>
         {label}
       </Text>

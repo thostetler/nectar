@@ -8,6 +8,7 @@ import { ScixAndNasaLogo_H_beta } from '@/components/images/ScixAndNasaLogo-H_be
 
 import { SimpleLink } from '@/components/SimpleLink/SimpleLink';
 import { useColorModeColors } from '@/lib/useColorModeColors';
+import { usePathname } from 'next/navigation';
 
 const imageStyle: CSSProperties = { objectFit: 'cover', opacity: '50%', zIndex: 0 };
 export const LandingTabs = (): ReactElement => {
@@ -58,7 +59,7 @@ export const LandingTabsStatic = () => {
 };
 
 const Tabs = ({ show }: { show: boolean }) => {
-  const { pathname } = useRouter();
+  const pathname = usePathname();
   if (!show) {
     return null;
   }

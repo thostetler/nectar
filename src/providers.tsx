@@ -1,10 +1,10 @@
 import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
-import { MathJaxProvider } from './mathjax';
+import { MathJaxProvider } from '@/mathjax';
 import { ChakraProvider } from '@chakra-ui/react';
-import { AppState, StoreProvider, useCreateStore, useStore } from './store';
-import { DehydratedState, Hydrate, QueryClientProvider } from '@tanstack/react-query';
+import { StoreProvider, useCreateStore, useStore } from './store';
+import { Hydrate, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { FC, useEffect } from 'react';
+import { FC, ReactNode, useEffect } from 'react';
 import { useCreateQueryClient } from './lib/useCreateQueryClient';
 import { logger } from './logger';
 import { theme } from './theme';
@@ -16,14 +16,8 @@ const windowState = {
   navigationStart: performance?.timeOrigin || performance?.timing?.navigationStart || 0,
 };
 
-type AppPageProps = {
-  dehydratedState: DehydratedState;
-  dehydratedAppState: AppState;
-  [key: string]: unknown;
-};
-
-export const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps }) => {
-  const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
+export const Providers = ({ children }: { children: ReactNode }) => {
+  const createStore = useCreateStore({});
 
   return (
     <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
@@ -31,7 +25,7 @@ export const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps
         <ChakraProvider theme={theme}>
           <StoreProvider createStore={createStore}>
             <QCProvider>
-              <Hydrate state={pageProps.dehydratedState}>
+              <Hydrate state={{}}>
                 <Telemetry />
                 {children}
               </Hydrate>
@@ -44,7 +38,7 @@ export const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps
   );
 };
 
-const QCProvider: FC = ({ children }) => {
+const QCProvider= ({ children }: { children: ReactNode}) => {
   const queryClient = useCreateQueryClient();
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
