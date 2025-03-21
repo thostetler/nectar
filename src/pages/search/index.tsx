@@ -4,7 +4,7 @@ import { ISearchFacetsProps } from '@/components/SearchFacet';
 import { AppState, useStore, useStoreApi } from '@/store';
 import { last, omit, path } from 'ramda';
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { useQueryClient } from '@tanstack/react-query';
 
 import {

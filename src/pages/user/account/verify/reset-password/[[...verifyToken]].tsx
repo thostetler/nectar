@@ -1,6 +1,6 @@
 import { NextPage } from 'next';
 import { Button, Container, FormControl, FormErrorMessage, FormLabel, Heading, VStack } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { useFocus } from '@/lib/useFocus';
 import { Control, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 

@@ -3,7 +3,7 @@ import { Box } from '@chakra-ui/react';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { NextPage } from 'next';
 import { path } from 'ramda';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { useSettings } from '@/lib/useSettings';
 import { CitationExporter } from '@/components/CitationExporter';
 import { JournalFormatMap } from '@/components/Settings';

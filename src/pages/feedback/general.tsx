@@ -17,7 +17,7 @@ import * as Sentry from '@sentry/nextjs';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useStore } from '@/store';
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { MouseEvent, useCallback, useState } from 'react';
 import {
   browserName,

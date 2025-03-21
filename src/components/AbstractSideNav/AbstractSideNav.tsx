@@ -11,7 +11,7 @@ import {
   TableCellsIcon as TableIcon,
   UsersIcon,
 } from '@heroicons/react/24/solid';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { HTMLAttributes, ReactElement } from 'react';
 import { Routes } from './types';
 import { values } from 'ramda';

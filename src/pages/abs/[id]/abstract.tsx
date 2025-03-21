@@ -42,7 +42,7 @@ import { GetServerSideProps, NextPage } from 'next';
 import dynamic from 'next/dynamic';
 import { equals, isNil, path, values } from 'ramda';
 import { memo, ReactElement, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { FolderPlusIcon } from '@heroicons/react/24/solid';
 import { useSession } from '@/lib/useSession';
 import { MagnifyingGlassIcon } from '@heroicons/react/20/solid';

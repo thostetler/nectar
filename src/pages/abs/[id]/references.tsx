@@ -3,7 +3,7 @@ import { AbstractRefList } from '@/components/AbstractRefList';
 import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { path } from 'ramda';
 import { APP_DEFAULTS } from '@/config';
 import { ItemsSkeleton } from '@/components/ResultList/ItemsSkeleton';

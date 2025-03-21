@@ -1,5 +1,5 @@
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { VizPageLayout } from '@/components/Layout';
 import { ConceptCloudPageContainer } from '@/components/Visualizations';
 import { parseQueryFromUrl } from '@/utils/common/search';

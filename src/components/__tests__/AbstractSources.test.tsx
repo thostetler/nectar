@@ -3,7 +3,7 @@ import { test, vi } from 'vitest';
 import { AbstractSources } from '@/components/AbstractSources';
 import { IDocsEntity } from '@/api/search/types';
 
-vi.mock('next/router', () => ({
+vi.mock('next/compat/router', () => ({
   useRouter: () => ({
     reload: vi.fn(),
   }),

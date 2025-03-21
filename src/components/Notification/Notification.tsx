@@ -1,7 +1,7 @@
 import { ToastId, useToast } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useStore } from '@/store';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 
 const TIMEOUT = 10000;
 

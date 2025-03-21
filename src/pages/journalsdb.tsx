@@ -31,7 +31,7 @@ import {
 } from '@chakra-ui/react';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { ascend, descend, prop, sortWith } from 'ramda';
 import { ChangeEvent, useMemo, useState } from 'react';
 

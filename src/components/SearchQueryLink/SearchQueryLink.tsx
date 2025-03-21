@@ -1,6 +1,6 @@
 import { Button, ButtonProps } from '@chakra-ui/react';
 import { MouseEventHandler, ReactElement } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { ISimpleLinkProps, SimpleLink } from '@/components/SimpleLink';
 import { makeSearchParams } from '@/utils/common/search';
 import { IADSApiSearchParams } from '@/api/search/types';
