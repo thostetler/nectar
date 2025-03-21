@@ -2,10 +2,10 @@
 import { Flex, useMediaQuery } from '@chakra-ui/react';
 import { SkipNavLink } from '@chakra-ui/skip-nav';
 import { ReactNode } from 'react';
-import { Footer } from '@/app/_components/Footer';
-import { Notification } from '@/app/_components/Notification';
-import { NavBar } from '@/app/_components/NavBar';
-import { Providers } from '@/app/_components/Providers';
+import { Providers } from '@/providers';
+import { NavBar } from '@/components/NavBar';
+import { Footer } from '@/components/Footer';
+import { Notification } from '@/components/Notification';
 
 export const LayoutClient = ({ children }: { children: ReactNode }) => {
   const [isPrint] = useMediaQuery('print');

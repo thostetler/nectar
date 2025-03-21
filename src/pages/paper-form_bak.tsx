@@ -69,7 +69,7 @@ interface IPaperFormServerError {
   message: string;
 }
 
-const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrError }) => {
+const PaperForm_bak: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrError }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [error, setError] = useErrorMessage(ssrError);
@@ -108,7 +108,7 @@ const PaperForm: NextPage<{ error?: IPaperFormServerError }> = ({ error: ssrErro
     </VStack>
   );
 };
-export default PaperForm;
+export default PaperForm_bak;
 
 const validateNotEmpty = pipe(isEmpty, not);
 

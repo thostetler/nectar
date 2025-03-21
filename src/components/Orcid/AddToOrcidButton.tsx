@@ -4,7 +4,7 @@ import { useAddWorks } from '@/lib/orcid/useAddWorks';
 
 import React from 'react';
 
-import { OrcidInactiveLogo } from '@/components/images';
+import { OrcidInactiveLogo } from '../images';
 import { useColorModeColors } from '@/lib/useColorModeColors';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 

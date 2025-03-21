@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import RootPage from './_page';
 
 export const metadata: Metadata = {
   title: 'SciX Digital Library',
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <h1>root</h1>;
+  return <RootPage/>
 }

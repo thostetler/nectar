@@ -1,13 +1,13 @@
 import { ToastId, useToast } from '@chakra-ui/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useStore } from '@/store';
-import { useRouter } from 'next/compat/router';
+import { usePathname } from 'next/navigation';
 
 const TIMEOUT = 10000;
 
 export const Notification = () => {
   const toastId = useRef<ToastId>(null);
-  const router = useRouter();
+  const pathname = usePathname();
   const timeoutId = useRef<NodeJS.Timeout>(null);
   const notification = useStore((state) => state.notification);
   const resetNotification = useStore((state) => state.resetNotification);
@@ -25,7 +25,7 @@ export const Notification = () => {
     if (toastId.current) {
       toast.close(toastId.current);
     }
-  }, [resetNotification, toast, toastId.current, timeoutId.current]);
+  }, [resetNotification, toast]);
 
   // Show notification
   useEffect(() => {
@@ -41,19 +41,15 @@ export const Notification = () => {
     return () => {
       timeoutId.current = setTimeout(reset, TIMEOUT);
     };
-  }, [notification, resetNotification, toast, toastId.current, reset]);
+  }, [notification, resetNotification, toast, reset]);
 
-  // Reset notification on route change
+  const once = useRef(false);
   useEffect(() => {
-    router.events.on('routeChangeStart', reset);
-    router.events.on('routeChangeComplete', reset);
-    router.events.on('routeChangeError', reset);
-    return () => {
-      router.events.off('routeChangeStart', reset);
-      router.events.off('routeChangeComplete', reset);
-      router.events.off('routeChangeError', reset);
-    };
-  }, [router, reset]);
+    if (once.current) {
+      reset();
+    }
+    once.current = true;
+  }, [pathname, reset]);
 
   return <></>;
 };
