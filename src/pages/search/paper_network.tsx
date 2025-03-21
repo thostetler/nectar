@@ -1,5 +1,5 @@
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { VizPageLayout } from '@/components/Layout';
 import { PaperNetworkPageContainer } from '@/components/Visualizations';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';

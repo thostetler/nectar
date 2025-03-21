@@ -33,7 +33,7 @@ import { useDebounce } from '@/lib/useDebounce';
 import { MathJax } from 'better-react-mathjax';
 import { saveAs } from 'file-saver';
 import { matchSorter } from 'match-sorter';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import {
   ChangeEventHandler,
   forwardRef,

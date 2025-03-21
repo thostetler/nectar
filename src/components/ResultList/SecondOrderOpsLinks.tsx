@@ -1,7 +1,7 @@
 import { Button } from '@chakra-ui/react';
 import * as Q from '@/query-utils';
 import { AppState, useStore } from '@/store';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { Reducer, useEffect, useReducer } from 'react';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
 import { useVaultBigQuerySearch } from '@/api/vault/vault';

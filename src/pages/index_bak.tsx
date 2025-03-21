@@ -7,7 +7,7 @@ import { useIntermediateQuery } from '@/lib/useIntermediateQuery';
 import { useStore } from '@/store';
 import { NextPage } from 'next';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { ChangeEventHandler, useCallback, useEffect, useState } from 'react';
 import { useSettings } from '@/lib/useSettings';
 

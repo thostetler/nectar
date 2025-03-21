@@ -37,7 +37,7 @@ import { CustomInfoMessage } from '@/components/Feedbacks';
 import { TableSkeleton } from '@/components/Libraries/TableSkeleton';
 import { TimeSince } from '@/components/TimeSince';
 
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { values } from 'ramda';
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { AddNotificationModal } from './AddNotificationModal';

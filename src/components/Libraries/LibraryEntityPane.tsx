@@ -59,7 +59,7 @@ import { getSearchParams } from '@/api/search/models';
 import { useSettings } from '@/lib/useSettings';
 import { ExportApiFormatKey } from '@/api/export/types';
 import { useVaultBigQuerySearch } from '@/api/vault/vault';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { exportFormats } from '../CitationExporter';
 
 export interface ILibraryEntityPaneProps {

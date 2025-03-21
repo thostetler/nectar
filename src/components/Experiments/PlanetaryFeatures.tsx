@@ -6,7 +6,7 @@ import { FormEvent, useEffect, useMemo, useState } from 'react';
 
 import { isNil } from 'ramda';
 import { GlobeAltIcon } from '@heroicons/react/24/solid';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 
 import * as Q from '@/query-utils';
 import { Select } from '@/components/Select';

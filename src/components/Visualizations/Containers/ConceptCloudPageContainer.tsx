@@ -1,6 +1,6 @@
 import { Box, Flex, Text, useBreakpointValue } from '@chakra-ui/react';
 import axios from 'axios';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { ReactElement, Reducer, useCallback, useMemo, useReducer } from 'react';
 import { ISliderRange } from '../types';
 import { buildWCDict } from '../utils';

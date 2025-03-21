@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => ({
   }),
 }));
 
-vi.mock('next/router', () => ({ useRouter: mocks.useRouter }));
+vi.mock('next/compat/router', () => ({ useRouter: mocks.useRouter }));
 
 test('renders without crashing', () => {
   render(<Pagination page={1} totalResults={100} />);

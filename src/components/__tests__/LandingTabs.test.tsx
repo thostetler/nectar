@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
   useRouter: vi.fn(() => ({ pathname: '/' })),
 }));
 
-vi.mock('next/router', () => ({
+vi.mock('next/compat/router', () => ({
   useRouter: mocks.useRouter,
 }));
 

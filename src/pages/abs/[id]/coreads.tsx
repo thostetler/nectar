@@ -1,5 +1,5 @@
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { APP_DEFAULTS } from '@/config';
 import { AbsLayout } from '@/components/Layout';

@@ -1,5 +1,5 @@
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 
 import { path } from 'ramda';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';

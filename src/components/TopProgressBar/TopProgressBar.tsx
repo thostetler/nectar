@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import NProgress from 'nprogress';
 import { ReactElement, useEffect } from 'react';
 

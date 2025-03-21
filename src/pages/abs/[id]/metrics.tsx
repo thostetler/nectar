@@ -1,5 +1,5 @@
 import { NextPage } from 'next';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { path } from 'ramda';
 import { BasicStatsKey, CitationsStatsKey, MetricsResponseKey } from '@/api/lib/metrics/types';
 import { AbsLayout } from '@/components/Layout';

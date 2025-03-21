@@ -26,7 +26,7 @@ import { composeNextGSSP } from '@/ssr-utils';
 import DOMPurify from 'isomorphic-dompurify';
 import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { any, head, isEmpty, join, map, not, omit, pipe, reject, toPairs, values } from 'ramda';
 import { FormEventHandler, useCallback, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';

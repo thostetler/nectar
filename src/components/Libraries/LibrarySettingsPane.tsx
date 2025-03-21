@@ -24,7 +24,7 @@ import {
 import { DescriptionCollapse } from '@/components/CitationExporter';
 import { CustomInfoMessage, LoadingMessage } from '@/components/Feedbacks';
 import { SimpleLink } from '@/components/SimpleLink';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { ChangeEvent, useMemo, useState } from 'react';
 import { CollabTable } from './CollabTable';
 import { DeleteLibrary } from './DeleteLibrary';

@@ -3,7 +3,7 @@ import { Box, Button, Flex, Heading, Stack, useDisclosure, useToast } from '@cha
 import { WrenchIcon } from '@heroicons/react/24/solid';
 import { AppState, useStore } from '@/store';
 import { NumPerPageType } from '@/types';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { useState } from 'react';
 import { AddLibraryModal } from './AddLibraryModal';
 import { ILibraryListTableSort, LibraryListTable } from './LibraryListTable';

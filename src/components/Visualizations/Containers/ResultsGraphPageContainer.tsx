@@ -4,7 +4,7 @@ import { Box, Flex, List, ListIcon, ListItem, Text, useToast } from '@chakra-ui/
 import { Expandable } from '@/components/Expandable';
 import { setFQ } from '@/query-utils';
 import axios from 'axios';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
 import { BubblePlotPane } from '../GraphPanes';
 import { getResultsGraph } from '../utils';

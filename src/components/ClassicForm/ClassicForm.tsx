@@ -27,7 +27,7 @@ import { CalendarIcon } from '@chakra-ui/icons';
 import { APP_DEFAULTS } from '@/config';
 import { useErrorMessage } from '@/lib/useErrorMessage';
 import { useIsClient } from '@/lib/useIsClient';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import PT from 'prop-types';
 import { FormEventHandler, useMemo } from 'react';
 import { Control, Controller, useForm, UseFormRegisterReturn, useWatch } from 'react-hook-form';

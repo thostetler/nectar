@@ -2,7 +2,7 @@ import { AppState, useStore, useStoreApi } from '@/store';
 import { AppMode } from '@/types';
 import { AppProps, NextWebVitalsMetric } from 'next/app';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import 'nprogress/nprogress.css';
 import { memo, ReactElement, useEffect, useMemo } from 'react';
 import { DehydratedState, useQuery, useQueryClient } from '@tanstack/react-query';

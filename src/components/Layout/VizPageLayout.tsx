@@ -5,7 +5,7 @@ import { FC } from 'react';
 import { UrlObject } from 'url';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
 import { BRAND_NAME_FULL } from '@/config';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { VisualizationsTabs, VizSection } from '@/components/Visualizations';
 import { SimpleLink } from '@/components/SimpleLink';
 

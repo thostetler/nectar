@@ -1,5 +1,5 @@
 import { Tab, TabList, Tabs } from '@chakra-ui/react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { ReactElement } from 'react';
 
 export type VizSection =

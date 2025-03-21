@@ -8,7 +8,7 @@ import axios, { AxiosError } from 'axios';
 import { ILoginResponse } from '@/pages/api/auth/login';
 import { useFocus } from '@/lib/useFocus';
 import { useUser } from '@/lib/useUser';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { BRAND_NAME_FULL } from '@/config';
 import { PasswordTextInput } from '@/components/TextInput';
 import { SimpleLink } from '@/components/SimpleLink';

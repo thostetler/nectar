@@ -4,7 +4,7 @@ import { ItemType } from '@/components/Dropdown/types';
 import { ISelectProps, Select } from '@/components/Select';
 import { BarsArrowDownIcon, BarsArrowUpIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@/lib/useIsClient';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { Fragment, MouseEventHandler, ReactElement, useCallback, useMemo } from 'react';
 import { SimpleLinkDropdown } from '@/components/Dropdown';
 import { SearchQueryLink } from '@/components/SearchQueryLink';

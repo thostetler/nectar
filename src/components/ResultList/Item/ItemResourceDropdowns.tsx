@@ -4,7 +4,7 @@ import { processLinkData } from '@/components/AbstractSources/linkGenerator';
 import { SimpleAction } from '@/components/Orcid/SimpleAction';
 import { Bars4Icon, CircleStackIcon, DocumentTextIcon, ShareIcon } from '@heroicons/react/24/outline';
 import { useIsClient } from '@/lib/useIsClient';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { MouseEventHandler, ReactElement, useEffect } from 'react';
 import { SimpleLinkDropdown } from '@/components/Dropdown';
 import { isBrowser } from '@/utils/common/guards';

@@ -3,7 +3,7 @@ import { AbsLayout } from '@/components/Layout/AbsLayout';
 import { useGetAbstractParams } from '@/lib/useGetAbstractParams';
 import { NextPage } from 'next';
 import { useMemo } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { path } from 'ramda';
 import { ItemsSkeleton } from '@/components/ResultList/ItemsSkeleton';
 import { parseAPIError } from '@/utils/common/parseAPIError';

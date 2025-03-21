@@ -4,7 +4,7 @@ import { Box, Center, SimpleGrid, useBreakpointValue, useToast } from '@chakra-u
 
 import { setFQ } from '@/query-utils';
 import axios from 'axios';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/compat/router';
 import { sort, uniq } from 'ramda';
 import { ReactElement, Reducer, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { IView } from '../GraphPanes/types';
