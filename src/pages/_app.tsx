@@ -73,18 +73,16 @@ const NectarApp = memo(({ Component, pageProps }: AppProps): ReactElement => {
 NectarApp.displayName = 'NectarApp';
 
 const AppModeRouter = (): ReactElement => {
-  const mode = useStore((state) => state.mode);
+  const setMode = useStore((state) => state.setMode);
   const router = useRouter();
   const isClient = useIsClient();
 
   useEffect(() => {
-    // redirect to main form if path is not valid
-    if (isClient) {
-      if (mode !== AppMode.ASTROPHYSICS && /^\/(classic|paper)-form.*$/.test(router.asPath)) {
-        void router.replace('/');
-      }
+    // if it's a direct link to a classic or paper form, set the mode to astrophysics
+    if (isClient && /^\/(classic|paper)-form.*$/.test(router.asPath)) {
+      setMode(AppMode.ASTROPHYSICS);
     }
-  }, [mode, router.asPath, isClient, router]);
+  }, [setMode, router.asPath, isClient]);
 
   return <></>;
 };
