@@ -40,6 +40,14 @@ import api, { ApiRequestConfig } from '@/api/api';
 import { ApiTargets } from '@/api/models';
 import { logger } from '@/logger';
 import { normalizeFields } from '@/api/search/utils';
+import {
+  UI_TAGS,
+  UI_TAG_HEADER,
+  UI_TAG_QUERY_PARAM,
+  buildResultsFacetTag,
+  buildResultsGraphTag,
+  UiTag,
+} from '@/sentry/uiTags';
 
 type PostTransformer = (data: IADSApiSearchResponse) => IADSApiSearchResponse;
 
@@ -99,6 +107,60 @@ export const searchKeys = {
 const omitParams = (query: IADSApiSearchParams) =>
   omit<IADSApiSearchParams, string>(['fl', 'p'], query) as IADSApiSearchParams;
 
+type FetchSearchMeta = {
+  params: IADSApiSearchParams;
+  postTransformers?: Array<PostTransformer>;
+  uiTag?: UiTag;
+};
+
+const mergeMeta = (meta: unknown, extras: Record<string, unknown>): Record<string, unknown> => ({
+  ...(typeof meta === 'object' && meta !== null ? (meta as Record<string, unknown>) : {}),
+  ...extras,
+});
+
+const getPrimitiveParam = (value: unknown): string | undefined => {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'string') {
+    return value[0] as string;
+  }
+  return undefined;
+};
+
+const deriveFacetTag = (params: IADSApiSearchParams): UiTag | undefined => {
+  const facetField = getPrimitiveParam(params['facet.field']);
+  if (!facetField) {
+    return undefined;
+  }
+
+  if (facetField.startsWith('simbad_object_facet')) {
+    return UI_TAGS.RESULTS_OBJECT_FACET_SIMBAD;
+  }
+
+  if (facetField.startsWith('ned_object_facet') || facetField.startsWith('nedtype_object_facet')) {
+    return UI_TAGS.RESULTS_OBJECT_FACET_NED;
+  }
+
+  return buildResultsFacetTag(facetField);
+};
+
+const deriveGraphTag = (params: IADSApiSearchParams): UiTag | undefined => {
+  const jsonFacet = typeof params['json.facet'] === 'string' ? (params['json.facet'] as string) : undefined;
+  if (jsonFacet?.includes('citation_count')) {
+    return buildResultsGraphTag('citations');
+  }
+  if (jsonFacet?.includes('read_count')) {
+    return buildResultsGraphTag('reads');
+  }
+
+  const facetPivot = getPrimitiveParam(params['facet.pivot']);
+  if (facetPivot?.includes('year')) {
+    return buildResultsGraphTag('years');
+  }
+
+  return undefined;
+};
 /**
  * Generic search hook.
  * Default returns the Solr `response` block; override via `options.select`.
@@ -116,14 +178,19 @@ export function useSearch<TData = IADSApiSearchResponse['response']>(
       ? options.select
       : (responseSelector as (d: IADSApiSearchResponse) => TData);
 
+  const mergedMeta = mergeMeta(options?.meta, { params, uiTag: UI_TAGS.RESULTS_PRIMARY });
+
   return useQuery<IADSApiSearchResponse, ErrorType, TData>({
     queryKey: searchKeys.primary(cleanParams),
     queryHash: JSON.stringify(searchKeys.primary(cleanParams)),
     queryFn: fetchSearch,
-    meta: { params },
     select,
     retry: (failCount, error) => failCount < 1 && axios.isAxiosError(error) && error.response?.status !== 400,
-    ...(options as Omit<UseQueryOptions<IADSApiSearchResponse, ErrorType, TData>, 'queryKey' | 'queryFn' | 'select'>),
+    ...((options ?? {}) as Omit<
+      UseQueryOptions<IADSApiSearchResponse, ErrorType, TData>,
+      'queryKey' | 'queryFn' | 'select'
+    >),
+    meta: mergedMeta,
   });
 }
 
@@ -321,13 +388,19 @@ export const useGetSearchStats: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
   // omit fields from queryKey
   const { fl, ...cleanParams } = searchParams;
 
+  const mergedMeta = mergeMeta(options?.meta, { params: searchParams, uiTag: UI_TAGS.RESULTS_METRICS_CHECK });
+  const safeOptions = (options ?? {}) as Omit<
+    UseQueryOptions<IADSApiSearchResponse, ErrorType, IADSApiSearchResponse['stats']>,
+    'queryKey' | 'queryFn'
+  >;
+
   return useQuery({
     queryKey: searchKeys.stats(cleanParams),
     queryFn: fetchSearch,
-    meta: { params: searchParams },
     enabled: isCitationSort,
     select: statsSelector,
-    ...options,
+    ...safeOptions,
+    meta: mergedMeta,
   });
 };
 
@@ -340,13 +413,20 @@ export const useGetSearchFacetCounts: SearchADSQuery<IADSApiSearchParams, IADSAp
   // omit fields from queryKey
   const cleanParams = omitParams(searchParams);
 
+  const uiTag = deriveGraphTag(searchParams) ?? deriveFacetTag(searchParams);
+  const mergedMeta = mergeMeta(options?.meta, { params: searchParams, uiTag });
+  const safeOptions = (options ?? {}) as Omit<
+    UseQueryOptions<IADSApiSearchResponse, ErrorType, IADSApiSearchResponse['facet_counts']>,
+    'queryKey' | 'queryFn'
+  >;
+
   return useQuery({
     queryKey: searchKeys.facet(cleanParams),
     queryFn: fetchSearch,
     queryHash: JSON.stringify(cleanParams),
-    meta: { params: searchParams },
     select: facetCountSelector,
-    ...options,
+    ...safeOptions,
+    meta: mergedMeta,
   });
 };
 
@@ -356,11 +436,18 @@ export const useGetSearchFacet: SearchADSQuery<IADSApiSearchParams, IADSApiSearc
   // omit fields from queryKey
   const { fl, ...cleanParams } = searchParams;
 
+  const uiTag = deriveGraphTag(searchParams) ?? deriveFacetTag(searchParams);
+  const mergedMeta = mergeMeta(options?.meta, { params: searchParams, uiTag });
+  const safeOptions = (options ?? {}) as Omit<
+    UseQueryOptions<IADSApiSearchResponse, ErrorType, IADSApiSearchResponse>,
+    'queryKey' | 'queryFn'
+  >;
+
   return useQuery({
     queryKey: searchKeys.facet(cleanParams),
     queryFn: fetchSearch,
-    meta: { params: searchParams },
-    ...options,
+    ...safeOptions,
+    meta: mergedMeta,
   });
 };
 
@@ -399,12 +486,24 @@ export const useGetSearchFacetJSON: SearchADSQuery<
     }
   };
 
+  const uiTag = deriveGraphTag(searchParams) ?? deriveFacetTag(searchParams);
+  const mergedMeta = mergeMeta(options?.meta, {
+    params: searchParams,
+    postTransformers: [transformData],
+    uiTag,
+  });
+
+  const safeOptions = (options ?? {}) as Omit<
+    UseQueryOptions<IADSApiSearchResponse, ErrorType, IADSApiSearchResponse['facets']>,
+    'queryKey' | 'queryFn'
+  >;
+
   return useQuery({
     queryKey: searchKeys.facet(cleanParams),
     queryFn: fetchSearch,
-    meta: { params: searchParams, postTransformers: [transformData] },
     select: facetFieldSelector,
-    ...options,
+    ...safeOptions,
+    meta: mergedMeta,
   });
 };
 
@@ -412,6 +511,9 @@ export const useSearchInfinite: InfiniteADSQuery<IADSApiSearchParams, IADSApiSea
   params,
   options,
 ) => {
+  const mergedMeta = mergeMeta(options?.meta, { params, uiTag: UI_TAGS.RESULTS_PRIMARY });
+  const safeOptions = (options ?? {}) as Parameters<typeof useInfiniteQuery>[0];
+
   return useInfiniteQuery({
     queryKey: searchKeys.infinite(params),
     queryFn: fetchSearchInfinite,
@@ -421,8 +523,8 @@ export const useSearchInfinite: InfiniteADSQuery<IADSApiSearchParams, IADSApiSea
         ? lastPage.nextCursorMark
         : false;
     },
-    meta: { ...options?.meta, params },
-    ...options,
+    ...safeOptions,
+    meta: mergedMeta,
   });
 };
 
@@ -467,10 +569,7 @@ export const fetchBigQuerySearch: MutationFunction<
  * @returns {Promise<IADSApiSearchResponse>} - A promise that resolves to the search response data.
  */
 export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }) => {
-  const { params, postTransformers } = meta as {
-    params: IADSApiSearchParams;
-    postTransformers?: Array<PostTransformer>;
-  };
+  const { params, postTransformers, uiTag } = meta as FetchSearchMeta;
 
   const finalParams = { ...params };
   if (isString(params.q) && params.q.includes('object:')) {
@@ -481,10 +580,13 @@ export const fetchSearch: QueryFunction<IADSApiSearchResponse> = async ({ meta }
   // normalize fields in the query
   finalParams.q = normalizeFields(finalParams.q);
 
+  const inferredUiTag = uiTag ?? deriveGraphTag(finalParams) ?? deriveFacetTag(finalParams);
+
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.SEARCH,
     params: finalParams,
+    uiTag: inferredUiTag,
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
 
@@ -529,16 +631,29 @@ export const fetchSearchSSR = async (
   // normalize fields in the query
   finalParams.q = normalizeFields(finalParams.q);
 
+  const inferredUiTag = deriveGraphTag(finalParams) ?? deriveFacetTag(finalParams) ?? UI_TAGS.RESULTS_PRIMARY;
+
+  const requestHeaders: Record<string, unknown> = {
+    ...defaultRequestConfig.headers,
+    Authorization: `Bearer ${token}`,
+    ...pick(TRACING_HEADERS, ctx.req.headers),
+  };
+
+  if (inferredUiTag) {
+    requestHeaders[UI_TAG_HEADER] = inferredUiTag;
+  }
+
+  const requestParams: IADSApiSearchParams = {
+    ...finalParams,
+    ...(inferredUiTag ? { [UI_TAG_QUERY_PARAM]: inferredUiTag } : {}),
+  };
+
   const config: ApiRequestConfig = {
     ...defaultRequestConfig,
     method: 'GET',
     url: ApiTargets.SEARCH,
-    params: finalParams,
-    headers: {
-      ...defaultRequestConfig.headers,
-      Authorization: `Bearer ${token}`,
-      ...pick(TRACING_HEADERS, ctx.req.headers),
-    },
+    params: requestParams,
+    headers: requestHeaders,
   };
 
   const { data } = await axios.request<IADSApiSearchResponse>(config);
@@ -549,7 +664,7 @@ export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pagePa
   meta,
   pageParam = '*',
 }: QueryFunctionContext<QueryKey, string>) => {
-  const { params } = meta as { params: IADSApiSearchParams };
+  const { params, uiTag } = meta as FetchSearchMeta;
 
   const finalParams = { ...params };
   if (isString(params.q) && params.q.includes('object:')) {
@@ -560,6 +675,8 @@ export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pagePa
   // normalize fields in the query
   finalParams.q = normalizeFields(finalParams.q);
 
+  const inferredUiTag = uiTag ?? deriveGraphTag(finalParams) ?? deriveFacetTag(finalParams);
+
   const config: ApiRequestConfig = {
     method: 'GET',
     url: ApiTargets.SEARCH,
@@ -567,6 +684,7 @@ export const fetchSearchInfinite: QueryFunction<IADSApiSearchResponse & { pagePa
       ...finalParams,
       cursorMark: pageParam,
     } as IADSApiSearchParams,
+    uiTag: inferredUiTag,
   };
   const { data } = await api.request<IADSApiSearchResponse>(config);
 

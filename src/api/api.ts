@@ -9,6 +9,7 @@ import crypto from 'crypto';
 import { identity } from 'ramda';
 import { IBootstrapPayload, IUserData } from '@/api/user/types';
 import { ApiTargets } from '@/api/models';
+import { UI_TAG_HEADER, UI_TAG_QUERY_PARAM, UiTag } from '@/sentry/uiTags';
 
 export const isAuthenticated = (user: IUserData) =>
   isUserData(user) && (!user.anonymous || user.username !== 'anonymous@ads');
@@ -47,13 +48,166 @@ const applyTokenToRequest = (request: ApiRequestConfig, token: string): ApiReque
   };
 };
 
-export type ApiRequestConfig = AxiosRequestConfig;
+export interface ApiRequestConfig extends AxiosRequestConfig {
+  uiTag?: UiTag;
+}
 
 enum API_STATUS {
   UNAUTHORIZED = 401,
 }
 
 const log = logger.child({}, { msgPrefix: '[api] ' });
+
+const HTTP_METHODS_WITH_BODY = new Set(['POST', 'PUT', 'PATCH']);
+
+const hasUiTag = (value: unknown): value is UiTag => typeof value === 'string' && value.trim().length > 0;
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> => {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+};
+
+const cloneHeaders = (headers: ApiRequestConfig['headers']): Record<string, unknown> => {
+  if (!headers) {
+    return {};
+  }
+
+  if (typeof (headers as { toJSON?: () => Record<string, unknown> }).toJSON === 'function') {
+    return { ...(headers as { toJSON: () => Record<string, unknown> }).toJSON() };
+  }
+
+  return { ...(headers as Record<string, unknown>) };
+};
+
+const getContentType = (headers: Record<string, unknown>): string | undefined => {
+  const raw = headers['Content-Type'] ?? headers['content-type'];
+  if (typeof raw === 'string') {
+    return raw;
+  }
+  if (Array.isArray(raw)) {
+    const first = raw.find((v) => typeof v === 'string');
+    return typeof first === 'string' ? first : undefined;
+  }
+  return undefined;
+};
+
+const applyUiTagToParams = (params: ApiRequestConfig['params'], uiTag: UiTag): ApiRequestConfig['params'] => {
+  if (!params) {
+    return { [UI_TAG_QUERY_PARAM]: uiTag };
+  }
+
+  if (params instanceof URLSearchParams) {
+    const next = new URLSearchParams(params.toString());
+    next.set(UI_TAG_QUERY_PARAM, uiTag);
+    return next;
+  }
+
+  if (typeof params === 'string') {
+    const next = new URLSearchParams(params);
+    next.set(UI_TAG_QUERY_PARAM, uiTag);
+    return next.toString();
+  }
+
+  if (isPlainObject(params)) {
+    if (params[UI_TAG_QUERY_PARAM] === uiTag) {
+      return params;
+    }
+    return { ...params, [UI_TAG_QUERY_PARAM]: uiTag };
+  }
+
+  return params;
+};
+
+const tryParseJson = (value: string): Record<string, unknown> | null => {
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    return isPlainObject(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+};
+
+const stringifyJson = (value: unknown): string => JSON.stringify(value);
+
+const applyUiTagToData = (data: ApiRequestConfig['data'], uiTag: UiTag, contentType?: string) => {
+  if (data == null) {
+    return { ui_tag: uiTag };
+  }
+
+  if (typeof FormData !== 'undefined' && data instanceof FormData) {
+    if (!data.has('ui_tag')) {
+      data.set('ui_tag', uiTag);
+    }
+    return data;
+  }
+
+  if (data instanceof URLSearchParams) {
+    const next = new URLSearchParams(data.toString());
+    next.set('ui_tag', uiTag);
+    return next;
+  }
+
+  if (typeof data === 'string') {
+    if (contentType?.includes('application/json')) {
+      const parsed = tryParseJson(data);
+      if (parsed) {
+        if (parsed.ui_tag === uiTag) {
+          return data;
+        }
+        return stringifyJson({ ...parsed, ui_tag: uiTag });
+      }
+    }
+    return data;
+  }
+
+  if (isPlainObject(data)) {
+    if (data.ui_tag === uiTag) {
+      return data;
+    }
+    return { ...data, ui_tag: uiTag };
+  }
+
+  return data;
+};
+
+const withUiTag = (config: ApiRequestConfig): ApiRequestConfig => {
+  const { uiTag, ...rest } = config;
+  if (!hasUiTag(uiTag)) {
+    return config;
+  }
+
+  const method = (rest.method ?? 'GET').toUpperCase();
+  const headers = cloneHeaders(rest.headers);
+  headers[UI_TAG_HEADER] = uiTag;
+
+  if (headers['X-Ui-Tag'] === undefined) {
+    headers['X-Ui-Tag'] = uiTag;
+  }
+
+  const next: ApiRequestConfig = {
+    ...rest,
+    headers,
+  };
+
+  next.uiTag = uiTag;
+
+  if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
+    next.params = applyUiTagToParams(rest.params, uiTag);
+    return next;
+  }
+
+  next.params = rest.params ? applyUiTagToParams(rest.params, uiTag) : rest.params;
+
+  const contentType = getContentType(headers);
+  if (HTTP_METHODS_WITH_BODY.has(method)) {
+    next.data = applyUiTagToData(rest.data, uiTag, contentType);
+  }
+
+  return next;
+};
 
 const getClientSideCacheConfig = async () => {
   const idb = await import('idb-keyval');
@@ -328,7 +482,8 @@ class Api {
     }
     // serverside, we can just send the request
     if (typeof window === 'undefined') {
-      return this.service.request<T>(applyTokenToRequest(config, this.userData?.access_token));
+      const cfg = withUiTag(applyTokenToRequest(config, this.userData?.access_token));
+      return this.service.request<T>(cfg);
     }
 
     const cfgHash = this.hashConfig(config);
@@ -340,7 +495,7 @@ class Api {
       this.getUserData()
         .then((ud) => {
           this.setUserData(ud);
-          const cfg = applyTokenToRequest(config, ud.access_token);
+          const cfg = withUiTag(applyTokenToRequest(config, ud.access_token));
           this.service
             .request<T>(cfg)
             .then(resolve)

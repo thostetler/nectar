@@ -133,6 +133,44 @@ test('Unauthenticated request with no previous session, will force a token refre
   expect(onReq.mock.calls[2][0].headers.get('authorization')).toEqual(`Bearer refreshed`);
 });
 
+test('uiTag is propagated on GET requests', async ({ server }: TestContext) => {
+  const { onRequest: onReq } = createServerListenerMocks(server);
+  server.use(testHandlerWith200);
+  api.setUserData(mockUserData);
+
+  await api.request({ method: 'GET', url: '/test', uiTag: 'results/primary' });
+
+  const request = onReq.mock.calls.find((call) => call[0].url.pathname === '/test')?.[0];
+  expect(request).toBeDefined();
+  expect(request?.url.searchParams.get('ui_tag')).toBe('results/primary');
+  expect(request?.headers.get('x-ui-tag')).toBe('results/primary');
+});
+
+test('uiTag is propagated into JSON bodies for POST requests', async ({ server }: TestContext) => {
+  const { onRequest: onReq } = createServerListenerMocks(server);
+  let capturedBody: Record<string, unknown> | undefined;
+  server.use(
+    rest.post('*post-test', async (req, res, ctx) => {
+      capturedBody = await req.json();
+      return res(ctx.status(200), ctx.json({ ok: true }));
+    }),
+  );
+
+  api.setUserData(mockUserData);
+  await api.request({
+    method: 'POST',
+    url: '/post-test',
+    data: { foo: 'bar' },
+    uiTag: 'actions/export/bibtex',
+  });
+
+  const request = onReq.mock.calls.find((call) => call[0].url.pathname === '/post-test')?.[0];
+  expect(request).toBeDefined();
+  expect(request?.headers.get('x-ui-tag')).toBe('actions/export/bibtex');
+  expect(capturedBody?.foo).toBe('bar');
+  expect(capturedBody?.ui_tag).toBe('actions/export/bibtex');
+});
+
 test('Fallback to bootstrapping directly if the /api/user endpoint continuously fails', async ({
   server,
 }: TestContext) => {
