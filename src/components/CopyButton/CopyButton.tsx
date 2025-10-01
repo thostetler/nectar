@@ -19,14 +19,16 @@ export const SimpleCopyButton = (props: ICopyButtonProps): ReactElement => {
   const [hasCopied, setHasCopied] = useState(false);
 
   useEffect(() => {
-    if (hasCopied) {
-      const timeoutId = setTimeout(() => {
-        setHasCopied(false);
-      }, timeout);
-
-      return () => clearTimeout(timeoutId);
+    if (!hasCopied) {
+      return;
     }
-  }, [hasCopied]);
+
+    const timeoutId = window.setTimeout(() => {
+      setHasCopied(false);
+    }, timeout);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [hasCopied, timeout]);
 
   const handleCopied = () => {
     setHasCopied(true);
@@ -55,14 +57,16 @@ export const LabeledCopyButton = (props: ICopyButtonProps & { label: string }): 
   const [hasCopied, setHasCopied] = useState(false);
 
   useEffect(() => {
-    if (hasCopied) {
-      const timeoutId = setTimeout(() => {
-        setHasCopied(false);
-      }, timeout);
-
-      return () => clearTimeout(timeoutId);
+    if (!hasCopied) {
+      return;
     }
-  }, [hasCopied]);
+
+    const timeoutId = window.setTimeout(() => {
+      setHasCopied(false);
+    }, timeout);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [hasCopied, timeout]);
 
   const handleCopied = () => {
     setHasCopied(true);
@@ -89,7 +93,7 @@ export const CopyMenuItem = (props: MenuItemProps & { label: string; text: strin
 
   useEffect(() => {
     setValue(text);
-  }, [text]);
+  }, [setValue, text]);
 
   return (
     <MenuItem onClick={onCopy} {...rest}>
