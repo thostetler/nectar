@@ -66,14 +66,20 @@ export const AllAuthorsModal = ({ bibcode, label }: IAllAuthorsModalProps): Reac
   const initialRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
   const router = useRouter();
+  const routerEvents = router.events;
 
   // on history change (or url params), close the modal
   useEffect(() => {
-    router.events.on('beforeHistoryChange', onClose);
-    return () => {
-      router.events.off('beforeHistoryChange', onClose);
+    const handleBeforeHistoryChange = () => {
+      onClose();
     };
-  }, [onClose]);
+
+    routerEvents.on('beforeHistoryChange', handleBeforeHistoryChange);
+
+    return () => {
+      routerEvents.off('beforeHistoryChange', handleBeforeHistoryChange);
+    };
+  }, [onClose, routerEvents]);
 
   // to avoid having to play with the forwarded ref, just focus here
   const handleSearchClear = () => {
