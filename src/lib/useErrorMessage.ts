@@ -7,13 +7,33 @@ import { useEffect, useRef, useState } from 'react';
  * @param delay
  */
 export const useErrorMessage = <T>(error: T, delay = 5000) => {
-  const id = useRef<number | null>(null);
-  const output = useState<T>(error);
+  const timeoutId = useRef<number | null>(null);
+  const state = useState<T>(error);
+  const [message, setMessage] = state;
 
   useEffect(() => {
-    id.current = window.setTimeout(output[1], delay, null);
-    return () => clearTimeout(id.current);
-  }, [output[0]]);
+    setMessage(error);
+  }, [error, setMessage]);
 
-  return output;
+  useEffect(() => {
+    if (timeoutId.current !== null) {
+      clearTimeout(timeoutId.current);
+    }
+
+    if (message == null) {
+      return;
+    }
+
+    timeoutId.current = window.setTimeout(() => {
+      setMessage(null as unknown as T);
+    }, delay);
+
+    return () => {
+      if (timeoutId.current !== null) {
+        clearTimeout(timeoutId.current);
+      }
+    };
+  }, [delay, message, setMessage]);
+
+  return state;
 };
