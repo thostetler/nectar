@@ -1,22 +1,21 @@
-import { rest } from 'msw';
+import { http, HttpResponse, delay } from 'msw';
 
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
 import { IExportApiParams } from '@/api/export/types';
 import { ApiTargets } from '@/api/models';
 
 export const exportHandlers = [
-  rest.post<IExportApiParams, { format: string }>(apiHandlerRoute(ApiTargets.EXPORT, '/:format'), (req, res, ctx) => {
-    const { bibcode, ...body } = req.body;
-    const { format } = req.params;
+  http.post(apiHandlerRoute(ApiTargets.EXPORT, '/:format'), async ({ request, params }) => {
+    const body = (await request.json()) as IExportApiParams;
+    const { bibcode, ...restBody } = body;
+    const { format } = params;
 
-    const value = { numRecords: bibcode.length, format, ...body };
+    const value = { numRecords: bibcode.length, format, ...restBody };
 
-    return res(
-      ctx.delay(200),
-      ctx.status(200),
-      ctx.json({
-        export: `${JSON.stringify(value, Object.keys(value).sort(), 2)}`,
-      }),
-    );
+    await delay(200);
+
+    return HttpResponse.json({
+      export: `${JSON.stringify(value, Object.keys(value).sort(), 2)}`,
+    });
   }),
 ];

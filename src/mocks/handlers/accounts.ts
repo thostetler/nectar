@@ -1,21 +1,20 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
 import { ApiTargets } from '@/api/models';
 
 export const accountHandlers = [
-  rest.get(apiHandlerRoute(ApiTargets.BOOTSTRAP), (req, res, ctx) => {
-    const test = req.url.searchParams.get('test');
+  http.get(apiHandlerRoute(ApiTargets.BOOTSTRAP), ({ request }) => {
+    const url = new URL(request.url);
+    const test = url.searchParams.get('test');
 
     if (test === 'networkerror') {
-      return res.networkError('failure');
+      return HttpResponse.error();
     } else if (test === 'fail') {
-      return res(ctx.status(500, 'Server Error'));
+      return HttpResponse.json(null, { status: 500, statusText: 'Server Error' });
     }
 
-    return res(
-      ctx.status(200),
-      ctx.cookie('session', 'test-session'),
-      ctx.json({
+    return HttpResponse.json(
+      {
         username: 'anonymous@ads',
         scopes: ['api', 'execute-query', 'store-query'],
         client_id: 'ONsfcxVTNIae5vULWlH7bLE8F6MpIZgW0Bhghzny',
@@ -29,7 +28,13 @@ export const accountHandlers = [
         refresh_token: 'BENF2Gu2EXDXreAjzkiDoV7ReXaNisy4j9kn088u',
         given_name: 'Test T.',
         family_name: 'Tester',
-      }),
+      },
+      {
+        status: 200,
+        headers: {
+          'Set-Cookie': 'session=test-session',
+        },
+      },
     );
   }),
 ];
