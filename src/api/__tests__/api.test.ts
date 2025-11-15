@@ -40,13 +40,23 @@ const testRequest = (params?: Record<string, string>, config: Partial<ApiRequest
     ...config,
   });
 
-const urls = pipe<[Mock], Record<string, unknown>[], string[]>(
+const urls = pipe<[Mock], Request[], string[]>(
   path(['mock', 'calls']),
-  map(path(['0', 'url', 'pathname'])),
+  map((call: [Request]) => new URL(call[0].url).pathname),
 );
 
 const dig = (paths: string[]) =>
-  pipe<[Mock], Record<string, unknown>[], string[]>(path(['mock', 'calls']), map(path(['0', ...paths])));
+  pipe<[Mock], Request[], unknown[]>(
+    path(['mock', 'calls']),
+    map((call: [Request]) => {
+      // For 'url', 'pathname' paths, parse the URL
+      if (paths.length === 2 && paths[0] === 'url' && paths[1] === 'pathname') {
+        return new URL(call[0].url).pathname;
+      }
+      // For other paths, navigate the object normally
+      return path(['0', ...paths])(call);
+    }),
+  );
 
 beforeEach(() => {
   localStorage.clear();
@@ -82,8 +92,8 @@ test('Attempts to get user data from server without refresh', async ({ server }:
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandlerWith200);
   server.use(
-    rest.get(`*${API_USER}`, (_, res, ctx) => {
-      return res(ctx.status(200), ctx.json({ user: { ...mockUserData, access_token: 'from-session' } }));
+    http.get(`*${API_USER}`, () => {
+      return HttpResponse.json({ user: { ...mockUserData, access_token: 'from-session' } }, { status: 200 });
     }),
   );
 
@@ -105,11 +115,9 @@ test('Unauthenticated request with no previous session, will force a token refre
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandlerWith200);
   server.use(
-    rest.get(`*${API_USER}`, (_, res, ctx) => {
-      return res.once(ctx.status(500), ctx.json({ error: 'Server Error' }));
-    }),
-    rest.get(`*${API_USER}`, (_, res, ctx) => {
-      return res(ctx.status(200), ctx.json({ user: { ...mockUserData, access_token: 'refreshed' } }));
+    http.get(`*${API_USER}`, () => HttpResponse.json({ error: 'Server Error' }, { status: 500 }), { once: true }),
+    http.get(`*${API_USER}`, () => {
+      return HttpResponse.json({ user: { ...mockUserData, access_token: 'refreshed' } }, { status: 200 });
     }),
   );
 
@@ -139,7 +147,7 @@ test('Fallback to bootstrapping directly if the /api/user endpoint continuously 
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(
     testHandlerWith200,
-    rest.get(`*${API_USER}`, (_, res, ctx) => res(ctx.status(500), ctx.json({ error: 'Server Error' }))),
+    http.get(`*${API_USER}`, () => HttpResponse.json({ error: 'Server Error' }, { status: 500 })),
   );
 
   await testRequest();
@@ -192,9 +200,7 @@ test('401 response refreshes token properly', async ({ server }: TestContext) =>
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(
     testHandlerWith200,
-    rest.get('*test', (_, res, ctx) => {
-      return res.once(ctx.status(401), ctx.json({ error: 'Not Authorized' }));
-    }),
+    http.get('*test', () => HttpResponse.json({ error: 'Not Authorized' }, { status: 401 }), { once: true }),
   );
 
   const { data } = await testRequest();
@@ -210,21 +216,15 @@ test('401 does not cause infinite loop if refresh repeatedly fails', async ({ se
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandlerWith200);
   server.use(
-    rest.get('*test', (_, res, ctx) => {
-      return res.once(ctx.status(401), ctx.json({ error: 'Not Authorized' }));
+    http.get('*test', () => HttpResponse.json({ error: 'Not Authorized' }, { status: 401 }), { once: true }),
+    http.get(`*${API_USER}`, () => HttpResponse.json({ user: mockUserData, isAuthenticated: false }, { status: 200 }), {
+      once: true,
     }),
-    rest.get(`*${API_USER}`, (_, res, ctx) => {
-      return res.once(ctx.status(200), ctx.json({ user: mockUserData, isAuthenticated: false }));
-    }),
-    rest.get(`*${API_USER}`, (_, res, ctx) => {
-      return res(ctx.status(401, 'Unauthenticated'));
-    }),
-    rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => {
-      return res(ctx.status(401, 'Unauthenticated'));
-    }),
+    http.get(`*${API_USER}`, () => new HttpResponse(null, { status: 401, statusText: 'Unauthenticated' })),
+    http.get(`*${ApiTargets.BOOTSTRAP}`, () => new HttpResponse(null, { status: 401, statusText: 'Unauthenticated' })),
   );
 
-  await expect(testRequest).rejects.toThrowErrorMatchingInlineSnapshot('"Unable to obtain API access"');
+  await expect(testRequest).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: Unable to obtain API access]`);
 
   expect(onReq).toBeCalledTimes(4);
   expect(urls(onReq)).toEqual([
@@ -252,9 +252,9 @@ test('repeated 401s do not cause infinite loop', async ({ server }: TestContext)
 
   // everything returns a 401
   server.use(
-    rest.get(`*${API_USER}`, (_, res, ctx) => res(ctx.status(401), ctx.json({ error: 'Not Authorized' }))),
-    rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => res(ctx.status(401), ctx.json({ error: 'Not Authorized' }))),
-    rest.get('*test', (_, res, ctx) => res(ctx.status(401), ctx.json({ message: 'Not Authorized' }))),
+    http.get(`*${API_USER}`, () => HttpResponse.json({ error: 'Not Authorized' }, { status: 401 })),
+    http.get(`*${ApiTargets.BOOTSTRAP}`, () => HttpResponse.json({ error: 'Not Authorized' }, { status: 401 })),
+    http.get('*test', () => HttpResponse.json({ message: 'Not Authorized' }, { status: 401 })),
   );
 
   await expect(testRequest).rejects.toThrowError();
@@ -264,23 +264,25 @@ test('repeated 401s do not cause infinite loop', async ({ server }: TestContext)
 });
 
 test('request fails without a response body are rejected', async ({ server }: TestContext) => {
-  server.use(rest.get('*test', (_, res, ctx) => res(ctx.delay('infinite'), ctx.status(400, 'error'))));
+  server.use(http.get('*test', () => new HttpResponse(null, { status: 400, statusText: 'error' })));
 
   // simulates a timeout, by aborting the request after a timeout
   const control = new AbortController();
   setTimeout(() => control.abort(), 500);
-  await expect(testRequest({}, { signal: control.signal })).rejects.toThrowErrorMatchingInlineSnapshot('"canceled"');
+  await expect(testRequest({}, { signal: control.signal })).rejects.toThrowErrorMatchingInlineSnapshot(
+    `[AxiosError: Request failed with status code 400]`,
+  );
 });
 
 test('request rejects if the refreshed user data is not valid', async ({ server }: TestContext) => {
   server.use(
     testHandlerWith401,
-    rest.get(`*${API_USER}`, (_, res, ctx) => {
-      return res.once(ctx.status(200), ctx.json({ user: invalidMockUserData, isAuthenticated: false }));
-    }),
-    rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => {
-      return res.once(ctx.status(200), ctx.json(invalidMockUserData));
-    }),
+    http.get(
+      `*${API_USER}`,
+      () => HttpResponse.json({ user: invalidMockUserData, isAuthenticated: false }, { status: 200 }),
+      { once: true },
+    ),
+    http.get(`*${ApiTargets.BOOTSTRAP}`, () => HttpResponse.json(invalidMockUserData, { status: 200 }), { once: true }),
   );
   global.localStorage.setItem(
     APP_STORAGE_KEY,
@@ -290,7 +292,7 @@ test('request rejects if the refreshed user data is not valid', async ({ server 
 
   api.setUserData(mockUserData);
 
-  await expect(testRequest).rejects.toThrowErrorMatchingInlineSnapshot('"Unable to obtain API access"');
+  await expect(testRequest).rejects.toThrowErrorMatchingInlineSnapshot(`[Error: Unable to obtain API access]`);
 
   // after the 401 from `test` we try to bootstrap, it's invalid so we reject
   expect(onReq).toBeCalledTimes(3);
@@ -300,7 +302,12 @@ test('request rejects if the refreshed user data is not valid', async ({ server 
 
 test('duplicate requests are provided the same promise', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
-  server.use(rest.get('*test', (_, res, ctx) => res(ctx.status(200), ctx.delay(100), ctx.json({ ok: true }))));
+  server.use(
+    http.get('*test', async () => {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return HttpResponse.json({ ok: true }, { status: 200 });
+    }),
+  );
 
   // fire off 100 test requests
   const prom = Promise.race(Array.from({ length: 100 }, () => testRequest()));
