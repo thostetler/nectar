@@ -43,6 +43,7 @@ import { parseAPIError } from '@/utils/common/parseAPIError';
 import { useFeedback } from '@/api/feedback/feedback';
 import { logger } from '@/logger';
 import { SimpleLink } from '@/components/SimpleLink';
+import { ReCaptchaProvider } from '@/components/ReCaptchaProvider';
 
 type FormValues = {
   name: string;
@@ -259,5 +260,13 @@ const General: NextPage = () => {
   );
 };
 
-export default General;
+const GeneralWithRecaptcha: NextPage = () => {
+  return (
+    <ReCaptchaProvider>
+      <General />
+    </ReCaptchaProvider>
+  );
+};
+
+export default GeneralWithRecaptcha;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

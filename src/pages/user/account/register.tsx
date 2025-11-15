@@ -28,6 +28,7 @@ import { StandardAlertMessage } from '@/components/Feedbacks';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IUserRegistrationCredentials } from '@/api/user/types';
 import { useRegisterUser } from '@/api/user/user';
+import { ReCaptchaProvider } from '@/components/ReCaptchaProvider';
 
 const initialParams: IUserRegistrationCredentials = {
   givenName: '',
@@ -196,7 +197,15 @@ const Register: NextPage = () => {
   );
 };
 
-export default Register;
+const RegisterWithRecaptcha: NextPage = () => {
+  return (
+    <ReCaptchaProvider>
+      <Register />
+    </ReCaptchaProvider>
+  );
+};
+
+export default RegisterWithRecaptcha;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
 
 const RequirementsController = ({ control }: { control: Control<typeof initialParams> }) => {

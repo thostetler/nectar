@@ -13,6 +13,7 @@ import { RecaptchaMessage } from '@/components/RecaptchaMessage/RecaptchaMessage
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { IUserForgotPasswordCredentials } from '@/api/user/types';
 import { useForgotPassword } from '@/api/user/user';
+import { ReCaptchaProvider } from '@/components/ReCaptchaProvider';
 
 export { useQuery } from '@tanstack/react-query';
 
@@ -96,5 +97,13 @@ const ForgotPassword: NextPage = () => {
   );
 };
 
-export default ForgotPassword;
+const ForgotPasswordWithRecaptcha: NextPage = () => {
+  return (
+    <ReCaptchaProvider>
+      <ForgotPassword />
+    </ReCaptchaProvider>
+  );
+};
+
+export default ForgotPasswordWithRecaptcha;
 export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';

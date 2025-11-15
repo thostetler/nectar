@@ -1,9 +1,7 @@
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
 import { MathJaxProvider } from './mathjax';
 import { ChakraProvider } from '@chakra-ui/react';
 import { AppState, StoreProvider, useCreateStore, useStore } from './store';
 import { DehydratedState, Hydrate, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { FC, useEffect } from 'react';
 import { useCreateQueryClient } from './lib/useCreateQueryClient';
 import { logger } from './logger';
@@ -11,6 +9,15 @@ import { theme } from './theme';
 import shallow from 'zustand/shallow';
 import * as Sentry from '@sentry/nextjs';
 import { IADSApiSearchParams } from './api/search/types';
+import dynamic from 'next/dynamic';
+
+// Only load ReactQueryDevtools in development
+const ReactQueryDevtools =
+  process.env.NODE_ENV === 'development'
+    ? dynamic(() => import('@tanstack/react-query-devtools').then((mod) => ({ default: mod.ReactQueryDevtools })), {
+        ssr: false,
+      })
+    : () => null;
 
 const windowState = {
   navigationStart: performance?.timeOrigin || performance?.timing?.navigationStart || 0,
@@ -26,21 +33,19 @@ export const Providers: FC<{ pageProps: AppPageProps }> = ({ children, pageProps
   const createStore = useCreateStore(pageProps.dehydratedAppState ?? {});
 
   return (
-    <GoogleReCaptchaProvider reCaptchaKey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? ''}>
-      <MathJaxProvider>
-        <ChakraProvider theme={theme}>
-          <StoreProvider createStore={createStore}>
-            <QCProvider>
-              <Hydrate state={pageProps.dehydratedState}>
-                <Telemetry />
-                {children}
-              </Hydrate>
-              <ReactQueryDevtools />
-            </QCProvider>
-          </StoreProvider>
-        </ChakraProvider>
-      </MathJaxProvider>
-    </GoogleReCaptchaProvider>
+    <MathJaxProvider>
+      <ChakraProvider theme={theme}>
+        <StoreProvider createStore={createStore}>
+          <QCProvider>
+            <Hydrate state={pageProps.dehydratedState}>
+              <Telemetry />
+              {children}
+            </Hydrate>
+            <ReactQueryDevtools />
+          </QCProvider>
+        </StoreProvider>
+      </ChakraProvider>
+    </MathJaxProvider>
   );
 };
 

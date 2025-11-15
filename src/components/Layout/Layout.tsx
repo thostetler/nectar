@@ -2,7 +2,6 @@ import { Container, Flex, useMediaQuery } from '@chakra-ui/react';
 import { SkipNavLink } from '@chakra-ui/skip-nav';
 import { useRouter } from 'next/router';
 import { FC } from 'react';
-import { Footer } from '../Footer';
 import { NavBar } from '../NavBar';
 import dynamic from 'next/dynamic';
 
@@ -23,6 +22,11 @@ const LandingTabs = dynamic(
     loading: () => <LandingTabsStatic />,
   },
 );
+
+// Lazy load Footer since it's below the fold
+const Footer = dynamic(() => import('../Footer').then((mod) => ({ default: mod.Footer })), {
+  ssr: true,
+});
 
 const LANDING_PAGES = ['/', '/classic-form', '/paper-form'];
 export const Layout: FC = ({ children }) => {
