@@ -18,7 +18,20 @@ export default defineConfig({
     },
     coverage: {
       provider: 'v8',
-      reporter: 'lcov',
+      reporter: ['text', 'text-summary', 'html', 'lcov'],
+      exclude: [
+        'coverage/**',
+        'dist/**',
+        '**/[.]**',
+        'packages/*/test{,s}/**',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/mockServiceWorker.js',
+        '**/__mocks__/**',
+        'src/mocks/**',
+        'scripts/**',
+        '.next/**',
+      ],
     },
   },
   server: {
