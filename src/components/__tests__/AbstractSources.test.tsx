@@ -3,7 +3,7 @@ import { test, vi, expect, describe, beforeEach } from 'vitest';
 import { AbstractSources } from '@/components/AbstractSources';
 import { IDocsEntity } from '@/api/search/types';
 import { server } from '@/mocks/server';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
 import { ApiTargets } from '@/api/models';
 
@@ -59,8 +59,8 @@ describe('AbstractSources', () => {
 
     // Add a default mock for export endpoint to prevent errors
     server.use(
-      rest.get('/export/manifest', (req, res, ctx) => {
-        return res(ctx.json([]));
+      http.get('/export/manifest', () => {
+        return HttpResponse.json([]);
       }),
     );
   });
@@ -77,16 +77,14 @@ describe('AbstractSources', () => {
     // Set up a spy on the resolver endpoint that only captures associated requests
     const resolverSpy = vi.fn();
     server.use(
-      rest.get(apiHandlerRoute(ApiTargets.RESOLVER, '/:bibcode/associated'), (req, res, ctx) => {
+      http.get(apiHandlerRoute(ApiTargets.RESOLVER, '/:bibcode/associated'), ({ params }) => {
         resolverSpy({
-          bibcode: req.params.bibcode,
+          bibcode: params.bibcode,
           linkType: 'associated',
         });
-        return res(
-          ctx.json({
-            links: { count: 0, records: [] },
-          }),
-        );
+        return HttpResponse.json({
+          links: { count: 0, records: [] },
+        });
       }),
     );
 
@@ -105,16 +103,14 @@ describe('AbstractSources', () => {
     // Set up a spy on the resolver endpoint that only captures associated requests
     const resolverSpy = vi.fn();
     server.use(
-      rest.get(apiHandlerRoute(ApiTargets.RESOLVER, '/:bibcode/associated'), (req, res, ctx) => {
+      http.get(apiHandlerRoute(ApiTargets.RESOLVER, '/:bibcode/associated'), ({ params }) => {
         resolverSpy({
-          bibcode: req.params.bibcode,
+          bibcode: params.bibcode,
           linkType: 'associated',
         });
-        return res(
-          ctx.json({
-            links: { count: 0, records: [] },
-          }),
-        );
+        return HttpResponse.json({
+          links: { count: 0, records: [] },
+        });
       }),
     );
 
@@ -131,16 +127,14 @@ describe('AbstractSources', () => {
     // Set up a spy on the resolver endpoint that only captures associated requests
     const resolverSpy = vi.fn();
     server.use(
-      rest.get(apiHandlerRoute(ApiTargets.RESOLVER, '/:bibcode/associated'), (req, res, ctx) => {
+      http.get(apiHandlerRoute(ApiTargets.RESOLVER, '/:bibcode/associated'), ({ params }) => {
         resolverSpy({
-          bibcode: req.params.bibcode,
+          bibcode: params.bibcode,
           linkType: 'associated',
         });
-        return res(
-          ctx.json({
-            links: { count: 0, records: [] },
-          }),
-        );
+        return HttpResponse.json({
+          links: { count: 0, records: [] },
+        });
       }),
     );
 

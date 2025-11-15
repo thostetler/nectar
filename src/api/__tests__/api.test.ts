@@ -1,7 +1,7 @@
 import api, { ApiRequestConfig } from '@/api/api';
 import { APP_STORAGE_KEY } from '@/store';
 import { createServerListenerMocks } from '@/test-utils';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { map, path, pipe } from 'ramda';
 import { beforeEach, expect, Mock, test, TestContext, vi } from 'vitest';
 import { IBootstrapPayload } from '@/api/user/types';
@@ -24,12 +24,12 @@ const invalidMockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' |
   expires_at: '',
 };
 
-const testHandlerWith200 = rest.get('*test', (_, res, ctx) => {
-  return res(ctx.status(200), ctx.json({ ok: true }));
+const testHandlerWith200 = http.get('*test', () => {
+  return HttpResponse.json({ ok: true }, { status: 200 });
 });
 
-const testHandlerWith401 = rest.get('*test', (_, res, ctx) =>
-  res(ctx.status(401), ctx.json({ message: 'User unauthorized' })),
+const testHandlerWith401 = http.get('*test', () =>
+  HttpResponse.json({ message: 'User unauthorized' }, { status: 401 }),
 );
 
 const testRequest = (params?: Record<string, string>, config: Partial<ApiRequestConfig> = {}) =>
