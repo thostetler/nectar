@@ -169,6 +169,41 @@ const nextConfig = {
   },
   // set standalone output on
   output: process.env.STANDALONE ? 'standalone' : undefined,
+  // Optimize vendor bundle splitting for better caching
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Extend Next.js's default splitChunks config
+      config.optimization.splitChunks = {
+        ...config.optimization.splitChunks,
+        cacheGroups: {
+          // Keep Next.js defaults
+          ...config.optimization.splitChunks.cacheGroups,
+          // Split Chakra UI into its own chunk for better caching
+          chakra: {
+            test: /[\\/]node_modules[\\/]@chakra-ui[\\/]/,
+            name: 'chakra-ui',
+            priority: 30,
+            reuseExistingChunk: true,
+          },
+          // Split D3 and visualization libraries (only loaded on viz pages)
+          visualization: {
+            test: /[\\/]node_modules[\\/](@nivo|d3|d3-cloud)[\\/]/,
+            name: 'visualization',
+            priority: 30,
+            reuseExistingChunk: true,
+          },
+          // Split React Query for better caching
+          reactQuery: {
+            test: /[\\/]node_modules[\\/]@tanstack[\\/]react-query[\\/]/,
+            name: 'react-query',
+            priority: 25,
+            reuseExistingChunk: true,
+          },
+        },
+      };
+    }
+    return config;
+  },
   // we do not need to check eslint during build
   eslint: { dirs: ['src'], ignoreDuringBuilds: true },
   // we do not need to check types during build
