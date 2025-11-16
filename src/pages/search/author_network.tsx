@@ -1,8 +1,14 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { VizPageLayout } from '@/components/Layout';
-import { AuthorNetworkPageContainer } from '@/components/Visualizations';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import dynamic from 'next/dynamic';
+
+// Lazy load heavy visualization component
+const AuthorNetworkPageContainer = dynamic(
+  () => import('@/components/Visualizations').then((m) => ({ default: m.AuthorNetworkPageContainer })),
+  { ssr: false },
+);
 
 export const AuthorNetworkPage: NextPage = () => {
   const router = useRouter();

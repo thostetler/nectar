@@ -1,8 +1,14 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { ResultsGraphPageContainer } from '@/components/Visualizations';
 import { VizPageLayout } from '@/components/Layout';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import dynamic from 'next/dynamic';
+
+// Lazy load heavy visualization component
+const ResultsGraphPageContainer = dynamic(
+  () => import('@/components/Visualizations').then((m) => ({ default: m.ResultsGraphPageContainer })),
+  { ssr: false },
+);
 
 const ResultsGraphPage: NextPage = () => {
   const router = useRouter();

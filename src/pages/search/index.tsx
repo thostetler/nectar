@@ -43,8 +43,7 @@ import { HideOnPrint } from '@/components/HideOnPrint';
 import { SearchBar } from '@/components/SearchBar';
 import { NumFound } from '@/components/NumFound';
 import { FacetFilters } from '@/components/SearchFacet/FacetFilters';
-import { ItemsSkeleton, ListActions, Pagination, SimpleResultList } from '@/components/ResultList';
-import { AddToLibraryModal } from '@/components/Libraries';
+import { ItemsSkeleton, SimpleResultList } from '@/components/ResultList';
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import { CustomInfoMessage } from '@/components/Feedbacks';
@@ -71,6 +70,20 @@ const SearchFacets = dynamic<ISearchFacetsProps>(
     import('@/components/SearchFacet').then((mod) => ({
       default: mod.SearchFacets,
     })),
+  { ssr: false },
+);
+
+// Lazy load heavy components
+const ListActions = dynamic(() => import('@/components/ResultList').then((mod) => ({ default: mod.ListActions })), {
+  ssr: false,
+});
+
+const Pagination = dynamic(() => import('@/components/ResultList').then((mod) => ({ default: mod.Pagination })), {
+  ssr: false,
+});
+
+const AddToLibraryModal = dynamic(
+  () => import('@/components/Libraries').then((mod) => ({ default: mod.AddToLibraryModal })),
   { ssr: false },
 );
 

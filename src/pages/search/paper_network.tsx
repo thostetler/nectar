@@ -1,8 +1,14 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { VizPageLayout } from '@/components/Layout';
-import { PaperNetworkPageContainer } from '@/components/Visualizations';
 import { makeSearchParams, parseQueryFromUrl } from '@/utils/common/search';
+import dynamic from 'next/dynamic';
+
+// Lazy load heavy visualization component
+const PaperNetworkPageContainer = dynamic(
+  () => import('@/components/Visualizations').then((m) => ({ default: m.PaperNetworkPageContainer })),
+  { ssr: false },
+);
 
 const PaperMetworkPage: NextPage = () => {
   const router = useRouter();

@@ -16,13 +16,11 @@ import { dehydrate, QueryClient } from '@tanstack/react-query';
 import { logger } from '@/logger';
 import { feedbackItems } from '@/components/NavBar';
 import { SearchQueryLink } from '@/components/SearchQueryLink';
-import { AbstractSources } from '@/components/AbstractSources';
-import { AddToLibraryModal } from '@/components/Libraries';
 import { searchKeys, useGetAbstract } from '@/api/search/search';
 import { IADSApiSearchParams, IADSApiSearchResponse, IDocsEntity } from '@/api/search/types';
 import { getAbstractParams } from '@/api/search/models';
 import { useTrackAbstractView } from '@/lib/useTrackAbstractView';
-import { AbstractDetails, AbstractMetadata, IAbstractMetadata } from '@/components/AbstractDetails';
+import { AbstractMetadata, IAbstractMetadata } from '@/components/AbstractDetails';
 import { bootstrap } from '@/lib/serverside/bootstrap';
 import { ApiTargets } from '@/api/models';
 import { stringifySearchParams } from '@/utils/common/search';
@@ -34,6 +32,22 @@ const AllAuthorsModal = dynamic<IAllAuthorsModalProps>(
     import('@/components/AllAuthorsModal').then((m) => ({
       default: m.AllAuthorsModal,
     })),
+  { ssr: false },
+);
+
+// Lazy load below-the-fold components
+const AbstractDetails = dynamic(
+  () => import('@/components/AbstractDetails').then((m) => ({ default: m.AbstractDetails })),
+  { ssr: false },
+);
+
+const AbstractSources = dynamic(
+  () => import('@/components/AbstractSources').then((m) => ({ default: m.AbstractSources })),
+  { ssr: false },
+);
+
+const AddToLibraryModal = dynamic(
+  () => import('@/components/Libraries').then((m) => ({ default: m.AddToLibraryModal })),
   { ssr: false },
 );
 
