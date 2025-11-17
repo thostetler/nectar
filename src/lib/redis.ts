@@ -64,17 +64,20 @@ class RedisClient {
         const config = getRedisConfig();
         const url = process.env.REDIS_URL || 'redis://localhost:6379';
 
+        console.log('[redis] Initializing Redis connection to', url.replace(/:[^:]*@/, ':***@'));
         log.info({ url: url.replace(/:[^:]*@/, ':***@') }, 'Initializing Redis connection');
 
         RedisClient.instance = new Redis(url, config);
 
         // Connection event handlers
         RedisClient.instance.on('connect', () => {
+          console.log('[redis] ✓ Redis connected');
           log.info('Redis connected');
           RedisClient.isHealthy = true;
         });
 
         RedisClient.instance.on('ready', () => {
+          console.log('[redis] ✓ Redis ready');
           log.info('Redis ready');
           RedisClient.isHealthy = true;
         });
@@ -96,6 +99,13 @@ class RedisClient {
         RedisClient.instance.on('end', () => {
           log.warn('Redis connection ended');
           RedisClient.isHealthy = false;
+        });
+
+        // Initiate connection immediately (lazyConnect is true, so we need to call connect)
+        console.log('[redis] Initiating connection...');
+        RedisClient.instance.connect().catch((err) => {
+          console.error('[redis] ✗ Failed to connect:', err.message);
+          log.error({ err: err.message }, 'Failed to connect to Redis on initialization');
         });
       } catch (err) {
         log.error({ err }, 'Failed to initialize Redis client');
