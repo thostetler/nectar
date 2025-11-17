@@ -6,6 +6,8 @@ import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import setCookie from 'set-cookie-parser';
 import { botCheck } from '@/middlewares/botCheck';
+import { SessionStore } from '@/lib/sessionStore';
+import { shouldUseRedisSessions, FeatureFlags } from '@/lib/featureFlags';
 
 const log = edgeLogger.child({}, { msgPrefix: '[initSession] ' });
 
@@ -102,26 +104,146 @@ const bootstrap = async (cookie?: string) => {
  */
 const hash = async (str?: string) => {
   if (!str) {
-    return '';
+    return null;
   }
   try {
     const buffer = await globalThis.crypto.subtle.digest('SHA-1', Buffer.from(str, 'utf-8'));
-    return Array.from(new Uint8Array(buffer)).toString();
+    return Array.from(new Uint8Array(buffer))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
   } catch (err) {
     log.error({ err, str }, 'Error caught attempting to hash string');
-    return '';
+    return null;
   }
 };
 
 /**
- * Middleware to initialize the session
- * @param req
- * @param res
- * @param session
+ * Get IP address from request headers
  */
-export const initSession = async (req: NextRequest, res: NextResponse, session: IronSession) => {
-  log.debug({ session }, 'Initializing session');
+const getIp = (req: NextRequest) =>
+  (
+    req.headers.get('X-Original-Forwarded-For') ||
+    req.headers.get('X-Forwarded-For') ||
+    req.headers.get('X-Real-Ip') ||
+    ''
+  )
+    .split(',')
+    .shift() || 'unknown';
 
+/**
+ * Initialize session using Redis backend
+ */
+const initSessionWithRedis = async (req: NextRequest, res: NextResponse, session: IronSession) => {
+  try {
+    // Get or create session ID
+    let sessionId = session.sessionId as string;
+    if (!sessionId) {
+      sessionId = SessionStore.generateSessionId();
+      session.sessionId = sessionId;
+    }
+
+    const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
+    const apiCookieHash = await hash(adsSessionCookie);
+
+    // Try to load session from Redis
+    const redisSession = await SessionStore.get(sessionId);
+
+    if (FeatureFlags.VERBOSE_SESSION_LOGGING) {
+      log.debug({ sessionId, hasRedisSession: !!redisSession }, 'Redis session lookup');
+    }
+
+    // Validate existing session
+    const isUserIdentifiedAsBot = redisSession?.bot && isValidToken(redisSession?.token);
+    const hasRefreshTokenHeader = req.headers.has('x-refresh-token');
+    const isTokenValid = isValidToken(redisSession?.token);
+    const isApiCookieHashPresent = apiCookieHash !== null;
+    const isApiCookieHashMatching = apiCookieHash === redisSession?.apiCookieHash;
+
+    const isValidSession =
+      isUserIdentifiedAsBot ||
+      (!hasRefreshTokenHeader && isTokenValid && isApiCookieHashPresent && isApiCookieHashMatching);
+
+    if (isValidSession && redisSession) {
+      if (FeatureFlags.VERBOSE_SESSION_LOGGING) {
+        log.debug({ sessionId }, 'Redis session is valid');
+      }
+
+      // Update activity timestamp asynchronously if enabled
+      if (FeatureFlags.SESSION_ACTIVITY_TRACKING_ENABLED) {
+        void SessionStore.touch(sessionId).catch((err) => {
+          log.error({ err, sessionId }, 'Failed to touch session');
+        });
+      }
+
+      // Update iron-session with minimal data
+      session.sessionId = sessionId;
+      session.token = redisSession.token;
+      session.isAuthenticated = redisSession.isAuthenticated;
+      session.apiCookieHash = redisSession.apiCookieHash;
+      await session.save();
+
+      return res;
+    }
+
+    log.debug({ sessionId }, 'Redis session is invalid or expired, creating new one');
+
+    // Check if the user is a bot
+    await botCheck(req, res);
+
+    // Bootstrap a new token
+    const { token, headers } = (await bootstrap(adsSessionCookie)) ?? {};
+
+    // Validate token, update session, forward cookies
+    if (isValidToken(token)) {
+      log.debug({ sessionId }, 'Refreshed token is valid');
+
+      const authenticated = isAuthenticated(token);
+      const sessionCookieValue = setCookie.parse(headers.get('set-cookie') ?? '')[0]?.value;
+      const newApiCookieHash = await hash(sessionCookieValue);
+
+      // Save to Redis
+      const saved = await SessionStore.set(sessionId, {
+        userId: authenticated ? token.username : undefined,
+        username: token.username,
+        token,
+        isAuthenticated: authenticated,
+        apiCookieHash: newApiCookieHash,
+        bot: session.bot,
+        createdAt: Date.now(),
+        lastActivity: Date.now(),
+        userAgent: req.headers.get('user-agent') || undefined,
+        ip: getIp(req),
+      });
+
+      if (!saved) {
+        log.error({ sessionId }, 'Failed to save session to Redis, falling back to iron-session only');
+      }
+
+      // Update iron-session (minimal data)
+      session.sessionId = sessionId;
+      session.token = token;
+      session.isAuthenticated = authenticated;
+      session.apiCookieHash = newApiCookieHash;
+
+      // Forward ADS cookie
+      res.cookies.set(process.env.ADS_SESSION_COOKIE_NAME, sessionCookieValue);
+
+      await session.save();
+      log.debug({ sessionId }, 'Saved session to Redis and iron-session');
+    } else {
+      log.warn({ sessionId }, 'Token validation failed after bootstrap');
+    }
+  } catch (err) {
+    log.error({ err }, 'Error in Redis session initialization, falling back to iron-session');
+    // Fall back to iron-session only
+    throw err;
+  }
+};
+
+/**
+ * Initialize session using iron-session only (legacy mode)
+ */
+const initSessionWithIronSession = async (req: NextRequest, res: NextResponse, session: IronSession) => {
   const adsSessionCookie = req.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value;
   const apiCookieHash = await hash(adsSessionCookie);
 
@@ -156,10 +278,46 @@ export const initSession = async (req: NextRequest, res: NextResponse, session: 
     log.debug('Refreshed token is valid');
     session.token = token;
     session.isAuthenticated = isAuthenticated(token);
-    const sessionCookieValue = setCookie.parse(headers.get('set-cookie') ?? '')[0].value;
+    const sessionCookieValue = setCookie.parse(headers.get('set-cookie') ?? '')[0]?.value;
     res.cookies.set(process.env.ADS_SESSION_COOKIE_NAME, sessionCookieValue);
     session.apiCookieHash = await hash(res.cookies.get(process.env.ADS_SESSION_COOKIE_NAME)?.value);
     await session.save();
     log.debug('Saved to session');
+  }
+};
+
+/**
+ * Middleware to initialize the session
+ * Supports both Redis and iron-session backends based on feature flags
+ * @param req
+ * @param res
+ * @param session
+ */
+export const initSession = async (req: NextRequest, res: NextResponse, session: IronSession) => {
+  const useRedis = shouldUseRedisSessions(session.sessionId as string);
+
+  if (FeatureFlags.VERBOSE_SESSION_LOGGING) {
+    log.debug({ useRedis, sessionId: session.sessionId }, 'Initializing session');
+  }
+
+  try {
+    if (useRedis) {
+      return await initSessionWithRedis(req, res, session);
+    } else {
+      return await initSessionWithIronSession(req, res, session);
+    }
+  } catch (err) {
+    log.error({ err, useRedis }, 'Session initialization failed');
+    if (useRedis) {
+      try {
+        log.warn('Attempting fallback to iron-session');
+        return await initSessionWithIronSession(req, res, session);
+      } catch (fallbackErr) {
+        log.error({ err: fallbackErr }, 'Fallback to iron-session also failed');
+        return res;
+      }
+    }
+    log.error({ err }, 'Critical: Iron-session initialization failed');
+    return res;
   }
 };

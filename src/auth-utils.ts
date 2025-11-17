@@ -58,7 +58,9 @@ export const hash = async (str?: string) => {
   }
   try {
     const buffer = await globalThis.crypto.subtle.digest('SHA-1', Buffer.from(str, 'utf-8'));
-    return Array.from(new Uint8Array(buffer)).toString();
+    return Array.from(new Uint8Array(buffer))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
   } catch (err) {
     logger.error({ err }, 'Error caught attempting to hash string');
     return null;

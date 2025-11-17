@@ -10,6 +10,8 @@ import setCookie from 'set-cookie-parser';
 import { logger } from '@/logger';
 import { IBasicAccountsResponse, IUserCredentials } from '@/api/user/types';
 import { ApiTargets } from '@/api/models';
+import { SessionStore } from '@/lib/sessionStore';
+import { shouldUseRedisSessions } from '@/lib/featureFlags';
 
 const log = logger.child({}, { msgPrefix: '[api/login] ' });
 
@@ -34,7 +36,7 @@ async function login(req: NextApiRequest, res: NextApiResponse<ILoginResponse>) 
   const session = req.session;
   const creds = schema.safeParse(req.body);
   if (creds.success) {
-    return await handleAuthentication(creds.data, res, session);
+    return await handleAuthentication(creds.data, res, session, req);
   }
   return res.status(401).json({ success: false, error: 'invalid-credentials' });
 }
@@ -46,11 +48,28 @@ const schema = z
   })
   .required() as z.ZodSchema<IUserCredentials>;
 
+/**
+ * Get IP address from request headers
+ */
+const getIp = (req: NextApiRequest) =>
+  (
+    req.headers['x-original-forwarded-for'] ||
+    req.headers['x-forwarded-for'] ||
+    req.headers['x-real-ip'] ||
+    ''
+  )
+    .toString()
+    .split(',')
+    .shift() || 'unknown';
+
 export const handleAuthentication = async (
   credentials: IUserCredentials,
   res: NextApiResponse,
   session: IronSession,
+  req: NextApiRequest,
 ) => {
+  const useRedis = shouldUseRedisSessions(session.sessionId as string);
+
   try {
     const config = await configWithCSRF({
       ...defaultRequestConfig,
@@ -71,8 +90,11 @@ export const handleAuthentication = async (
       .find((c) => c.name === process.env.ADS_SESSION_COOKIE_NAME);
 
     if (status === HttpStatusCode.Ok) {
-      // user has been authenticated
-      session.destroy();
+      // Get or create session ID
+      let sessionId = session.sessionId as string;
+      if (!sessionId) {
+        sessionId = SessionStore.generateSessionId();
+      }
 
       // apply the session cookie to the response
       res.setHeader('set-cookie', headers['set-cookie']);
@@ -87,16 +109,47 @@ export const handleAuthentication = async (
         });
 
         if (isValidToken(userData)) {
-          // token is valid, we can save the session
-          session.token = pickUserData(userData);
+          const token = pickUserData(userData);
+          const apiCookieHash = await hash(apiSessionCookie?.value);
+
+          if (!apiCookieHash) {
+            log.error('Failed to hash API cookie during login');
+            return res.status(500).json({ success: false, error: 'login-failed' });
+          }
+
+          // Save to Redis if enabled
+          if (useRedis) {
+            const saved = await SessionStore.set(sessionId, {
+              userId: userData.username,
+              username: userData.username,
+              token,
+              isAuthenticated: true,
+              apiCookieHash,
+              createdAt: Date.now(),
+              lastActivity: Date.now(),
+              userAgent: req.headers['user-agent'] || undefined,
+              ip: getIp(req),
+            });
+
+            if (!saved) {
+              log.error({ sessionId }, 'Failed to save session to Redis during login');
+            } else {
+              log.info({ sessionId, userId: userData.username, useRedis: true }, 'Login successful - session saved to Redis');
+            }
+          }
+
+          // Update iron-session
+          session.sessionId = sessionId;
+          session.token = token;
           session.isAuthenticated = true;
-          session.apiCookieHash = await hash(apiSessionCookie?.value);
+          session.apiCookieHash = apiCookieHash;
           await session.save();
-          log.info('session updated, success');
+
+          log.info({ sessionId, userId: userData.username, useRedis }, 'Login successful - session updated');
           return res.status(200).json({ success: true });
         } else {
           // in the case the token is invalid, redirect to root
-          log.debug('Invalid user-data, not updating session', { userData, session });
+          log.debug('Invalid user-data, not updating session', { userData });
           return res.status(200).json({ success: false, error: 'invalid-token' });
         }
       } catch (error) {

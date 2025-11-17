@@ -32,7 +32,6 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@nivo/core', '@nivo/line', '@nivo/bar'],
   experimental: {
-    esmExternals: 'loose',
     newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
     optimizePackageImports: ['@api', '@components', '@chakra-ui/react', 'ramda'],

@@ -4,7 +4,7 @@ import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
 import { getIronSession } from 'iron-session/edge';
 import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
-import { rateLimit } from '@/rateLimit';
+import { rateLimit } from '@/lib/rateLimit';
 import { isLegacySearchURL, legacySearchURLMiddleware } from '@/middlewares/legacySearchURLMiddleware';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
@@ -161,7 +161,7 @@ export async function middleware(req: NextRequest) {
   const ip = getIp(req);
 
   // Apply rate limiting
-  if (!rateLimit(ip)) {
+  if (!(await rateLimit(ip))) {
     log.warn({ msg: 'Rate limit exceeded', ip });
     const url = req.nextUrl.clone();
     url.pathname = '/';
