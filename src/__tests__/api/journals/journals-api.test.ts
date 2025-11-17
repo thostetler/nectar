@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import type { SetupServer } from 'msw/node';
 import Fuse from 'fuse.js';
 import { IBibstemOption } from '@/types';
@@ -71,8 +71,8 @@ describe('Journal API Integration Tests', () => {
   }) => {
     // Mock the API endpoint to return different responses based on fieldType
     server.use(
-      rest.get('/api/journals/astro', (req, res, ctx) => {
-        const fieldType = req.url.searchParams.get('fieldType');
+      http.get('/api/journals/astro', ({ request }) => {
+        const fieldType = new URL(request.url).searchParams.get('fieldType');
 
         const baseJournal = {
           id: 0,
@@ -84,24 +84,18 @@ describe('Journal API Integration Tests', () => {
         };
 
         if (fieldType === 'pub') {
-          return res(
-            ctx.json({
+          return HttpResponse.json({
               journals: [{ ...baseJournal, value: '"Astronomy"' }],
-            } as IJournalSearchResponse),
-          );
+            } as IJournalSearchResponse);
         } else if (fieldType === 'bibstem') {
-          return res(
-            ctx.json({
+          return HttpResponse.json({
               journals: [{ ...baseJournal, value: '"Astro"' }],
-            } as IJournalSearchResponse),
-          );
+            } as IJournalSearchResponse);
         } else {
           // Default case (no fieldType)
-          return res(
-            ctx.json({
+          return HttpResponse.json({
               journals: [{ ...baseJournal, value: '"Astro"' }],
-            } as IJournalSearchResponse),
-          );
+            } as IJournalSearchResponse);
         }
       }),
     );
@@ -130,12 +124,10 @@ describe('Journal API Integration Tests', () => {
 
   test('API endpoint handles empty search results', async ({ server }: { server: SetupServer }) => {
     server.use(
-      rest.get('/api/journals/nonexistent', (req, res, ctx) => {
-        return res(
-          ctx.json({
+      http.get('/api/journals/nonexistent', ({ request }) => {
+        return HttpResponse.json({
             journals: [],
-          } as IJournalSearchResponse),
-        );
+          } as IJournalSearchResponse);
       }),
     );
 
@@ -149,8 +141,8 @@ describe('Journal API Integration Tests', () => {
 
   test('API endpoint handles pub_abbrev like bibstem', async ({ server }: { server: SetupServer }) => {
     server.use(
-      rest.get('/api/journals/astro', (req, res, ctx) => {
-        const fieldType = req.url.searchParams.get('fieldType');
+      http.get('/api/journals/astro', ({ request }) => {
+        const fieldType = new URL(request.url).searchParams.get('fieldType');
 
         const baseJournal = {
           id: 0,
@@ -162,14 +154,12 @@ describe('Journal API Integration Tests', () => {
         };
 
         if (fieldType === 'pub_abbrev') {
-          return res(
-            ctx.json({
+          return HttpResponse.json({
               journals: [{ ...baseJournal, value: '"Astro"' }],
-            } as IJournalSearchResponse),
-          );
+            } as IJournalSearchResponse);
         }
 
-        return res(ctx.json({ journals: [] }));
+        return HttpResponse.json({ journals: [] });
       }),
     );
 

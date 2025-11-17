@@ -1,7 +1,7 @@
 import api, { ApiRequestConfig } from '@/api/api';
 import { APP_STORAGE_KEY } from '@/store';
 import { createServerListenerMocks } from '@/test-utils';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 import { map, path, pipe } from 'ramda';
 import { beforeEach, expect, Mock, test, TestContext, vi } from 'vitest';
 import { IBootstrapPayload } from '@/api/user/types';
@@ -24,11 +24,11 @@ const invalidMockUserData: Pick<IBootstrapPayload, 'username' | 'access_token' |
   expires_at: '',
 };
 
-const testHandlerWith200 = rest.get('*test', (_, res, ctx) => {
-  return res(ctx.status(200), ctx.json({ ok: true }));
+const testHandlerWith200 = http.get('*test', (_, res, ctx) => {
+  return HttpResponse.json({ ok: true });
 });
 
-const testHandlerWith401 = rest.get('*test', (_, res, ctx) =>
+const testHandlerWith401 = http.get('*test', (_, res, ctx) =>
   res(ctx.status(401), ctx.json({ message: 'User unauthorized' })),
 );
 
@@ -82,8 +82,8 @@ test('Attempts to get user data from server without refresh', async ({ server }:
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandlerWith200);
   server.use(
-    rest.get(`*${API_USER}`, (_, res, ctx) => {
-      return res(ctx.status(200), ctx.json({ user: { ...mockUserData, access_token: 'from-session' } }));
+    http.get(`*${API_USER}`, (_, res, ctx) => {
+      return HttpResponse.json({ user: { ...mockUserData, access_token: 'from-session' } });
     }),
   );
 
@@ -105,11 +105,11 @@ test('Unauthenticated request with no previous session, will force a token refre
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandlerWith200);
   server.use(
-    rest.get(`*${API_USER}`, (_, res, ctx) => {
+    http.get(`*${API_USER}`, (_, res, ctx) => {
       return res.once(ctx.status(500), ctx.json({ error: 'Server Error' }));
     }),
-    rest.get(`*${API_USER}`, (_, res, ctx) => {
-      return res(ctx.status(200), ctx.json({ user: { ...mockUserData, access_token: 'refreshed' } }));
+    http.get(`*${API_USER}`, (_, res, ctx) => {
+      return HttpResponse.json({ user: { ...mockUserData, access_token: 'refreshed' } });
     }),
   );
 
@@ -139,7 +139,7 @@ test('Fallback to bootstrapping directly if the /api/user endpoint continuously 
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(
     testHandlerWith200,
-    rest.get(`*${API_USER}`, (_, res, ctx) => res(ctx.status(500), ctx.json({ error: 'Server Error' }))),
+    http.get(`*${API_USER}`, (_, res, ctx) => res(ctx.status(500), ctx.json({ error: 'Server Error' }))),
   );
 
   await testRequest();
@@ -192,7 +192,7 @@ test('401 response refreshes token properly', async ({ server }: TestContext) =>
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(
     testHandlerWith200,
-    rest.get('*test', (_, res, ctx) => {
+    http.get('*test', (_, res, ctx) => {
       return res.once(ctx.status(401), ctx.json({ error: 'Not Authorized' }));
     }),
   );
@@ -210,16 +210,16 @@ test('401 does not cause infinite loop if refresh repeatedly fails', async ({ se
   const { onRequest: onReq } = createServerListenerMocks(server);
   server.use(testHandlerWith200);
   server.use(
-    rest.get('*test', (_, res, ctx) => {
+    http.get('*test', (_, res, ctx) => {
       return res.once(ctx.status(401), ctx.json({ error: 'Not Authorized' }));
     }),
-    rest.get(`*${API_USER}`, (_, res, ctx) => {
+    http.get(`*${API_USER}`, (_, res, ctx) => {
       return res.once(ctx.status(200), ctx.json({ user: mockUserData, isAuthenticated: false }));
     }),
-    rest.get(`*${API_USER}`, (_, res, ctx) => {
+    http.get(`*${API_USER}`, (_, res, ctx) => {
       return res(ctx.status(401, 'Unauthenticated'));
     }),
-    rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => {
+    http.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => {
       return res(ctx.status(401, 'Unauthenticated'));
     }),
   );
@@ -252,9 +252,9 @@ test('repeated 401s do not cause infinite loop', async ({ server }: TestContext)
 
   // everything returns a 401
   server.use(
-    rest.get(`*${API_USER}`, (_, res, ctx) => res(ctx.status(401), ctx.json({ error: 'Not Authorized' }))),
-    rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => res(ctx.status(401), ctx.json({ error: 'Not Authorized' }))),
-    rest.get('*test', (_, res, ctx) => res(ctx.status(401), ctx.json({ message: 'Not Authorized' }))),
+    http.get(`*${API_USER}`, (_, res, ctx) => res(ctx.status(401), ctx.json({ error: 'Not Authorized' }))),
+    http.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => res(ctx.status(401), ctx.json({ error: 'Not Authorized' }))),
+    http.get('*test', (_, res, ctx) => res(ctx.status(401), ctx.json({ message: 'Not Authorized' }))),
   );
 
   await expect(testRequest).rejects.toThrowError();
@@ -264,7 +264,7 @@ test('repeated 401s do not cause infinite loop', async ({ server }: TestContext)
 });
 
 test('request fails without a response body are rejected', async ({ server }: TestContext) => {
-  server.use(rest.get('*test', (_, res, ctx) => res(ctx.delay('infinite'), ctx.status(400, 'error'))));
+  server.use(http.get('*test', (_, res, ctx) => res(ctx.delay('infinite'), ctx.status(400, 'error'))));
 
   // simulates a timeout, by aborting the request after a timeout
   const control = new AbortController();
@@ -275,10 +275,10 @@ test('request fails without a response body are rejected', async ({ server }: Te
 test('request rejects if the refreshed user data is not valid', async ({ server }: TestContext) => {
   server.use(
     testHandlerWith401,
-    rest.get(`*${API_USER}`, (_, res, ctx) => {
+    http.get(`*${API_USER}`, (_, res, ctx) => {
       return res.once(ctx.status(200), ctx.json({ user: invalidMockUserData, isAuthenticated: false }));
     }),
-    rest.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => {
+    http.get(`*${ApiTargets.BOOTSTRAP}`, (_, res, ctx) => {
       return res.once(ctx.status(200), ctx.json(invalidMockUserData));
     }),
   );
@@ -300,7 +300,7 @@ test('request rejects if the refreshed user data is not valid', async ({ server 
 
 test('duplicate requests are provided the same promise', async ({ server }: TestContext) => {
   const { onRequest: onReq } = createServerListenerMocks(server);
-  server.use(rest.get('*test', (_, res, ctx) => res(ctx.status(200), ctx.delay(100), ctx.json({ ok: true }))));
+  server.use(http.get('*test', (_, res, ctx) => res(ctx.status(200), ctx.delay(100), ctx.json({ ok: true }))));
 
   // fire off 100 test requests
   const prom = Promise.race(Array.from({ length: 100 }, () => testRequest()));

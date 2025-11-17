@@ -1,7 +1,7 @@
 import api from '@/api/api';
 import { APP_DEFAULTS } from '@/config';
 import { beforeEach, describe, expect, test, TestContext } from 'vitest';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import { getCleanedPublDate, truncateDecimal } from '@/utils/common/formatters';
 import {
@@ -70,10 +70,14 @@ describe('parseAPIError', () => {
 
   beforeEach(() => api.reset());
   test('works', async ({ server }: TestContext) => {
+    let callCount = 0;
     server.use(
-      rest.get('*test', (_req, res, ctx) => res.once(ctx.status(400), ctx.json({ message: 'Message' }))),
-      rest.get('*test', (_req, res, ctx) => res.once(ctx.status(400), ctx.json({ error: 'Error' }))),
-      rest.get('*test', (_req, res, ctx) => res(ctx.status(500), ctx.json({}))),
+      http.get('*test', () => {
+        callCount++;
+        if (callCount === 1) return HttpResponse.json({ message: 'Message' }, { status: 400 });
+        if (callCount === 2) return HttpResponse.json({ error: 'Error' }, { status: 400 });
+        return HttpResponse.json({}, { status: 500 });
+      }),
     );
 
     // response/data/message

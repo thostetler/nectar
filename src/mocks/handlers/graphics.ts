@@ -1,14 +1,12 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
 import { IADSApiGraphicsParams } from '@/api/graphics/types';
 import { ApiTargets } from '@/api/models';
 
 export const graphicsHandlers = [
-  rest.get<IADSApiGraphicsParams>(apiHandlerRoute(ApiTargets.GRAPHICS, ':id'), (req, res, ctx) => {
-    return res(
-      ctx.status(200),
-      ctx.json({
+  http.get(apiHandlerRoute(ApiTargets.GRAPHICS, ':id'), () => {
+    return HttpResponse.json({
         bibcode: '2018A&A...616A...1G',
         number: 7,
         pick: '<a href="/graphics" border=0><img alt="alt" src="[\'https://s3.amazonaws.com/adsabs-thumbnails/seri/A%2BA/0616/aa33051-18/aa33051-18-fig2.jpg\', \'http://dx.doi.org/10.1051/0004-6361/201833051\']"></a>',
@@ -93,7 +91,6 @@ export const graphicsHandlers = [
         ],
         header:
           'Every image links to the article on <a href="http://www.aanda.org/" target="_new">Astronomy &amp; Astrophysics</a>',
-      }),
-    );
+      });
   }),
 ];

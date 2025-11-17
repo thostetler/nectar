@@ -1,7 +1,7 @@
 import { expect, test, TestContext } from 'vitest';
 import { createServerListenerMocks, render, urls } from '@/test-utils';
 import { WorksTable } from '@/components/Orcid';
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import { equals } from 'ramda';
 import { waitFor } from '@testing-library/dom';
@@ -20,7 +20,7 @@ test.skip('triggers call to profile on mount', async ({ server }: TestContext) =
 test.skip('renders without issue', async ({ server }: TestContext) => {
   const { onRequest } = createServerListenerMocks(server);
   server.use(
-    rest.get(apiHandlerRoute(ApiTargets.ORCID_PROFILE), (req, res, ctx) => res(ctx.json(orcidProfileResponse))),
+    http.get(apiHandlerRoute(ApiTargets.ORCID_PROFILE), ({ request, params }) => res(ctx.json(orcidProfileResponse))),
   );
   const { user, findByTestId, findByRole, findAllByRole } = render(<WorksTable />, {
     storePreset: 'orcid-authenticated',
@@ -73,7 +73,7 @@ test.skip('renders without issue', async ({ server }: TestContext) => {
 
 test.skip('Confirm proper requests are made and data is right', async ({ server }: TestContext) => {
   const { onRequest } = createServerListenerMocks(server);
-  server.use(rest.get(`*${ApiTargets.ORCID_PROFILE}`, (req, res, ctx) => res(ctx.json(orcidProfileResponse))));
+  server.use(http.get(`*${ApiTargets.ORCID_PROFILE}`, ({ request, params }) => res(ctx.json(orcidProfileResponse))));
   server.use(
     rest.get<IADSApiSearchResponse>(apiHandlerRoute(ApiTargets.SEARCH), (req, res, ctx) =>
       res(

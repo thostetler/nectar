@@ -1,4 +1,4 @@
-import { rest } from 'msw';
+import { http, HttpResponse } from 'msw';
 
 import qs from 'qs';
 import faker from '@faker-js/faker';
@@ -10,24 +10,22 @@ import { ApiTargets } from '@/api/models';
 import { FacetField, IADSApiSearchResponse } from '@/api/search/types';
 
 export const searchHandlers = [
-  rest.get(apiHandlerRoute(ApiTargets.SEARCH), async (req, res, ctx) => {
-    const params = qs.parse(req.url.search.slice(1));
+  http.get(apiHandlerRoute(ApiTargets.SEARCH), async ({ request }) => {
+    const url = new URL(request.url);
+    const params = qs.parse(url.search.slice(1));
 
     if (typeof params.cursorMark === 'string') {
       const rows = parseInt(params.rows as string, 10) ?? 10;
       const numFound = faker.datatype.number({ min: 1, max: 10000 });
-      return res(
-        ctx.status(200),
-        ctx.json<IADSApiSearchResponse>({
-          nextCursorMark: faker.random.alphaNumeric(18),
-          response: {
-            numFound,
-            docs: map(() => ({
-              bibcode: api.bibcode(),
-            }))(range(0, clamp(1, 100, rows))),
-          },
-        }),
-      );
+      return HttpResponse.json<IADSApiSearchResponse>({
+        nextCursorMark: faker.random.alphaNumeric(18),
+        response: {
+          numFound,
+          docs: map(() => ({
+            bibcode: api.bibcode(),
+          }))(range(0, clamp(1, 100, rows))),
+        },
+      });
     }
 
     if (params['json.facet']) {
@@ -40,20 +38,17 @@ export const searchHandlers = [
         });
       });
 
-      return res(ctx.status(200), ctx.json<IADSApiSearchResponse>(generateSearchResponse({ facets })));
+      return HttpResponse.json<IADSApiSearchResponse>(generateSearchResponse({ facets }));
     }
 
     // abstract preview
     if (params.fl === 'abstract') {
-      return res(
-        ctx.status(200),
-        ctx.json<IADSApiSearchResponse>({
-          response: {
-            numFound: 1,
-            docs: [{ abstract: api.abstract() }],
-          },
-        }),
-      );
+      return HttpResponse.json<IADSApiSearchResponse>({
+        response: {
+          numFound: 1,
+          docs: [{ abstract: api.abstract() }],
+        },
+      });
     }
 
     // default search
@@ -111,12 +106,13 @@ export const searchHandlers = [
       highlighting: highlights_mocks,
     };
 
-    return res(ctx.status(200), ctx.json<IADSApiSearchResponse>(body));
+    return HttpResponse.json<IADSApiSearchResponse>(body);
   }),
 
-  rest.post<string>(apiHandlerRoute(ApiTargets.BIGQUERY), async (req, res, ctx) => {
-    const bibcodes = req.body;
-    const rows = Number(new URL(req.url).searchParams.get('rows'));
+  http.post(apiHandlerRoute(ApiTargets.BIGQUERY), async ({ request }) => {
+    const bibcodes = await request.text();
+    const url = new URL(request.url);
+    const rows = Number(url.searchParams.get('rows'));
     const authors = range(0, 5).map(() => `${faker.name.lastName()}, ${faker.random.alpha(1)}.`);
     const results = bibcodes
       .split('\n')
@@ -141,13 +137,11 @@ export const searchHandlers = [
         },
       }));
 
-    return res(
-      ctx.json({
-        response: {
-          numberFound: rows,
-          docs: results.slice(0, rows),
-        },
-      }),
-    );
+    return HttpResponse.json({
+      response: {
+        numberFound: rows,
+        docs: results.slice(0, rows),
+      },
+    });
   }),
 ];
