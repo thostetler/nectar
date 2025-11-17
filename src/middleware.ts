@@ -1,11 +1,15 @@
 import { sessionConfig } from '@/config';
 import { initSession } from '@/middlewares/initSession';
 import { verifyMiddleware } from '@/middlewares/verifyMiddleware';
-import { getIronSession } from 'iron-session/edge';
+import { getIronSession } from 'iron-session';
 import { edgeLogger } from '@/logger';
 import { NextRequest, NextResponse } from 'next/server';
 import { rateLimit } from '@/rateLimit';
 import { isLegacySearchURL, legacySearchURLMiddleware } from '@/middlewares/legacySearchURLMiddleware';
+
+// Configure middleware to run in Node.js runtime (not Edge Runtime)
+// This allows us to use ioredis and other Node.js libraries
+export const runtime = 'nodejs';
 
 const log = edgeLogger.child({}, { msgPrefix: '[middleware] ' });
 
@@ -161,7 +165,7 @@ export async function middleware(req: NextRequest) {
   const ip = getIp(req);
 
   // Apply rate limiting
-  if (!rateLimit(ip)) {
+  if (!(await rateLimit(ip))) {
     log.warn({ msg: 'Rate limit exceeded', ip });
     const url = req.nextUrl.clone();
     url.pathname = '/';

@@ -36,6 +36,7 @@ const nextConfig = {
     newNextLinkBehavior: false,
     webVitalsAttribution: ['CLS', 'LCP'],
     optimizePackageImports: ['@api', '@components', '@chakra-ui/react', 'ramda'],
+    instrumentationHook: true,
   },
   async rewrites() {
     if (process.env.NODE_ENV !== 'production') {
