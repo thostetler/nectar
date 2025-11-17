@@ -74,8 +74,8 @@ describe('parseAPIError', () => {
     server.use(
       http.get('*test', () => {
         callCount++;
-        if (callCount === 1) return HttpResponse.json({ message: 'Message' }, { status: 400 });
-        if (callCount === 2) return HttpResponse.json({ error: 'Error' }, { status: 400 });
+        if (callCount === 1) {return HttpResponse.json({ message: 'Message' }, { status: 400 });}
+        if (callCount === 2) {return HttpResponse.json({ error: 'Error' }, { status: 400 });}
         return HttpResponse.json({}, { status: 500 });
       }),
     );

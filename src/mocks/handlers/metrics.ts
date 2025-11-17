@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
-import { IADSApiMetricsParams } from '@/api/metrics/types';
+// Removed unused import '@/api/metrics/types';
 import { ApiTargets } from '@/api/models';
 
 export const metricsHandlers = [

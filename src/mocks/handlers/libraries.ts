@@ -7,7 +7,6 @@ import { uniq } from 'ramda';
 import {
   IADSApiLibraryAddAnnotationParams,
   IADSApiLibraryAddParams,
-  IADSApiLibraryDeleteAnnotationParams,
   IADSApiLibraryDocumentParams,
   IADSApiLibraryEditMetaParams,
   IADSApiLibraryEntityResponse,

@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
-import { IADSApiGraphicsParams } from '@/api/graphics/types';
+// Removed unused import '@/api/graphics/types';
 import { ApiTargets } from '@/api/models';
 
 export const graphicsHandlers = [

@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 
-import { IAuthorAffiliationExportPayload, IAuthorAffiliationResponse } from '@/api/author-affiliation/types';
+import { IAuthorAffiliationResponse } from '@/api/author-affiliation/types';
 import { flatten, range } from 'ramda';
 import { apiHandlerRoute, authorAffData } from '@/mocks/mockHelpers';
 import faker from '@faker-js/faker';

@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw';
 
 import { apiHandlerRoute } from '@/mocks/mockHelpers';
 import resolverAllResponse from '../responses/resolver/all.json';
-import { IADSApiResolverParams } from '@/api/resolver/types';
+// Removed unused import '@/api/resolver/types';
 import { ApiTargets } from '@/api/models';
 
 export const resolverHandlers = [
