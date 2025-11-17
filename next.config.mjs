@@ -1,6 +1,7 @@
 import withBundleAnalyzer from '@next/bundle-analyzer';
 import { withSentryConfig } from '@sentry/nextjs';
 import nextBuildId from 'next-build-id';
+import { codecovNextJSWebpackPlugin } from '@codecov/nextjs-webpack-plugin';
 
 const CSP = `
   default-src 'self';
@@ -181,6 +182,17 @@ const nextConfig = {
   skipTrailingSlashRedirect: true,
   devIndicators: {
     position: 'bottom-right',
+  },
+  webpack: (config, options) => {
+    config.plugins.push(
+      codecovNextJSWebpackPlugin({
+        enableBundleAnalysis: typeof process.env.CODECOV_TOKEN === 'string',
+        bundleName: 'nectar-nextjs-bundle',
+        uploadToken: process.env.CODECOV_TOKEN,
+        webpack: options.webpack,
+      }),
+    );
+    return config;
   },
 };
 

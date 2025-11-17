@@ -106,6 +106,7 @@
     "zustand": "^3.7.1"
   },
   "devDependencies": {
+    "@codecov/nextjs-webpack-plugin": "^1.9.1",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.17.0",
     "@faker-js/faker": "^6.0.0",
