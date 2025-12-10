@@ -74,7 +74,18 @@ export const QueryForm = ({ onClose, onUpdated = noop }: { onClose: () => void; 
       }
       setState('idle');
     }
-  }, [isSearching, searchData, searchError]);
+  }, [
+    isSearching,
+    searchData,
+    searchError,
+    state,
+    frequencyOption.id,
+    name,
+    addNotification,
+    toast,
+    onClose,
+    onUpdated,
+  ]);
 
   const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);

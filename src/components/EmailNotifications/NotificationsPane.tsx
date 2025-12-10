@@ -360,7 +360,7 @@ const Action = ({
         description: parseAPIError(error),
       });
     }
-  }, [queries, error, runQueryId]);
+  }, [queries, error, runQueryId, router, toast]);
 
   return (
     <Menu>
