@@ -45,6 +45,7 @@ export const useCitationExporter = ({
         sort,
         ...rest,
       }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
   const [state, dispatch] = useMachine(machine);
@@ -73,24 +74,26 @@ export const useCitationExporter = ({
         dispatch('SUBMIT');
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // trigger updates to machine state if incoming props change
-  useEffect(() => dispatch({ type: 'SET_SINGLEMODE', payload: singleMode }), [singleMode]);
+  useEffect(() => dispatch({ type: 'SET_SINGLEMODE', payload: singleMode }), [singleMode, dispatch]);
 
   // watch for format changes
   useEffect(() => {
     if (format !== params.format) {
       dispatch({ type: 'SET_FORMAT', payload: format });
     }
-  }, [format]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [format, dispatch]);
 
   // if we're in singleMode and format is changed, trigger a submit
   useEffect(() => {
     if (singleMode) {
       dispatch('SUBMIT');
     }
-  }, [params.format, singleMode]);
+  }, [params.format, singleMode, dispatch]);
 
   // watch for changes to records
   useEffect(() => {
@@ -99,14 +102,16 @@ export const useCitationExporter = ({
     if (records[0] !== state.context.records[0]) {
       dispatch({ type: 'SET_RECORDS', payload: records });
     }
-  }, [records]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [records, dispatch]);
 
   // watch for changes to sort
   useEffect(() => {
     if (sort !== params.sort) {
       dispatch({ type: 'SET_SORT', payload: sort });
     }
-  }, [sort]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sort, dispatch]);
 
   // main result fetcher, this will not run unless we're in the 'fetching' state
   const result = useGetExportCitation(params, {
@@ -124,14 +129,14 @@ export const useCitationExporter = ({
       // derive this state from data, since we don't know if it was fetched from cache or not
       dispatch({ type: 'DONE' });
     }
-  }, [result.data]);
+  }, [result.data, dispatch]);
 
   // safety hatch, in case for some reason we get stuck in fetching mode
   useEffect(() => {
     if (state.matches('fetching') && result.data) {
       dispatch('DONE');
     }
-  }, [state.value, result.data]);
+  }, [state.value, result.data, dispatch]);
 
   return { ...result, state, dispatch };
 };
