@@ -54,7 +54,7 @@ export const PlanetaryFeatures = (props: { onClose: () => void }) => {
       void router.push({ pathname: '/search', search });
       onClose();
     }
-  }, [bigQueryResult]);
+  }, [bigQueryResult, feature, router, onClose]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -107,7 +107,7 @@ const BodySelect = ({ onChange }: { onChange: (value: string) => void }) => {
     if (data?.bodies?.length === 1) {
       onChange(data.bodies[0]);
     }
-  }, [data]);
+  }, [data, onChange]);
 
   return (
     <Skeleton isLoaded={!isLoading}>
@@ -144,7 +144,7 @@ const TypeSelect = ({ body, onChange }: { body?: string; onChange: (value: strin
     if (data?.types?.length > 0) {
       onChange(data.types[0]);
     }
-  }, [data]);
+  }, [data, onChange]);
 
   return (
     <Skeleton isLoaded={!isLoading}>
@@ -190,7 +190,7 @@ const FeatureSelect = ({
     if (data?.features?.length > 0) {
       onChange(data.features[0]);
     }
-  }, [data]);
+  }, [data, onChange]);
 
   return (
     <Skeleton isLoaded={!isLoading}>
