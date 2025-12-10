@@ -26,6 +26,7 @@ export const SimpleCopyButton = (props: ICopyButtonProps): ReactElement => {
 
       return () => clearTimeout(timeoutId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasCopied]);
 
   const handleCopied = () => {
@@ -62,6 +63,7 @@ export const LabeledCopyButton = (props: ICopyButtonProps & { label: string }): 
 
       return () => clearTimeout(timeoutId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasCopied]);
 
   const handleCopied = () => {
