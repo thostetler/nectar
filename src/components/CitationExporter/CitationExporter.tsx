@@ -120,7 +120,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
         },
       );
     }
-  }, [state.value, router.query, ctx.params.format]);
+  }, [state.value, router.query, ctx.params.format, router, singleMode, state]);
 
   // Attempt to parse the url to grab the format, then update it, otherwise allow the server to handle the path
   useEffect(() => {
