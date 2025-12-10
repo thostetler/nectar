@@ -48,16 +48,17 @@ export const CustomFormatSelect = ({ dispatch }: ICustomFormatSelectProps) => {
       dispatch({ type: 'SET_CUSTOM_FORMAT', payload: selectedFormatOption.code });
       dispatch({ type: 'SUBMIT' });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // fetch when selection is changed
   useEffect(() => {
     setFormatCode(selectedFormatOption.code);
-    if (selectedFormatOption.id !== 'new' || (selectedFormatOption.id === 'new' && formatCode !== '')) {
+    if (selectedFormatOption.id !== 'new' || (selectedFormatOption.id === 'new' && selectedFormatOption.code !== '')) {
       dispatch({ type: 'SET_CUSTOM_FORMAT', payload: selectedFormatOption.code });
       dispatch({ type: 'SUBMIT' });
     }
-  }, [selectedFormatOption]);
+  }, [dispatch, selectedFormatOption.code, selectedFormatOption.id]);
 
   const handleFormatCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormatCode(e.target.value);
