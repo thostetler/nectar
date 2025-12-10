@@ -140,7 +140,7 @@ const Exporter = (props: ICitationExporterProps): ReactElement => {
       return true;
     });
     return () => router.beforePopState(() => true);
-  }, [dispatch, router]);
+  }, [dispatch, router, isValidFormat]);
 
   const handleOnSubmit: ChangeEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();

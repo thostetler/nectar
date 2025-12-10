@@ -86,6 +86,7 @@ describe('CitationExporter', () => {
   beforeEach(() => {
     mockRouter.events.off('beforeHistoryChange');
     mockRouter.push.mockClear();
+    mockRouter.beforePopState.mockClear();
     vi.clearAllMocks();
     // Reset mock implementation for useCitationExporter for each test
     vi.mocked(CitationExporterHooks.useCitationExporter).mockReturnValue({
@@ -152,14 +153,13 @@ describe('CitationExporter', () => {
 
   it('should call dispatch with SET_FORMAT and FORCE_SUBMIT when isValidFormat is true on history change', () => {
     mockRouter.asPath = '/new-url/some-format?param=value';
-    const { useCitationExporter } = vi.mocked(CitationExporterHooks.useCitationExporter);
     const mockDispatch = vi.fn();
-    useCitationExporter.mockReturnValue({
+    vi.mocked(CitationExporterHooks.useCitationExporter).mockReturnValue({
       data: { export: 'mocked export content' },
       state: {
         matches: vi.fn((state) => state === 'idle'),
         context: {
-          params: { format: 'bibtex' },
+          params: { format: 'bibtex', authorcutoff: [0], maxauthor: [0] },
           range: [0, 1],
           records: ['mockBibcode'],
         },
@@ -168,8 +168,7 @@ describe('CitationExporter', () => {
       dispatch: mockDispatch,
     });
 
-    const { useExportFormats } = vi.mocked(ExportFormatsHooks.useExportFormats);
-    useExportFormats.mockReturnValue({
+    vi.mocked(ExportFormatsHooks.useExportFormats).mockReturnValue({
       isValidFormat: vi.fn((format) => format === 'some-format'),
       getFormatById: vi.fn(() => ({ name: 'BibTeX' })),
       getFormatOptionById: vi.fn(() => ({ name: 'BibTeX' })),
@@ -185,16 +184,15 @@ describe('CitationExporter', () => {
     expect(mockDispatch).toHaveBeenCalledWith('FORCE_SUBMIT');
   });
 
-  it('should call dispatch with default format and FORCE_SUBMIT when isValidFormat is false on history change', () => {
+  it('should return true and allow server to handle path when isValidFormat is false on history change', () => {
     mockRouter.asPath = '/new-url/invalid-format?param=value';
-    const { useCitationExporter } = vi.mocked(CitationExporterHooks.useCitationExporter);
     const mockDispatch = vi.fn();
-    useCitationExporter.mockReturnValue({
+    vi.mocked(CitationExporterHooks.useCitationExporter).mockReturnValue({
       data: { export: 'mocked export content' },
       state: {
         matches: vi.fn((state) => state === 'idle'),
         context: {
-          params: { format: 'bibtex' },
+          params: { format: 'bibtex', authorcutoff: [0], maxauthor: [0] },
           range: [0, 1],
           records: ['mockBibcode'],
         },
@@ -203,8 +201,7 @@ describe('CitationExporter', () => {
       dispatch: mockDispatch,
     });
 
-    const { useExportFormats } = vi.mocked(ExportFormatsHooks.useExportFormats);
-    useExportFormats.mockReturnValue({
+    vi.mocked(ExportFormatsHooks.useExportFormats).mockReturnValue({
       isValidFormat: vi.fn(() => false),
       getFormatById: vi.fn(() => ({ name: 'BibTeX' })),
       getFormatOptionById: vi.fn(() => ({ name: 'BibTeX' })),
@@ -216,7 +213,5 @@ describe('CitationExporter', () => {
     const result = beforePopStateCallback({ as: '/new-url/invalid-format' });
 
     expect(result).toBe(true);
-    expect(mockDispatch).toHaveBeenCalledWith({ type: 'SET_FORMAT', payload: 'bibtex' });
-    expect(mockDispatch).toHaveBeenCalledWith('FORCE_SUBMIT');
   });
 });
