@@ -1,7 +1,6 @@
 import { Box, BoxProps, Button, Flex, Tag, TagCloseButton, TagLabel, Tooltip } from '@chakra-ui/react';
 import { clearFQs, removeFQClause } from '@/query-utils';
 import { useRouter } from 'next/router';
-import { curryN } from 'ramda';
 import { ReactElement, useCallback, useEffect, useState } from 'react';
 import { FilterTuple, getFilters, getObjectName } from './helpers';
 
@@ -22,28 +21,31 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
 
   // look up in the cache for matching object id in the react query key
   // if found, get data from cache, otherwise fetch
-  const translateObjectClauses = (clauses: string[]) => {
-    const objectIds: string[] = [];
-    return clauses.map((clause) => {
-      let translatedClause = clause;
-      clause.split(/(AND|OR|NOT)/).forEach((c) => {
-        if (c.indexOf('/') > -1) {
-          const id = c.split('/')[1].trim();
-          // replace id with name if found, otherwise gather the ids be queried
-          const objectName = getObjectName(id, queryClient);
-          if (!!objectName) {
-            translatedClause = translatedClause.replace(`/${id}`, `/${objectName}`);
-          } else {
-            objectIds.push(id);
+  const translateObjectClauses = useCallback(
+    (clauses: string[]) => {
+      const objectIds: string[] = [];
+      return clauses.map((clause) => {
+        let translatedClause = clause;
+        clause.split(/(AND|OR|NOT)/).forEach((c) => {
+          if (c.indexOf('/') > -1) {
+            const id = c.split('/')[1].trim();
+            // replace id with name if found, otherwise gather the ids be queried
+            const objectName = getObjectName(id, queryClient);
+            if (!!objectName) {
+              translatedClause = translatedClause.replace(`/${id}`, `/${objectName}`);
+            } else {
+              objectIds.push(id);
+            }
           }
+        });
+        if (objectIds.length > 0) {
+          setObjectIds(objectIds);
         }
+        return translatedClause;
       });
-      if (objectIds.length > 0) {
-        setObjectIds(objectIds);
-      }
-      return translatedClause;
-    });
-  };
+    },
+    [queryClient],
+  );
 
   useEffect(() => {
     // Get the current query from the router
@@ -59,10 +61,10 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
       }
     });
     setFilterSections(filters);
-  }, [router.query, objects]);
+  }, [router.asPath, router.query, objects, translateObjectClauses]);
 
   const handleRemoveFilterClick = useCallback(
-    curryN(3, (clause: string, key: string) => {
+    (clause: string, key: string) => () => {
       if (typeof key === 'string') {
         // Remove the clause from the current query
         const query = parseQueryFromUrl(router.asPath);
@@ -74,8 +76,8 @@ export const FacetFilters = (props: BoxProps): ReactElement => {
           void router.push({ pathname: router.pathname, search }, null, { scroll: false, shallow: true });
         }
       }
-    }),
-    [filterSections, router.query],
+    },
+    [router],
   );
 
   const handleRemoveAllFiltersClick = () => {

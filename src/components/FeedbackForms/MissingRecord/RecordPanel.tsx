@@ -110,23 +110,26 @@ export const RecordPanel = ({
 }) => {
   const userEmail = useGetUserEmail();
 
-  const initialFormValues = {
-    name: '',
-    email: userEmail ?? '',
-    bibcode: bibcode ?? '',
-    isNew: isNew,
-    collection: [] as Database[],
-    title: '',
-    noAuthors: false,
-    authors: [] as IAuthor[],
-    publication: '',
-    pubDate: '',
-    urls: [] as IResourceUrl[],
-    abstract: '',
-    keywords: [] as IKeyword[],
-    references: [] as IReference[],
-    comments: '',
-  };
+  const initialFormValues = useMemo(
+    () => ({
+      name: '',
+      email: userEmail ?? '',
+      bibcode: bibcode ?? '',
+      isNew: isNew,
+      collection: [] as Database[],
+      title: '',
+      noAuthors: false,
+      authors: [] as IAuthor[],
+      publication: '',
+      pubDate: '',
+      urls: [] as IResourceUrl[],
+      abstract: '',
+      keywords: [] as IKeyword[],
+      references: [] as IReference[],
+      comments: '',
+    }),
+    [userEmail, bibcode, isNew],
+  );
 
   // original form values from existing record
   // used for diff view

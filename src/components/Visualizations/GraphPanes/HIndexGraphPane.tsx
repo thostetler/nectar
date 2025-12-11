@@ -1,6 +1,5 @@
 import { Button, Flex, HStack, NumberInput, NumberInputField, Radio, RadioGroup, Stack, Text } from '@chakra-ui/react';
 import { ReactElement, useEffect, useMemo, useState } from 'react';
-import { useDebounce } from 'use-debounce';
 
 import { ILineGraph, Y_Axis } from '../types';
 import { getHIndexGraphData, getLineGraphXTicks } from '../utils';
@@ -23,9 +22,6 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
     maxLimit: maxDataPoints,
   });
   const [yaxis, setYaxis] = useState<Y_Axis>('linear');
-
-  // prevent graph transform until user has stopped updating slider
-  const [debouncedLimit] = useDebounce(limits.limit, 50);
 
   const baseGraph: ILineGraph = useMemo(() => {
     if (buckets) {
@@ -53,7 +49,7 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
         data: [{ id: type, data }],
       };
     }
-  }, [baseGraph, debouncedLimit, yaxis, limits.limit, type]);
+  }, [baseGraph, yaxis, limits.limit, type]);
 
   const statsCount = useMemo(() => {
     if (sum) {
