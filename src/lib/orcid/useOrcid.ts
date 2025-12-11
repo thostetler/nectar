@@ -77,7 +77,7 @@ export const useOrcid = () => {
     if (!nameState.error && !profileState.error) {
       setError(null);
     }
-  }, [nameState.error, profileState.error]);
+  }, [nameState.error, profileState.error, logout, toast, toggleOrcidMode]);
 
   const login = () => {
     if (isClient) {

@@ -49,7 +49,7 @@ export const useBubblePlot = ({
             .range([0, width]) // log scale cannot include 0
         : d3.scaleLinear().domain(extent).range([0, width]);
     }
-  }, [nodes, xKey, xScaleType]);
+  }, [nodes, xKey, xScaleType, width]);
 
   // get d3 yScale function based log or linear scale
   const yScaleFn = useMemo(() => {
@@ -60,7 +60,7 @@ export const useBubblePlot = ({
           .domain([extent[0] === 0 ? 1 : extent[0], extent[1]])
           .range([height, 0]) // log scale cannot include 0
       : d3.scaleLinear().domain(extent).range([height, 0]);
-  }, [nodes, yKey, yScaleType]);
+  }, [nodes, yKey, yScaleType, height]);
 
   // scale for bubble size
   const rScaleFn = useMemo(() => {

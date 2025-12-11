@@ -37,7 +37,7 @@ export const useWork = <T extends IUseWorkProps>(props: T): UseWorkReturns<T> =>
 
   useEffect(() => {
     setWork(findWorkInProfile(identifier, profile));
-  }, [profile, identifier, findWorkInProfile]);
+  }, [profile, identifier]);
 
   return {
     work,

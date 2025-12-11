@@ -114,7 +114,7 @@ export const useAuthorNetworkGraph = (
       .curve(d3.curveBundle.beta(0.85))
       .radius(radius * 3 - 1) // one is a gap
       .angle((d) => d.x0 + (d.x1 - d.x0) / 2);
-  }, []);
+  }, [radius]);
 
   // links weights
   const weights = useMemo(() => linksData.map((l) => l[2]), [linksData]);
@@ -129,11 +129,14 @@ export const useAuthorNetworkGraph = (
   }, [weights]);
 
   // function that gives the transform of node label to its proper position
-  const labelTransform = useCallback((d: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
-    const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
-    const y = d.y1 * radius + 2; // just outside the circle
-    return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
-  }, []);
+  const labelTransform = useCallback(
+    (d: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
+      const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
+      const y = d.y1 * radius + 2; // just outside the circle
+      return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
+    },
+    [radius],
+  );
 
   // returns the alignment for label, relative to the circle
   const textAnchor = useCallback((d: NetworkHierarchyNode<IADSApiAuthorNetworkNode>) => {
