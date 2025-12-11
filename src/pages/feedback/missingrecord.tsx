@@ -45,7 +45,7 @@ const Record: NextPage = () => {
         my={4}
       />
     ),
-    [alertDetails, isAlertOpen, onAlertClose, onAlertOpen],
+    [alertDetails, isAlertOpen, onAlertClose],
   );
 
   const handleOnOpenAlert = ({

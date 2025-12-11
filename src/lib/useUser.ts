@@ -20,7 +20,7 @@ export const useUser = () => {
     if (isUserData(user)) {
       queryClient.setQueryData(['user'], user);
     }
-  }, [user]);
+  }, [user, queryClient]);
 
   const reset = async () => {
     resetUserSettings();

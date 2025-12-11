@@ -56,7 +56,7 @@ const OrcidPage: NextPage = () => {
     if (!orcidModeActive) {
       setOrcidMode(true);
     }
-  }, [orcidModeActive]);
+  }, [orcidModeActive, setOrcidMode]);
 
   return (
     <>

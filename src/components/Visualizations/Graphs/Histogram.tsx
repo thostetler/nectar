@@ -49,7 +49,7 @@ export const Histogram = ({
     if (onBarWidthReady) {
       onBarWidthReady(barWidth);
     }
-  }, [barWidth]);
+  }, [barWidth, onBarWidthReady]);
 
   // selected range changed, update bin color
   useEffect(() => {

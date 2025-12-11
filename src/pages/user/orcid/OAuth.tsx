@@ -37,7 +37,7 @@ const OrcidPage: NextPage = () => {
     if (cancelRef?.current) {
       cancelRef.current.focus();
     }
-  }, [cancelRef?.current]);
+  }, []);
 
   // exchange code for token, and get back user
   const {
