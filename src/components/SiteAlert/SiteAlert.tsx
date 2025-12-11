@@ -44,7 +44,7 @@ export const SiteAlert = () => {
         setInitialized(true);
       }
     }
-  }, [isAuthenticated, isFetching]);
+  }, [isAuthenticated, isFetching, initialized, settings.last_seen_message]);
 
   // data not yet initialized, alert should stay hidden
   if (!initialized) {

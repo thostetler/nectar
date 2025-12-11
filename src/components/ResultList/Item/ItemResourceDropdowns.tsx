@@ -33,14 +33,14 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
     if (value !== '') {
       onCopy();
     }
-  }, [value]);
+  }, [value, onCopy]);
 
   useEffect(() => {
     if (hasCopied) {
       toast({ status: 'info', title: 'Copied to Clipboard' });
       setValue('');
     }
-  }, [hasCopied]);
+  }, [hasCopied, setValue, toast]);
 
   const encodedCanonicalID = doc?.bibcode ? encodeURIComponent(doc.bibcode) : '';
 

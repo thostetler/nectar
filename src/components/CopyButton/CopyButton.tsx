@@ -91,7 +91,7 @@ export const CopyMenuItem = (props: MenuItemProps & { label: string; text: strin
 
   useEffect(() => {
     setValue(text);
-  }, [text]);
+  }, [text, setValue]);
 
   return (
     <MenuItem onClick={onCopy} {...rest}>

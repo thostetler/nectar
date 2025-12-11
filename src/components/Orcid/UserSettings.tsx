@@ -324,7 +324,7 @@ const AddNewAliasButton = () => {
     if (addingNew && ref.current) {
       ref.current.focus();
     }
-  }, [addingNew, ref.current]);
+  }, [addingNew]);
 
   // on name change, clear error
   useEffect(() => setError(null), [name]);
