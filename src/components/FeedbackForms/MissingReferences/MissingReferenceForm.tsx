@@ -126,7 +126,7 @@ export const MissingReferenceForm = ({
     } else if (state === 'preview') {
       openPreview();
     }
-  }, [state]);
+  }, [state, allBibcodes, bibcodesRefetch, closePreview, openPreview, refStringRefetch, references]);
 
   useEffect(() => {
     if (!!allBibcodes) {
@@ -180,7 +180,18 @@ export const MissingReferenceForm = ({
         setState('idle');
       }
     }
-  }, [bibcodesData, bibcodesIsFetching, bibcodesIsSuccess, bibcodesError, bibcodesIsLoading]);
+  }, [
+    bibcodesData,
+    bibcodesIsFetching,
+    bibcodesIsSuccess,
+    bibcodesError,
+    bibcodesIsLoading,
+    allBibcodes,
+    getValues,
+    onOpenAlert,
+    setError,
+    state,
+  ]);
 
   // once refstrings are fetched, finish setting params
   useEffect(() => {
@@ -201,7 +212,7 @@ export const MissingReferenceForm = ({
         setState('preview');
       }
     }
-  }, [refStringsData, refStringsError, refIsRefetching, refIsLoading]);
+  }, [refStringsData, refStringsError, refIsRefetching, refIsLoading, state, onOpenAlert, references]);
 
   const handlePreview = () => {
     setState('submitting');
