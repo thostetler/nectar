@@ -71,7 +71,7 @@ const useSecondOrderOps = () => {
       // trigger the new search
       void router.push({ pathname: '/search', search });
     }
-  }, [qResult, state.type]);
+  }, [qResult, state.type, router]);
 
   return {
     onLimit: () => dispatch({ type: 'setType', payload: 'limit' }),

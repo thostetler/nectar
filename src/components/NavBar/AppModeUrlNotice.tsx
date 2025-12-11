@@ -1,12 +1,4 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Box,
-  Button,
-  CloseButton,
-  HStack,
-} from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, Box, Button, CloseButton, HStack } from '@chakra-ui/react';
 import { keyframes } from '@emotion/react';
 import { useRouter } from 'next/router';
 import { FC, useEffect, useRef, useState } from 'react';
@@ -178,6 +170,7 @@ export const AppModeUrlNotice: FC = () => {
     mode,
     setMode,
     showModeNotice,
+    dismissModeNotice,
     setUrlModePrevious,
     urlModePrevious,
     router,

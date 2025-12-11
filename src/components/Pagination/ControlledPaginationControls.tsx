@@ -21,7 +21,7 @@ export const ControlledPaginationControls = (props: IControlledPaginationControl
 
   const getPaginationString = useCallback(() => {
     return `Showing ${pageIndex * pageSize + 1} to ${endIdx} of ${entries} results`;
-  }, [entries, pageSize, pageIndex]);
+  }, [entries, pageSize, pageIndex, endIdx]);
 
   const handleNextPage = () => {
     onChangePageIndex(pageIndex + 1);

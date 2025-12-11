@@ -25,7 +25,7 @@ export const MaxAuthorCutoffField = ({ value: defaultValue, onChange }: IMaxAuth
     if (debouncedValue >= APP_DEFAULTS.MIN_AUTHORCUTOFF && debouncedValue <= APP_DEFAULTS.MAX_AUTHORCUTOFF) {
       onChange(debouncedValue);
     }
-  }, [debouncedValue]);
+  }, [debouncedValue, onChange]);
 
   return (
     <DescriptionCollapse

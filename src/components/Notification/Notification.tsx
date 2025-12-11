@@ -25,7 +25,7 @@ export const Notification = () => {
     if (toastId.current) {
       toast.close(toastId.current);
     }
-  }, [resetNotification, toast, toastId.current, timeoutId.current]);
+  }, [resetNotification, toast]);
 
   // Show notification
   useEffect(() => {
@@ -41,7 +41,7 @@ export const Notification = () => {
     return () => {
       timeoutId.current = setTimeout(reset, TIMEOUT);
     };
-  }, [notification, resetNotification, toast, toastId.current, reset]);
+  }, [notification, resetNotification, toast, reset]);
 
   // Reset notification on route change
   useEffect(() => {

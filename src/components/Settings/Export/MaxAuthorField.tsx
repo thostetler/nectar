@@ -25,7 +25,7 @@ export const MaxAuthorField = ({ value: defaultValue, onChange }: IMaxAuthorFiel
     if (debouncedValue >= APP_DEFAULTS.MIN_EXPORT_AUTHORS && debouncedValue <= APP_DEFAULTS.MAX_EXPORT_AUTHORS) {
       onChange(debouncedValue);
     }
-  }, [debouncedValue]);
+  }, [debouncedValue, onChange]);
 
   return (
     <DescriptionCollapse
