@@ -53,7 +53,7 @@ export const ResultsGraphPageContainer = ({ query }: IResultsGraphPageContainerP
       });
       setApplyingBibcodes([]);
     }
-  }, [bigQueryData, bigQueryError, applyingBibcodes]);
+  }, [bigQueryData, bigQueryError, applyingBibcodes, query, router, toast]);
 
   const graphData = useMemo(() => {
     if (data?.response?.docs) {

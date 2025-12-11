@@ -83,7 +83,7 @@ export const CustomFormatsTabPanel = ({ sampleBib, dispatch }: ICustomFormatsTab
       return 'Add a new custom format to see a sample citation';
     }
     return sampleCitation.export;
-  }, [sampleCitation, selectedFormat]);
+  }, [sampleCitation, selectedFormat, isLoading]);
 
   const handleOnSelect = (id: string) => {
     setSelectedFormat(customFormats.find((f) => f.id === id));

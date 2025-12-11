@@ -52,7 +52,7 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
       defaultExportFormatOpt.id === ExportApiFormatKey.bibtex ? bibtexAuthorCutoff : bibtexABSAuthorCutoff;
     const maxauthor = defaultExportFormatOpt.id === ExportApiFormatKey.bibtex ? bibtexMaxAuthors : bibtexAuthorCutoff;
     return { defaultExportFormatOpt, customFormat, journalFormat, keyFormat, authorcutoff, maxauthor };
-  }, [userSettings]);
+  }, [userSettings, getFormatOptionByLabel, getFormatOptionById]);
 
   const { data: sampleCitation, isLoading } = useGetExportCitation({
     format: defaultExportFormatOpt.id,

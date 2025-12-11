@@ -37,7 +37,7 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
         hindex,
       };
     }
-  }, [buckets]);
+  }, [buckets, type]);
 
   const transformedGraph: ILineGraph = useMemo(() => {
     if (baseGraph) {
@@ -53,7 +53,7 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
         data: [{ id: type, data }],
       };
     }
-  }, [baseGraph, debouncedLimit, yaxis]);
+  }, [baseGraph, debouncedLimit, yaxis, limits.limit, type]);
 
   const statsCount = useMemo(() => {
     if (sum) {
@@ -66,7 +66,7 @@ export const HIndexGraphPane = ({ buckets, sum, type, onApplyCondition }: IHInde
       const max = Math.min(maxDataPoints, baseGraph.data[0]?.data.length);
       setLimits({ limit: max, maxLimit: max });
     }
-  }, [buckets]);
+  }, [buckets, baseGraph.data]);
 
   const handleLimitSliderChange = (value: number[]) => {
     setLimits({ ...limits, limit: value[0] });
