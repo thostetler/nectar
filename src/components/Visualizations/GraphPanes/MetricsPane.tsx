@@ -285,7 +285,7 @@ const IndicesSection = ({
           total: metricsData[MetricsResponseKey.I],
         })
       : indicesTable;
-  }, [metricsData]);
+  }, [metricsData, indicesTable]);
 
   const getCSVDataContent = () => {
     const data = metricsData[MetricsResponseKey.TS];

@@ -138,7 +138,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
     if (numFound && numFound < state.rowsToFetch) {
       dispatch({ type: 'CHANGE_PAPER_LIMIT', payload: numFound });
     }
-  }, [numFound]);
+  }, [numFound, state.rowsToFetch]);
 
   // When big query data is fetched, redirect to the search results page
   useEffect(() => {
@@ -157,7 +157,7 @@ export const AuthorNetworkPageContainer = ({ query }: IAuthorNetworkPageContaine
       });
       setApplyingBibcodes([]);
     }
-  }, [bigQueryData, bigQueryError]);
+  }, [bigQueryData, bigQueryError, applyingBibcodes.length, query, router, toast]);
 
   // get all papers (bibcodes) of the filter groups and authors and trigger big query search
   const handleApplyFilters = () => {

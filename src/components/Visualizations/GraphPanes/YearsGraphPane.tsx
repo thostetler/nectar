@@ -34,7 +34,7 @@ export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps)
       min: firstYear,
       max: lastYear,
     });
-  }, [baseGraph]);
+  }, [baseGraph, firstYear, lastYear]);
 
   const handleRangeChange = ([min, max]: number[]) => {
     setRange({ min, max });
@@ -78,7 +78,7 @@ export const YearsGraphPane = ({ data, onApplyYearRange }: IYearsGraphPaneProps)
             : undefined,
       };
     }
-  }, [baseGraph, debouncedRange]);
+  }, [baseGraph, debouncedRange, firstYear, lastYear, range]);
 
   const getCSVDataContent = () =>
     baseGraph.data.reduce(
