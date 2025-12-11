@@ -136,7 +136,7 @@ export const AssociatedArticlesForm = ({
     } else if (state === 'preview') {
       openPreview();
     }
-  }, [state]);
+  }, [state, closePreview, getValues, allBibcodes, bibcodesRefetch, openPreview]);
 
   useEffect(() => {
     if (!!allBibcodes) {
@@ -194,7 +194,18 @@ export const AssociatedArticlesForm = ({
         setState('idle');
       }
     }
-  }, [bibcodesData, bibcodesIsFetching, bibcodesIsSuccess, bibcodesError, bibcodesIsLoading]);
+  }, [
+    bibcodesData,
+    bibcodesIsFetching,
+    bibcodesIsSuccess,
+    bibcodesError,
+    bibcodesIsLoading,
+    state,
+    getValues,
+    allBibcodes,
+    setError,
+    onOpenAlert,
+  ]);
 
   const [params, setParams] = useState<IFeedbackParams>(null);
 
@@ -203,7 +214,7 @@ export const AssociatedArticlesForm = ({
     if (params !== null) {
       openPreview();
     }
-  }, [params]);
+  }, [params, openPreview]);
 
   // clear params when preview closed
   useEffect(() => {

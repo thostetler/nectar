@@ -239,7 +239,18 @@ export const RecordPanel = ({
     } else if (state === 'preview') {
       openPreview();
     }
-  }, [state]);
+  }, [
+    state,
+    closePreview,
+    getValues,
+    initialFormValues,
+    isNew,
+    onOpenAlert,
+    openPreview,
+    recordOriginalFormValues,
+    recordRefetch,
+    urlsRefetch,
+  ]);
 
   // record fetched
   useEffect(() => {
@@ -258,7 +269,7 @@ export const RecordPanel = ({
         setState('idle');
       }
     }
-  }, [recordData, recordIsFetching, recordIsSuccess, recordError]);
+  }, [recordData, recordIsFetching, recordIsSuccess, recordError, handleRecordLoaded, onOpenAlert]);
 
   // urls fetched
   useEffect(() => {
@@ -268,7 +279,7 @@ export const RecordPanel = ({
       }
       setState('idle');
     }
-  }, [urlsIsFetching, urlsIsSuccess, urlsData]);
+  }, [urlsIsFetching, urlsIsSuccess, urlsData, handleUrlsLoaded]);
 
   // open preview when params set
   useEffect(() => {
@@ -280,7 +291,7 @@ export const RecordPanel = ({
   // set form values when an original record data is loaded, cleared, updated
   useEffect(() => {
     reset(recordOriginalFormValues);
-  }, [recordOriginalFormValues]);
+  }, [recordOriginalFormValues, reset]);
 
   // react element of diff to be passed to preview
   const diffSectionPanels = useMemo(
