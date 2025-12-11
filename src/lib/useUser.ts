@@ -1,6 +1,6 @@
 import { useStore } from '@/store';
+import { useCallback, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
 import { isUserData } from '@/auth-utils';
 
 /**
@@ -22,11 +22,11 @@ export const useUser = () => {
     }
   }, [user, queryClient]);
 
-  const reset = async () => {
+  const reset = useCallback(async () => {
     resetUserSettings();
     resetUser();
     await queryClient.invalidateQueries(['user'], { exact: true });
-  };
+  }, [queryClient, resetUser, resetUserSettings]);
 
   return {
     user,

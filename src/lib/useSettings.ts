@@ -1,8 +1,7 @@
 import { isNil, mergeLeft } from 'ramda';
-import { useDebouncedCallback } from 'use-debounce';
 import { useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { useToast } from '@chakra-ui/react';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { isNotEmpty } from 'ramda-adjunct';
 import { useSession } from '@/lib/useSession';
 import { IADSApiUserDataParams, IADSApiUserDataResponse } from '@/api/user/types';
@@ -76,11 +75,21 @@ export const useSettings = (options?: UseQueryOptions<IADSApiUserDataResponse>, 
     }
   }, [updateSettingsState.isSuccess, updateSettingsState.isError, toast, hideToast]);
 
-  const updateSettings = useDebouncedCallback((params: IADSApiUserDataParams) => {
-    if (isNotEmpty(params)) {
+  const updateSettings = useCallback(
+    (params: IADSApiUserDataParams) => {
+      if (!isNotEmpty(params)) {
+        return;
+      }
+
+      // Optimistically update the cache so the UI reflects changes immediately
+      queryClient.setQueryData<IADSApiUserDataResponse>(userKeys.getUserSettings(), (prev) =>
+        mergeLeft<IADSApiUserDataResponse, IADSApiUserDataParams>(params, prev ?? DEFAULT_USER_DATA),
+      );
+
       mutate(params);
-    }
-  }, 100);
+    },
+    [mutate, queryClient],
+  );
 
   return {
     updateSettings,

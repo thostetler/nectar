@@ -3,6 +3,7 @@ import { Button, chakra, FormControl, FormErrorMessage, FormLabel, Input, Stack,
 import { FormEventHandler, useState } from 'react';
 import { AppState, useStore } from '@/store';
 import { useSession } from '@/lib/useSession';
+import { useIsClient } from '@/lib/useIsClient';
 
 import { SettingsLayout } from '@/components/Layout';
 import { StandardAlertMessage } from '@/components/Feedbacks';
@@ -17,7 +18,8 @@ type FormError = {
 const DeleteAccountPage = () => {
   const [email, setEmail] = useState('');
   const [formError, setFormError] = useState<FormError>(null);
-  const storeEmail = useStore((state: AppState) => state.user.username);
+  const storeEmail = useStore((state: AppState) => state.user?.username ?? '');
+  const isClient = useIsClient();
   const { logout } = useSession();
   const {
     mutate: deleteAccount,
@@ -48,7 +50,10 @@ const DeleteAccountPage = () => {
       <form onSubmit={handleSubmit} aria-labelledby="settings-section-title">
         <Stack direction="column" spacing={4} my={2}>
           <Text>
-            Your current email is: <chakra.span fontWeight="bold">{storeEmail}</chakra.span>
+            Your current email is:{' '}
+            <chakra.span fontWeight="bold" suppressHydrationWarning>
+              {isClient ? storeEmail : ''}
+            </chakra.span>
           </Text>
           <FormControl isRequired isInvalid={formError?.param === 'email'} isDisabled={isLoading}>
             <FormLabel>Confirm your email</FormLabel>

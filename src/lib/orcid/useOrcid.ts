@@ -3,7 +3,7 @@ import { useIsClient } from '@/lib/useIsClient';
 import { ORCID_LOGIN_URL } from '@/config';
 import { useRouter } from 'next/router';
 import { isValidIOrcidUser } from '@/api/orcid/models';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { useToast } from '@chakra-ui/react';
 import { parseAPIError } from '@/utils/common/parseAPIError';
@@ -39,6 +39,30 @@ export const useOrcid = () => {
       enabled: isAuthenticated && isValidIOrcidUser(user),
     },
   );
+
+  const login = useCallback(() => {
+    if (isClient) {
+      location.replace(ORCID_LOGIN_URL);
+    }
+  }, [isClient]);
+
+  const toggleOrcidMode = useCallback(
+    (mode?: boolean) => {
+      setOrcidMode(typeof mode === 'boolean' ? mode : !active);
+    },
+    [active, setOrcidMode],
+  );
+
+  const logout = useCallback(() => {
+    // if we're on the orcid page, we need to redirect to the home page
+    if (router.pathname === '/user/orcid' || router.pathname === '/user/orcid/OAuth') {
+      router.replace('/').finally(() => {
+        reset();
+      });
+    } else {
+      reset();
+    }
+  }, [reset, router]);
 
   useEffect(() => {
     if (nameState.error) {
@@ -78,27 +102,6 @@ export const useOrcid = () => {
       setError(null);
     }
   }, [nameState.error, profileState.error, logout, toast, toggleOrcidMode]);
-
-  const login = () => {
-    if (isClient) {
-      location.replace(ORCID_LOGIN_URL);
-    }
-  };
-
-  const logout = () => {
-    // if we're on the orcid page, we need to redirect to the home page
-    if (router.pathname === '/user/orcid' || router.pathname === '/user/orcid/OAuth') {
-      router.replace('/').finally(() => {
-        reset();
-      });
-    } else {
-      reset();
-    }
-  };
-
-  const toggleOrcidMode = (mode?: boolean) => {
-    setOrcidMode(typeof mode === 'boolean' ? mode : !active);
-  };
 
   return {
     active,

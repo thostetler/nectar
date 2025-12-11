@@ -58,21 +58,41 @@ export const fetchUserApiToken: QueryFunction<IBootstrapPayload> = async () => {
     url: ApiTargets.TOKEN,
   };
 
-  const { data } = await api.request<IBootstrapPayload>(config);
+  try {
+    const { data } = await api.request<IBootstrapPayload>(config);
 
-  // in the case the user has yet to generate a token, generate an initial one
-  if (data?.message === 'no ADS API client found') {
-    const token = await generateUserApiToken({});
-    if (isValidToken(token)) {
-      return token;
+    // in the case the user has yet to generate a token, generate an initial one
+    if (data?.message === 'no ADS API client found') {
+      const token = await generateUserApiToken({});
+      if (isValidToken(token)) {
+        return token;
+      }
     }
-  }
 
-  if (isValidToken(data)) {
-    return data;
-  }
+    if (isValidToken(data)) {
+      return data;
+    }
 
-  throw new Error('invalid-token');
+    throw new Error('invalid-token');
+  } catch (error) {
+    // Normalize unauthorized responses to a consistent error for UI handling
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      if (status === 401 || status === 403) {
+        // attempt to generate a fresh token if the read was unauthorized
+        try {
+          const token = await generateUserApiToken({});
+          if (isValidToken(token)) {
+            return token;
+          }
+        } catch {
+          // ignore and fall through to a normalized error
+        }
+        throw new Error('invalid-token');
+      }
+    }
+    throw error;
+  }
 };
 
 const generateUserApiToken: MutationFunction<IBootstrapPayload> = async () => {

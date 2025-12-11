@@ -28,6 +28,10 @@ import { StandardAlertMessage } from '@/components/Feedbacks';
 import { PasswordTextInput } from '@/components/TextInput';
 import { SimpleLink } from '@/components/SimpleLink';
 import { useGenerateNewApiToken, useGetUserApiToken, userKeys } from '@/api/user/user';
+import { useSession } from '@/lib/useSession';
+import { composeNextGSSP } from '@/ssr-utils';
+import { isUserData } from '@/auth-utils';
+import { GetServerSideProps } from 'next';
 
 const ApiTokenPage = () => {
   const qc = useQueryClient();
@@ -106,7 +110,19 @@ const ApiTokenPage = () => {
 
 const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
   const { isLoading, onGenerate } = props;
-  const { data } = useGetUserApiToken({ suspense: true, retry: false });
+  const { isAuthenticated } = useSession();
+
+  if (!isAuthenticated) {
+    return (
+      <StandardAlertMessage
+        status="warning"
+        title="Sign in required"
+        description="Log in to view or generate your API token."
+      />
+    );
+  }
+
+  const { data } = useGetUserApiToken({ suspense: true, retry: false, enabled: isAuthenticated });
 
   if (data && data?.message === 'no ADS API client found') {
     return (
@@ -186,4 +202,15 @@ const TokenArea = (props: { onGenerate: () => void; isLoading: boolean }) => {
 
 export default ApiTokenPage;
 
-export { injectSessionGSSP as getServerSideProps } from '@/ssr-utils';
+export const getServerSideProps: GetServerSideProps = composeNextGSSP(async (ctx) => {
+  const userData = ctx.req.session.token;
+  if (!isUserData(userData)) {
+    return {
+      redirect: {
+        destination: `/user/account/login?redirect=${encodeURIComponent('/user/settings/token')}`,
+        permanent: false,
+      },
+    };
+  }
+  return { props: {} };
+});
