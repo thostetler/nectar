@@ -160,7 +160,7 @@ export const LibraryEntityPane = ({ id, publicView }: ILibraryEntityPaneProps) =
         },
       );
     }
-  }, [documents?.documents]);
+  }, [documents?.documents, fetchDocuments, pageSize, sort]);
 
   const { mutate: editLibraryDocuments } = useEditLibraryDocuments();
 
@@ -593,7 +593,7 @@ const ExportMenu = (
         },
       );
     }
-  }, [data]);
+  }, [data, library, route, router]);
 
   // on route change
   useEffect(() => {
@@ -609,7 +609,7 @@ const ExportMenu = (
         );
       }
     }
-  }, [route]);
+  }, [route, docs, library, router]);
 
   const handleExportItemClick = curryN(2, (format: string) => {
     setRoute([`/search/exportcitation/[format]`, `/search/exportcitation/${format}`]);

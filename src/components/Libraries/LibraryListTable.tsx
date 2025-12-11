@@ -141,7 +141,7 @@ export const LibraryListTable = (props: ILibraryListTableProps) => {
 
   const allHiddenCols = useMemo(() => {
     return isMobile ? uniq([...hideColsSmallDisplay, ...hideCols]) : [...hideCols];
-  }, [isMobile]);
+  }, [isMobile, hideCols]);
 
   const { mutate: deleteLibrary } = useDeleteLibrary();
 
