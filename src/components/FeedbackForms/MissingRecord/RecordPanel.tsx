@@ -269,7 +269,8 @@ export const RecordPanel = ({
         setState('idle');
       }
     }
-  }, [recordData, recordIsFetching, recordIsSuccess, recordError, handleRecordLoaded, onOpenAlert]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recordData, recordIsFetching, recordIsSuccess, recordError, onOpenAlert]);
 
   // urls fetched
   useEffect(() => {
@@ -279,7 +280,8 @@ export const RecordPanel = ({
       }
       setState('idle');
     }
-  }, [urlsIsFetching, urlsIsSuccess, urlsData, handleUrlsLoaded]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlsIsFetching, urlsIsSuccess, urlsData]);
 
   // open preview when params set
   useEffect(() => {
