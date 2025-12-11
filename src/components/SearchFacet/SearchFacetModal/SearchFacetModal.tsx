@@ -139,7 +139,7 @@ const useGetSearchTerm = () => {
   const searchTerm = useDebounce(
     useMemo(
       () => (sort[0] === 'index' ? (letter.toLowerCase() === 'all' ? '' : letter) : search),
-      [sort[0], letter, search],
+      [sort, letter, search],
     ),
     SEARCH_DEBOUNCE_WAIT,
   );
@@ -160,7 +160,7 @@ const UnExpandButton = () => {
     if (focused) {
       setFocused(focused.parentId);
     }
-  }, [focused]);
+  }, [focused, setFocused]);
 
   if (!focused) {
     return null;
@@ -255,7 +255,7 @@ const LogicSelect = (props: Pick<IFacetListProps, 'onFilter'> & BoxProps) => {
         reset();
       }
     },
-    [selected],
+    [selected, onFilter, params, reset],
   );
 
   const logicType = selected.length > 1 ? params.logic.multiple : params.logic.single;

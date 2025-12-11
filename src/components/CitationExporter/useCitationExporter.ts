@@ -136,7 +136,7 @@ export const useCitationExporter = ({
     if (state.matches('fetching') && result.data) {
       dispatch('DONE');
     }
-  }, [state.value, result.data, dispatch]);
+  }, [state, result.data, dispatch]);
 
   return { ...result, state, dispatch };
 };
