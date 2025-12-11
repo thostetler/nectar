@@ -8,12 +8,12 @@ import { useEffect, useRef, useState } from 'react';
  */
 export const useErrorMessage = <T>(error: T, delay = 5000) => {
   const id = useRef<number | null>(null);
-  const output = useState<T>(error);
+  const [errorValue, setError] = useState<T>(error);
 
   useEffect(() => {
-    id.current = window.setTimeout(output[1], delay, null);
+    id.current = window.setTimeout(setError, delay, null);
     return () => clearTimeout(id.current);
-  }, [output[0]]);
+  }, [errorValue, delay]);
 
-  return output;
+  return [errorValue, setError] as const;
 };

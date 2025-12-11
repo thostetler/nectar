@@ -26,13 +26,13 @@ export const useSession = () => {
         reload();
       });
     }
-  }, [result.data?.success]);
+  }, [result.data?.success, reset, reload]);
 
   useEffect(() => {
     if (result.isError) {
       reload();
     }
-  }, [result.isError]);
+  }, [result.isError, reload]);
 
   return {
     logout,

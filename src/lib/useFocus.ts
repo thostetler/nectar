@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect, useRef } from 'react';
+import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
 
 interface IUseFocusProps {
   focusOnMount?: boolean;
@@ -22,30 +22,33 @@ export const useFocus = <TElement extends HTMLElement = HTMLInputElement>(
   const { focusOnMount, selectTextOnFocus, moveCursorToEnd } = props;
   const ref = useRef<TElement>(null);
 
-  const focus = (overrides?: IUseFocusProps) => {
-    if (typeof ref.current?.focus === 'function' && typeof window !== 'undefined') {
-      const shouldSelectTextOnFocus = overrides?.selectTextOnFocus ?? selectTextOnFocus;
-      const shouldMoveCursorToEnd = overrides?.moveCursorToEnd ?? moveCursorToEnd;
+  const focus = useCallback(
+    (overrides?: IUseFocusProps) => {
+      if (typeof ref.current?.focus === 'function' && typeof window !== 'undefined') {
+        const shouldSelectTextOnFocus = overrides?.selectTextOnFocus ?? selectTextOnFocus;
+        const shouldMoveCursorToEnd = overrides?.moveCursorToEnd ?? moveCursorToEnd;
 
-      // override takes precedence, otherwise use props
-      if (shouldSelectTextOnFocus && ref.current instanceof HTMLInputElement) {
-        ref.current?.select();
+        // override takes precedence, otherwise use props
+        if (shouldSelectTextOnFocus && ref.current instanceof HTMLInputElement) {
+          ref.current?.select();
+        }
+
+        ref.current?.focus();
+
+        // if the element is an input, move the cursor to the end
+        if (shouldMoveCursorToEnd && ref.current instanceof HTMLInputElement && ref.current.selectionStart) {
+          ref.current.selectionStart = ref.current.value.length;
+        }
       }
-
-      ref.current?.focus();
-
-      // if the element is an input, move the cursor to the end
-      if (shouldMoveCursorToEnd && ref.current instanceof HTMLInputElement && ref.current.selectionStart) {
-        ref.current.selectionStart = ref.current.value.length;
-      }
-    }
-  };
+    },
+    [selectTextOnFocus, moveCursorToEnd],
+  );
 
   useEffect(() => {
     if (focusOnMount) {
       focus();
     }
-  }, []);
+  }, [focusOnMount, focus]);
 
   return [ref, focus];
 };
