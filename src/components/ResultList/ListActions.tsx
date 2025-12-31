@@ -177,15 +177,17 @@ export const ListActions = (props: IListActionsProps): ReactElement => {
           <SortWrapper onChange={onSortChange} />
           {isClient && (
             <Flex gap={1}>
-              <Tooltip label="Create email notification for this query">
-                <IconButton
-                  icon={<BellIcon />}
-                  aria-label="Create email notification for this query"
-                  variant="outline"
-                  onClick={onCreateNotificationOpen}
-                  id="tour-email-notification"
-                />
-              </Tooltip>
+              {isAuthenticated && (
+                <Tooltip label="Create email notification for this query">
+                  <IconButton
+                    icon={<BellIcon />}
+                    aria-label="Create email notification for this query"
+                    variant="outline"
+                    onClick={onCreateNotificationOpen}
+                    id="tour-email-notification"
+                  />
+                </Tooltip>
+              )}
               <HighlightsToggle />
             </Flex>
           )}
