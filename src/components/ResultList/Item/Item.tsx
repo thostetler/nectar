@@ -118,7 +118,16 @@ export const Item = (props: IItemProps): ReactElement => {
     ) : null;
 
   return (
-    <Flex direction="row" as="article" border="1px" borderColor={colors.border} mb={1} borderRadius="md" id={bibcode}>
+    <Flex
+      direction="row"
+      as="article"
+      border="1px"
+      borderColor={colors.border}
+      mb={1}
+      borderRadius="md"
+      id={bibcode}
+      data-testid="result-item"
+    >
       <Flex
         as={HideOnPrint}
         direction="row"
@@ -147,6 +156,7 @@ export const Item = (props: IItemProps): ReactElement => {
             fontWeight="semibold"
             className="article-title"
             onClick={saveScrollPosition}
+            data-testid="result-title"
           >
             <Text as={MathJax} dangerouslySetInnerHTML={{ __html: unwrapStringValue(title) }} />
           </SimpleLink>

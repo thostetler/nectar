@@ -21,6 +21,7 @@ const SideMenuItem = ({
   disabled = false,
   rightElement = null,
   tooltip,
+  testId,
 }: IMenuItemProps) => {
   const colors = useColorModeColors();
 
@@ -62,6 +63,7 @@ const SideMenuItem = ({
               fontSize="normal"
               fontWeight="normal"
               leftIcon={icon ? cloneElement(icon, { width: '18px', 'aria-hidden': true }) : null}
+              data-testid={testId}
             >
               <Flex direction="row" alignItems="center" justifyContent="space-between" w="full">
                 <>{label}</>

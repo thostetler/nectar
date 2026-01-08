@@ -89,7 +89,7 @@ const Register: NextPage = () => {
         <Heading alignSelf="center" my="6" id="form-label" as="h2">
           Register
         </Heading>
-        <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="form-label">
+        <form onSubmit={handleSubmit(onFormSubmit)} aria-labelledby="form-label" data-testid="register-form">
           <Stack direction="column" spacing={4}>
             <Alert status="info" variant="subtle">
               <AlertIcon />
@@ -110,6 +110,7 @@ const Register: NextPage = () => {
                 name="given_name"
                 id="given_name"
                 autoComplete="given-name"
+                data-testid="register-given-name"
                 ref={(value) => {
                   focusElementRef.current = value;
                   ref(value);
@@ -127,6 +128,7 @@ const Register: NextPage = () => {
                 name="family_name"
                 id="family_name"
                 autoComplete="family-name"
+                data-testid="register-family-name"
                 {...register('familyName')}
               />
               {!!errors.familyName && <FormErrorMessage>{errors.familyName.message}</FormErrorMessage>}
@@ -140,6 +142,7 @@ const Register: NextPage = () => {
                 name="email"
                 id="email"
                 autoComplete="email"
+                data-testid="register-email"
                 {...register('email', { required: true })}
               />
               {!!errors.email && <FormErrorMessage>{errors.email.message}</FormErrorMessage>}
@@ -150,6 +153,7 @@ const Register: NextPage = () => {
                 name="password"
                 id="password"
                 autoComplete="new-password"
+                data-testid="register-password"
                 {...register('password', {
                   required: true,
                   minLength: 4,
@@ -164,6 +168,7 @@ const Register: NextPage = () => {
                 name="confirmPassword"
                 id="confirmPassword"
                 autoComplete="new-password"
+                data-testid="register-password-confirm"
                 {...register('confirmPassword', {
                   required: true,
                   validate: (value) => value === getValues('password'),
@@ -171,12 +176,12 @@ const Register: NextPage = () => {
               />
               {!!errors.confirmPassword && <FormErrorMessage>Passwords do not match</FormErrorMessage>}
             </FormControl>
-            <Button type="submit" isLoading={isLoading}>
+            <Button type="submit" isLoading={isLoading} data-testid="register-submit">
               Submit
             </Button>
             <Text alignSelf="center">
               Already have an account?{' '}
-              <SimpleLink href="/user/account/login" display="inline">
+              <SimpleLink href="/user/account/login" display="inline" data-testid="register-login-link">
                 Login
               </SimpleLink>
             </Text>

@@ -115,7 +115,7 @@ const Login: NextPage = () => {
           Login
         </Heading>
 
-        <form onSubmit={handleSubmit} aria-labelledby="form-label">
+        <form onSubmit={handleSubmit} aria-labelledby="form-label" data-testid="login-form">
           <Stack direction="column" spacing={4}>
             <Alert status="info" variant="subtle">
               <AlertIcon />
@@ -138,6 +138,7 @@ const Login: NextPage = () => {
                 autoFocus
                 onChange={handleChange}
                 value={params.email}
+                data-testid="login-email"
               />
             </FormControl>
             <FormControl isRequired>
@@ -149,18 +150,19 @@ const Login: NextPage = () => {
                   pr="4.5rem"
                   onChange={handleChange}
                   value={params.password}
+                  data-testid="login-password"
                 />
               </InputGroup>
             </FormControl>
-            <SimpleLink alignSelf="flex-end" href="/user/account/forgotpassword">
+            <SimpleLink alignSelf="flex-end" href="/user/account/forgotpassword" data-testid="login-forgot-password">
               Forgot password?
             </SimpleLink>
             {/* show loading indicator even after success, since we should be awaiting a page refresh */}
-            <Button type="submit" isLoading={isLoading || data?.success}>
+            <Button type="submit" isLoading={isLoading || data?.success} data-testid="login-submit">
               Submit
             </Button>
             {isLoading || data?.success ? null : (
-              <SimpleLink alignSelf="center" href="/user/account/register">
+              <SimpleLink alignSelf="center" href="/user/account/register" data-testid="login-register-link">
                 Register
               </SimpleLink>
             )}

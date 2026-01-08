@@ -116,7 +116,7 @@ export const AddToLibraryModal = ({
   return (
     <Modal isOpen={isOpen} onClose={() => onClose(false)} size="3xl">
       <ModalOverlay />
-      <ModalContent>
+      <ModalContent data-testid="add-library-modal">
         <ModalHeader>
           Add{' '}
           <Text color="green.500" display="inline" fontWeight="bold">
@@ -178,7 +178,7 @@ const AddToExistingLibraryPane = ({
     <>
       <LibrarySelector isMultiple={false} onSelect={setLibrary} onDeselect={() => setLibrary(null)} />
       <HStack mt={4} justifyContent="end">
-        <Button onClick={handleOnSubmit} isDisabled={!library} isLoading={isLoading}>
+        <Button onClick={handleOnSubmit} isDisabled={!library} isLoading={isLoading} data-testid="add-library-submit">
           Submit
         </Button>
         <Button variant="outline" onClick={handleCancel}>

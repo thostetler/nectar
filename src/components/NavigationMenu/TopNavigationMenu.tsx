@@ -13,7 +13,7 @@ export interface ITopNavigationMenuProps extends BoxProps {
   activeItem: IMenuItem;
 }
 
-const TopMenuItem = ({ href, label, icon, rightElement, disabled = false, active = false }: IMenuItemProps) => {
+const TopMenuItem = ({ href, label, icon, rightElement, disabled = false, active = false, testId }: IMenuItemProps) => {
   const colors = useColorModeColors();
 
   return (
@@ -24,6 +24,7 @@ const TopMenuItem = ({ href, label, icon, rightElement, disabled = false, active
       _hover={{ backgroundColor: colors.highlightBackground }}
       as={SimpleLink}
       href={href}
+      data-testid={testId}
     >
       <Box width="full">
         <Stack direction="row" alignItems="center">

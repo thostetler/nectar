@@ -141,6 +141,7 @@ const useGetItems = ({
       label: 'Export Citation',
       icon: <DownloadIcon />,
       tooltip: 'Provide formatted citation formats for this record',
+      testId: 'abstract-export',
     },
   };
 

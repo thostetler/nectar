@@ -58,7 +58,13 @@ export const AbsLayout: FC<IAbsLayoutProps> = ({ children, doc, titleDescription
               <AbstractSideNav doc={doc} />
             </Stack>
             <Stack direction="column" as="section" aria-labelledby="title" spacing={1} width="full">
-              <Heading as="h2" id="abstract-subview-title" fontSize="2xl" variant="abstract">
+              <Heading
+                as="h2"
+                id="abstract-subview-title"
+                fontSize="2xl"
+                variant="abstract"
+                data-testid="abstract-title"
+              >
                 <Text as="span" fontSize="xl">
                   {titleDescription}
                 </Text>{' '}

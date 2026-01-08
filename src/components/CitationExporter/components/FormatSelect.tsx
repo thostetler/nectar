@@ -25,7 +25,7 @@ export const FormatSelect = (props: IFormatSelectProps) => {
       options={formatOptionsNoCustom}
       value={getFormatOptionById(props.format)}
       onChange={handleOnChange}
-      data-testid="export-select"
+      data-testid="export-format-select"
       stylesTheme="default"
       isDisabled={props.isLoading}
     />

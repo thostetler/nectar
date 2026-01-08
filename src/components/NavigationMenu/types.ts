@@ -8,6 +8,7 @@ export interface IMenuItem extends Pick<ISimpleLinkProps, 'href'> {
   rightElement?: ReactElement;
   disabled?: boolean;
   tooltip?: string;
+  testId?: string;
 }
 
 export interface IMenuItemProps extends IMenuItem {

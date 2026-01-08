@@ -157,6 +157,7 @@ const AbstractPage: NextPage<AbstractPageProps> = ({ initialDoc, isAuthenticated
                       variant="ghost"
                       onClick={onOpenAddToLibrary}
                       id="tour-add-to-library"
+                      data-testid="abstract-add-library"
                     />
                   </Tooltip>
                 </Flex>

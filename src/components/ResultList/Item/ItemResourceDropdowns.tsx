@@ -300,6 +300,7 @@ export const ItemResourceDropdowns = ({ doc, defaultCitation }: IItemResourceDro
             icon={<ShareIcon width="18px" height="18px" />}
             variant="link"
             size="xs"
+            data-testid="share-dropdown"
           />
           <MenuList>
             <MenuItem onClick={handleCopyAbstractUrl}>Copy URL</MenuItem>
