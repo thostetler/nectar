@@ -1,0 +1,38 @@
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@/test-utils';
+import { SearchResultsList } from './SearchResultsList';
+import { IDocsEntity } from '@/api/search/types';
+
+const makeDocs = (n: number) =>
+  Array.from({ length: n }, (_, i) => ({
+    bibcode: `bib${i}`,
+    title: [`Title ${i}`],
+    author: [`Author ${i}`],
+    pubdate: '2020-01-00',
+    bibstem: ['ApJ'],
+  }));
+
+describe('SearchResultsList', () => {
+  it('shows skeleton when isLoading is true', () => {
+    render(<SearchResultsList docs={[]} numFound={0} isLoading isError={false} indexStart={0} />);
+    expect(screen.getByTestId('search-results-skeleton')).toBeInTheDocument();
+    expect(screen.queryByTestId('search-results-list')).not.toBeInTheDocument();
+  });
+
+  it('renders a list of items when loaded', () => {
+    const docs = makeDocs(3) as IDocsEntity[];
+    render(<SearchResultsList docs={docs} numFound={3} isLoading={false} isError={false} indexStart={0} />);
+    expect(screen.getByTestId('search-results-list')).toBeInTheDocument();
+    expect(screen.queryByTestId('search-results-skeleton')).not.toBeInTheDocument();
+  });
+
+  it('shows error state when isError is true', () => {
+    render(<SearchResultsList docs={[]} numFound={0} isLoading={false} isError indexStart={0} />);
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+  });
+
+  it('shows no-results message when numFound is 0 and not loading', () => {
+    render(<SearchResultsList docs={[]} numFound={0} isLoading={false} isError={false} indexStart={0} />);
+    expect(screen.getByText(/no results/i)).toBeInTheDocument();
+  });
+});
