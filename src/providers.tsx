@@ -98,7 +98,7 @@ const Telemetry: FC = () => {
     }
   }, [query, user, docs]);
 
-  return <></>;
+  return null;
 };
 
 const sendQueryAsTags = (query: ParsedUrlQuery) => {

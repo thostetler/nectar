@@ -103,7 +103,8 @@ export const useGetFacetData = (searchParams: IADSApiSearchParams, props: IUseGe
   const enhancedTreeData = useMemo(() => {
     if (objects && treeData) {
       return treeData.map((data) => {
-        const id = data.val.split('/')[data.val.split('/').length - 1];
+        const parts = data.val.split('/');
+        const id = parts[parts.length - 1];
         return { ...data, val: data.val.replace(id, objects[id].canonical) };
       });
     } else {

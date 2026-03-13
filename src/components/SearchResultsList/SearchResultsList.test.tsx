@@ -31,8 +31,9 @@ describe('SearchResultsList', () => {
     expect(screen.getByRole('alert')).toBeInTheDocument();
   });
 
-  it('shows no-results message when numFound is 0 and not loading', () => {
+  it('renders empty list without error or skeleton when numFound is 0', () => {
     render(<SearchResultsList docs={[]} numFound={0} isLoading={false} isError={false} indexStart={0} />);
-    expect(screen.getByText(/no results/i)).toBeInTheDocument();
+    expect(screen.queryByTestId('search-results-skeleton')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

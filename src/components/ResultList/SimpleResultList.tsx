@@ -7,6 +7,7 @@ import { Item, IItemProps } from './Item';
 import { IDocsEntity } from '@/api/search/types';
 import { handleBoundaryError } from '@/lib/errorHandler';
 import { useRouter } from 'next/router';
+import { useMemo } from 'react';
 import { useHighlights } from './useHighlights';
 import { parseQueryFromUrl } from '@/utils/common/search';
 
@@ -16,7 +17,7 @@ import { parseQueryFromUrl } from '@/utils/common/search';
  */
 const useHighlightsFromUrl = (showHighlights: boolean) => {
   const router = useRouter();
-  const urlParams = parseQueryFromUrl(router.asPath);
+  const urlParams = useMemo(() => parseQueryFromUrl(router.asPath), [router.asPath]);
   const { highlights, isFetchingHighlights } = useHighlights(urlParams, showHighlights);
   return { highlights, isFetchingHighlights };
 };

@@ -203,17 +203,7 @@ interface IFacetTreeItemProps {
   onKeyboardFocusPrev?: (index: number[]) => void;
 }
 
-const indexEqual = (a: number[], b: number[]) => {
-  if (!a || !b || a.length !== b.length) {
-    return false;
-  }
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) {
-      return false;
-    }
-  }
-  return true;
-};
+const indexEqual = (a: number[], b: number[]) => equals(a, b);
 
 export const FacetTreeItem = (props: IFacetTreeItemProps) => {
   const {

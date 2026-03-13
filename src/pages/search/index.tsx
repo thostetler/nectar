@@ -59,8 +59,10 @@ import { IYearHistogramSliderProps } from '@/components/SearchFacet/YearHistogra
 import { ISearchFacetsProps } from '@/components/SearchFacet';
 import { AppState, useStore } from '@/store';
 
-/** Keys owned by nuqs — must not be forwarded as extra Solr params */
-const NUQS_KEYS = new Set(Object.keys(searchParamsParsers));
+/** Keys owned by nuqs — must not be forwarded as extra Solr params.
+ * Includes 'hl' explicitly because showHighlights uses urlKeys: { showHighlights: 'hl' }
+ * and router.query will contain 'hl', not 'showHighlights'. */
+const NUQS_KEYS = new Set([...Object.keys(searchParamsParsers), 'hl']);
 
 const YearHistogramSlider = dynamic<IYearHistogramSliderProps>(
   () =>
@@ -115,7 +117,7 @@ const SearchPage: NextPage = () => {
   }, [router.query]);
 
   const { params, start, results, handlers } = useSearchPage(extraSolrParams);
-  const searchParams = toApiParams(params, start, extraSolrParams);
+  const searchParams = useMemo(() => toApiParams(params, start, extraSolrParams), [params, start, extraSolrParams]);
   const { highlights, isFetchingHighlights } = useHighlights(searchParams, params.showHighlights);
   const { isOpen: isLibOpen, onOpen: onOpenLib, onClose: onCloseLib } = useDisclosure();
   const histogramContainerRef = useRef<HTMLDivElement>(null);
@@ -155,6 +157,7 @@ const SearchPage: NextPage = () => {
   );
 
   const loading = results.isLoading;
+  const isSlowSearch = results.isSlowSearch;
   const noResults = !loading && !results.isError && results.numFound === 0;
   const hasResults = !loading && !results.isError && results.numFound > 0;
   const showFilters = !isPrint;
@@ -229,6 +232,12 @@ const SearchPage: NextPage = () => {
             <VisuallyHidden as="h2" id="search-form-title">
               Search Results
             </VisuallyHidden>
+            {isSlowSearch ? (
+              <Alert status="info" mb={2} borderRadius="md" role="status" aria-live="polite">
+                <AlertIcon />
+                This search is taking longer than expected. Please wait...
+              </Alert>
+            ) : null}
             {noResults ? <NoResultsMsg /> : null}
             <SearchResultsList
               docs={results.docs}
@@ -246,10 +255,10 @@ const SearchPage: NextPage = () => {
               totalResults={results.numFound}
               numPerPage={params.rows as NumPerPageType}
               isLoading={results.isLoading}
-              onNext={(nextPage) => void handlers.onPageChange(nextPage)}
-              onPrevious={(prevPage) => void handlers.onPageChange(prevPage)}
-              onPageSelect={(page) => void handlers.onPageChange(page)}
-              onPerPageSelect={(rows) => void handlers.onPerPageChange(rows)}
+              onNext={handlers.onPageChange}
+              onPrevious={handlers.onPageChange}
+              onPageSelect={handlers.onPageChange}
+              onPerPageSelect={handlers.onPerPageChange}
               skipRouting
               noLinks
             />

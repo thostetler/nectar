@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Box, Text } from '@chakra-ui/react';
+import { Alert, AlertIcon, Box } from '@chakra-ui/react';
 import { IDocsEntity } from '@/api/search/types';
 import { SearchResultsSkeleton } from './SearchResultsSkeleton';
 import { Item } from '@/components/ResultList/Item';
@@ -22,7 +22,6 @@ interface SearchResultsListProps {
  */
 export const SearchResultsList = ({
   docs,
-  numFound,
   isLoading,
   isError,
   indexStart,
@@ -41,14 +40,6 @@ export const SearchResultsList = ({
         <AlertIcon />
         Search failed. Please try again.
       </Alert>
-    );
-  }
-
-  if (numFound === 0) {
-    return (
-      <Box p={4} data-testid="search-results-empty">
-        <Text>No results found for your search.</Text>
-      </Box>
     );
   }
 
