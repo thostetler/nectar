@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { FormEventHandler, RefObject, useCallback, useMemo, useRef, useState } from 'react';
+import { FormEventHandler, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
   AlertIcon,
@@ -34,6 +34,7 @@ import { QueryErrorResetBoundary } from '@tanstack/react-query';
 import { CheckCircleIcon } from '@chakra-ui/icons';
 import { ArrowPathIcon } from '@heroicons/react/24/solid';
 import { XMarkIcon } from '@heroicons/react/20/solid';
+import NProgress from 'nprogress';
 import { BRAND_NAME_FULL } from '@/config';
 import { useSearchPage } from '@/lib/search/useSearchPage';
 import { useScrollRestoration } from '@/lib/useScrollRestoration';
@@ -158,6 +159,17 @@ const SearchPage: NextPage = () => {
 
   const loading = results.isLoading;
   const isSlowSearch = results.isSlowSearch;
+
+  // Drive the top progress bar off React Query's isFetching rather than router
+  // events — shallow URL updates don't fire routeChangeStart, so the existing
+  // TopProgressBar component never triggers during search transitions.
+  useEffect(() => {
+    if (results.isFetching) {
+      NProgress.start();
+    } else {
+      NProgress.done();
+    }
+  }, [results.isFetching]);
   const noResults = !loading && !results.isError && results.numFound === 0;
   const hasResults = !loading && !results.isError && results.numFound > 0;
   const showFilters = !isPrint;
@@ -241,8 +253,8 @@ const SearchPage: NextPage = () => {
             {noResults ? <NoResultsMsg /> : null}
             <SearchResultsList
               docs={results.docs}
-              numFound={results.numFound}
               isLoading={results.isLoading}
+              isFetching={results.isFetching}
               isError={results.isError}
               indexStart={start}
               rows={params.rows}

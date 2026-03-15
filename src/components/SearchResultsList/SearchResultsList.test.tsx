@@ -14,26 +14,32 @@ const makeDocs = (n: number) =>
 
 describe('SearchResultsList', () => {
   it('shows skeleton when isLoading is true', () => {
-    render(<SearchResultsList docs={[]} numFound={0} isLoading isError={false} indexStart={0} />);
+    render(<SearchResultsList docs={[]} isLoading isError={false} indexStart={0} />);
     expect(screen.getByTestId('search-results-skeleton')).toBeInTheDocument();
     expect(screen.queryByTestId('search-results-list')).not.toBeInTheDocument();
   });
 
   it('renders a list of items when loaded', () => {
     const docs = makeDocs(3) as IDocsEntity[];
-    render(<SearchResultsList docs={docs} numFound={3} isLoading={false} isError={false} indexStart={0} />);
+    render(<SearchResultsList docs={docs} isLoading={false} isError={false} indexStart={0} />);
     expect(screen.getByTestId('search-results-list')).toBeInTheDocument();
     expect(screen.queryByTestId('search-results-skeleton')).not.toBeInTheDocument();
   });
 
   it('shows error state when isError is true', () => {
-    render(<SearchResultsList docs={[]} numFound={0} isLoading={false} isError indexStart={0} />);
+    render(<SearchResultsList docs={[]} isLoading={false} isError indexStart={0} />);
     expect(screen.getByRole('alert')).toBeInTheDocument();
   });
 
-  it('renders empty list without error or skeleton when numFound is 0', () => {
-    render(<SearchResultsList docs={[]} numFound={0} isLoading={false} isError={false} indexStart={0} />);
+  it('renders empty list without error or skeleton when docs is empty', () => {
+    render(<SearchResultsList docs={[]} isLoading={false} isError={false} indexStart={0} />);
     expect(screen.queryByTestId('search-results-skeleton')).not.toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('applies reduced opacity while fetching stale data', () => {
+    render(<SearchResultsList docs={[]} isLoading={false} isFetching isError={false} indexStart={0} />);
+    const list = screen.getByTestId('search-results-list');
+    expect(list).toHaveStyle('opacity: 0.5');
   });
 });

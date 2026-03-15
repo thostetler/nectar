@@ -6,8 +6,8 @@ import { ErrorBoundary } from 'react-error-boundary';
 
 interface SearchResultsListProps {
   docs: IDocsEntity[];
-  numFound: number;
   isLoading: boolean;
+  isFetching?: boolean;
   isError: boolean;
   indexStart: number;
   rows?: number;
@@ -23,6 +23,7 @@ interface SearchResultsListProps {
 export const SearchResultsList = ({
   docs,
   isLoading,
+  isFetching = false,
   isError,
   indexStart,
   rows = 10,
@@ -44,7 +45,7 @@ export const SearchResultsList = ({
   }
 
   return (
-    <Box data-testid="search-results-list">
+    <Box data-testid="search-results-list" opacity={isFetching ? 0.5 : 1} transition="opacity 0.15s ease">
       {docs.map((doc, i) => (
         <ErrorBoundary key={doc.bibcode} fallbackRender={() => null}>
           <Item

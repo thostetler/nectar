@@ -35,6 +35,7 @@ export const useSearchResults = (
   const {
     data,
     isInitialLoading: isLoading,
+    isFetching,
     isError,
   } = useSearch(searchParams, {
     enabled: params.q.trim().length > 0,
@@ -56,6 +57,7 @@ export const useSearchResults = (
     docs: data?.docs ?? [],
     numFound: data?.numFound ?? 0,
     isLoading,
+    isFetching,
     isError,
     isSlowSearch,
   };
