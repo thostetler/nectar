@@ -27,7 +27,7 @@ export const GeneralTabPanel = ({ sampleBib, selectedOption, dispatch }: IGenera
 
   // default export format changed
   const handleApplyDefaultExportFormat = (format: ExportFormatOption) => {
-    dispatch({ type: 'SET_DEFAULT_EXPORT_FORMAT', payload: format.label });
+    dispatch({ type: 'SET_DEFAULT_EXPORT_FORMAT', payload: { label: format.label, id: format.id } });
   };
 
   const { defaultExportFormatOpt, customFormat, journalFormat, keyFormat, authorcutoff, maxauthor } = useMemo(() => {

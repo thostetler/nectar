@@ -26,13 +26,14 @@ import { fetchSearch, searchKeys, useSearch } from '@/api/search/search';
 import { IADSApiSearchParams } from '@/api/search/types';
 import { fetchUserSettings, userKeys } from '@/api/user/user';
 import { useExportFormats } from '@/lib/useExportFormats';
+import { ExportApiFormatKey, MostUsedExportFormats } from '@/api/export/types';
 
 // partial user data params
 // used to update user data
 type UserDataSetterState = Partial<IADSApiUserDataResponse>;
 
 export type UserDataSetterEvent =
-  | { type: 'SET_DEFAULT_EXPORT_FORMAT'; payload: string }
+  | { type: 'SET_DEFAULT_EXPORT_FORMAT'; payload: { label: string; id: string } }
   | { type: 'SET_DEFAULT_CITATION_FORMAT'; payload: string }
   | { type: 'ADD_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; name: string; code: string } }
   | { type: 'EDIT_CUSTOM_FORMAT'; payload: { currentFormats: CustomFormat[]; id: string; name: string; code: string } }
@@ -52,8 +53,13 @@ export type UserDataSetterEvent =
 
 const reducer: Reducer<UserDataSetterState, UserDataSetterEvent> = (state, action) => {
   switch (action.type) {
-    case 'SET_DEFAULT_EXPORT_FORMAT':
-      return { [UserDataKeys.DEFAULT_EXPORT_FORMAT]: action.payload };
+    case 'SET_DEFAULT_EXPORT_FORMAT': {
+      const base = { [UserDataKeys.DEFAULT_EXPORT_FORMAT]: action.payload.label };
+      if (MostUsedExportFormats.includes(action.payload.id as ExportApiFormatKey)) {
+        return { ...base, [UserDataKeys.DEFAULT_CITATION_FORMAT]: action.payload.id };
+      }
+      return base;
+    }
     case 'SET_DEFAULT_CITATION_FORMAT':
       return { [UserDataKeys.DEFAULT_CITATION_FORMAT]: action.payload };
     case 'ADD_CUSTOM_FORMAT':
