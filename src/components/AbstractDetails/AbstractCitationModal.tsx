@@ -18,7 +18,7 @@ import {
   Flex,
   Textarea,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SimpleCopyButton } from '../CopyButton';
 import { LoadingMessage } from '../Feedbacks';
 import { Select } from '../Select';
@@ -39,11 +39,21 @@ export const AbstractCitationModal = ({
 
   const options = formatOptions.filter((o) => MostUsedExportFormats.includes(o.id));
 
-  const defaultOption = settings.defaultCitationFormat
-    ? getFormatOptionById(settings.defaultCitationFormat)
-    : getFormatOptionById(ExportApiFormatKey.agu);
+  const getSavedOption = () =>
+    settings.defaultCitationFormat
+      ? getFormatOptionById(settings.defaultCitationFormat)
+      : getFormatOptionById(ExportApiFormatKey.agu);
 
-  const [selectedOption, setSelectedOption] = useState(defaultOption);
+  const [selectedOption, setSelectedOption] = useState(getSavedOption);
+
+  // Sync to the saved default each time the modal opens so stale useState
+  // initial values (from React Query placeholder data) don't persist.
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedOption(getSavedOption());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const { data, isLoading, isError, error } = useGetExportCitation(
     {
