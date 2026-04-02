@@ -56,9 +56,11 @@ describe('AbstractCitationModal', () => {
     expect(screen.getByText('BibTeX')).toBeInTheDocument();
   });
 
-  it('resets to the saved format when reopened', () => {
+  it('resets to the saved format when modal opens after settings load', () => {
+    // Simulate the bug: component mounts with placeholder data (agu),
+    // then real settings load (bibtex), then the modal opens.
     vi.mocked(useSettings).mockReturnValue({
-      settings: { defaultCitationFormat: 'bibtex' } as ReturnType<typeof useSettings>['settings'],
+      settings: { defaultCitationFormat: 'agu' } as ReturnType<typeof useSettings>['settings'],
       updateSettings: vi.fn(),
       updateSettingsState: {} as ReturnType<typeof useSettings>['updateSettingsState'],
       getSettingsState: {} as ReturnType<typeof useSettings>['getSettingsState'],
@@ -68,10 +70,21 @@ describe('AbstractCitationModal', () => {
       <AbstractCitationModal isOpen={false} onClose={vi.fn()} bibcode="2020ApJ...123..456A" />,
     );
 
+    // Settings load with the user's actual preference
+    vi.mocked(useSettings).mockReturnValue({
+      settings: { defaultCitationFormat: 'bibtex' } as ReturnType<typeof useSettings>['settings'],
+      updateSettings: vi.fn(),
+      updateSettingsState: {} as ReturnType<typeof useSettings>['updateSettingsState'],
+      getSettingsState: {} as ReturnType<typeof useSettings>['getSettingsState'],
+    });
+
+    // Open the modal — the useEffect should pick up the current saved setting
     act(() => {
       rerender(<AbstractCitationModal isOpen={true} onClose={vi.fn()} bibcode="2020ApJ...123..456A" />);
     });
 
+    // Should show BibTeX (user's saved preference), not AGU (the stale placeholder)
     expect(screen.getByText('BibTeX')).toBeInTheDocument();
+    expect(screen.queryByText('AGU')).not.toBeInTheDocument();
   });
 });

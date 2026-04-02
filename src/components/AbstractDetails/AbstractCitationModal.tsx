@@ -18,7 +18,7 @@ import {
   Flex,
   Textarea,
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { SimpleCopyButton } from '../CopyButton';
 import { LoadingMessage } from '../Feedbacks';
 import { Select } from '../Select';
@@ -39,10 +39,12 @@ export const AbstractCitationModal = ({
 
   const options = formatOptions.filter((o) => MostUsedExportFormats.includes(o.id));
 
-  const getSavedOption = () =>
-    settings.defaultCitationFormat
-      ? getFormatOptionById(settings.defaultCitationFormat)
-      : getFormatOptionById(ExportApiFormatKey.agu);
+  const getSavedOption = useCallback(
+    () =>
+      (settings.defaultCitationFormat ? getFormatOptionById(settings.defaultCitationFormat) : undefined) ??
+      getFormatOptionById(ExportApiFormatKey.agu),
+    [settings.defaultCitationFormat, getFormatOptionById],
+  );
 
   const [selectedOption, setSelectedOption] = useState(getSavedOption);
 
@@ -52,8 +54,7 @@ export const AbstractCitationModal = ({
     if (isOpen) {
       setSelectedOption(getSavedOption());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+  }, [isOpen, getSavedOption]);
 
   const { data, isLoading, isError, error } = useGetExportCitation(
     {
