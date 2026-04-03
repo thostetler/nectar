@@ -18,7 +18,7 @@ import {
   Flex,
   Textarea,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SimpleCopyButton } from '../CopyButton';
 import { LoadingMessage } from '../Feedbacks';
 import { Select } from '../Select';
@@ -37,24 +37,25 @@ export const AbstractCitationModal = ({
 
   const { formatOptions, getFormatOptionById } = useExportFormats();
 
-  const options = formatOptions.filter((o) => MostUsedExportFormats.includes(o.id));
+  const options = useMemo(() => formatOptions.filter((o) => MostUsedExportFormats.includes(o.id)), [formatOptions]);
 
-  const getSavedOption = useCallback(
+  const [selectedOption, setSelectedOption] = useState(
     () =>
       (settings.defaultCitationFormat ? getFormatOptionById(settings.defaultCitationFormat) : undefined) ??
       getFormatOptionById(ExportApiFormatKey.agu),
-    [settings.defaultCitationFormat, getFormatOptionById],
   );
-
-  const [selectedOption, setSelectedOption] = useState(getSavedOption);
 
   // Sync to the saved default each time the modal opens so stale useState
   // initial values (from React Query placeholder data) don't persist.
+  // Intentionally omits settings/format deps — only fire on open, not on
+  // background refetches, to avoid resetting an in-session format selection.
   useEffect(() => {
     if (isOpen) {
-      setSelectedOption(getSavedOption());
+      const saved = settings.defaultCitationFormat ? getFormatOptionById(settings.defaultCitationFormat) : undefined;
+      setSelectedOption(saved ?? getFormatOptionById(ExportApiFormatKey.agu));
     }
-  }, [isOpen, getSavedOption]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const { data, isLoading, isError, error } = useGetExportCitation(
     {

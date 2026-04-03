@@ -1,6 +1,7 @@
 import { render, screen, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AbstractCitationModal } from './AbstractCitationModal';
+import { ExportApiFormatKey } from '@/api/export/types';
 
 vi.mock('@/lib/useSettings', () => ({
   useSettings: vi.fn(),
@@ -18,15 +19,30 @@ import { useSettings } from '@/lib/useSettings';
 import { useExportFormats } from '@/lib/useExportFormats';
 
 const bibtexOption = {
-  id: 'bibtex',
+  id: ExportApiFormatKey.bibtex,
   label: 'BibTeX',
-  value: 'bibtex',
-  type: 'TEXT' as const,
+  value: ExportApiFormatKey.bibtex,
+  type: 'text' as const,
   ext: '.bib',
   route: '/bibtex',
 };
-const aguOption = { id: 'agu', label: 'AGU', value: 'agu', type: 'TEXT' as const, ext: '.txt', route: '/agu' };
+const aguOption = {
+  id: ExportApiFormatKey.agu,
+  label: 'AGU',
+  value: ExportApiFormatKey.agu,
+  type: 'text' as const,
+  ext: '.txt',
+  route: '/agu',
+};
 const formatOptions = [bibtexOption, aguOption];
+
+const mockSettings = (citationFormat: string) =>
+  vi.mocked(useSettings).mockReturnValue({
+    settings: { defaultCitationFormat: citationFormat } as ReturnType<typeof useSettings>['settings'],
+    updateSettings: vi.fn(),
+    updateSettingsState: {} as ReturnType<typeof useSettings>['updateSettingsState'],
+    getSettingsState: {} as ReturnType<typeof useSettings>['getSettingsState'],
+  });
 
 beforeEach(() => {
   vi.mocked(useExportFormats).mockReturnValue({
@@ -36,7 +52,8 @@ beforeEach(() => {
     getFormatOptionByLabel: (label: string) => formatOptions.find((o) => o.label === label),
     isValidFormat: (id: string) => formatOptions.some((o) => o.id === id),
     isValidFormatLabel: (label: string) => formatOptions.some((o) => o.label === label),
-    isValidCitationFormatId: (id: string) => ['bibtex', 'agu'].includes(id),
+    isValidCitationFormatId: (id: string) =>
+      [ExportApiFormatKey.bibtex, ExportApiFormatKey.agu].includes(id as ExportApiFormatKey),
     getFormatById: vi.fn(),
     format: [],
   } as ReturnType<typeof useExportFormats>);
@@ -44,12 +61,7 @@ beforeEach(() => {
 
 describe('AbstractCitationModal', () => {
   it('opens with the format from the saved defaultCitationFormat setting', () => {
-    vi.mocked(useSettings).mockReturnValue({
-      settings: { defaultCitationFormat: 'bibtex' } as ReturnType<typeof useSettings>['settings'],
-      updateSettings: vi.fn(),
-      updateSettingsState: {} as ReturnType<typeof useSettings>['updateSettingsState'],
-      getSettingsState: {} as ReturnType<typeof useSettings>['getSettingsState'],
-    });
+    mockSettings(ExportApiFormatKey.bibtex);
 
     render(<AbstractCitationModal isOpen={true} onClose={vi.fn()} bibcode="2020ApJ...123..456A" />);
 
@@ -59,24 +71,13 @@ describe('AbstractCitationModal', () => {
   it('resets to the saved format when modal opens after settings load', () => {
     // Simulate the bug: component mounts with placeholder data (agu),
     // then real settings load (bibtex), then the modal opens.
-    vi.mocked(useSettings).mockReturnValue({
-      settings: { defaultCitationFormat: 'agu' } as ReturnType<typeof useSettings>['settings'],
-      updateSettings: vi.fn(),
-      updateSettingsState: {} as ReturnType<typeof useSettings>['updateSettingsState'],
-      getSettingsState: {} as ReturnType<typeof useSettings>['getSettingsState'],
-    });
+    mockSettings(ExportApiFormatKey.agu);
 
     const { rerender } = render(
       <AbstractCitationModal isOpen={false} onClose={vi.fn()} bibcode="2020ApJ...123..456A" />,
     );
 
-    // Settings load with the user's actual preference
-    vi.mocked(useSettings).mockReturnValue({
-      settings: { defaultCitationFormat: 'bibtex' } as ReturnType<typeof useSettings>['settings'],
-      updateSettings: vi.fn(),
-      updateSettingsState: {} as ReturnType<typeof useSettings>['updateSettingsState'],
-      getSettingsState: {} as ReturnType<typeof useSettings>['getSettingsState'],
-    });
+    mockSettings(ExportApiFormatKey.bibtex);
 
     // Open the modal — the useEffect should pick up the current saved setting
     act(() => {
