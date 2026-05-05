@@ -476,6 +476,14 @@ const SearchFacetFilters = (props: {
           <DrawerOverlay />
           <DrawerContent>
             <DrawerBody>
+              <Box px={4} overflow="visible">
+                <YearHistogramSlider
+                  onQueryUpdate={onSearchFacetSubmission}
+                  showExpand={false}
+                  width={240}
+                  height={100}
+                />
+              </Box>
               <SearchFacets onQueryUpdate={onSearchFacetSubmission} />
             </DrawerBody>
           </DrawerContent>
