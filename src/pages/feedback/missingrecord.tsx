@@ -1,6 +1,6 @@
 import { AlertStatus, Flex, Tab, TabList, TabPanel, TabPanels, Tabs, Text, useDisclosure } from '@chakra-ui/react';
 
-import { FeedbackAlert, RecordPanel } from '@/components/FeedbackForms';
+import { FeedbackAlert, FeedbackFormErrorBoundary, RecordPanel } from '@/components/FeedbackForms';
 import { GetServerSideProps, NextPage } from 'next';
 import { useEffect, useMemo, useState } from 'react';
 import { composeNextGSSP } from '@/ssr-utils';
@@ -87,16 +87,25 @@ const Record: NextPage = () => {
           </TabList>
           <TabPanels>
             <TabPanel px={{ base: 0, sm: 5 }} pt={8} role="tabpanel">
-              <RecordPanel isNew onOpenAlert={handleOnOpenAlert} isFocused={isNew} onCloseAlert={handleOnCloseAlert} />
+              <FeedbackFormErrorBoundary>
+                <RecordPanel
+                  isNew
+                  onOpenAlert={handleOnOpenAlert}
+                  isFocused={isNew}
+                  onCloseAlert={handleOnCloseAlert}
+                />
+              </FeedbackFormErrorBoundary>
             </TabPanel>
             <TabPanel px={{ base: 0, sm: 5 }} pt={8} role="tabpanel">
-              <RecordPanel
-                isNew={false}
-                onOpenAlert={handleOnOpenAlert}
-                isFocused={!isNew}
-                onCloseAlert={handleOnCloseAlert}
-                bibcode={bibcode as string}
-              />
+              <FeedbackFormErrorBoundary>
+                <RecordPanel
+                  isNew={false}
+                  onOpenAlert={handleOnOpenAlert}
+                  isFocused={!isNew}
+                  onCloseAlert={handleOnCloseAlert}
+                  bibcode={bibcode as string}
+                />
+              </FeedbackFormErrorBoundary>
             </TabPanel>
           </TabPanels>
         </Tabs>
