@@ -1,6 +1,6 @@
 import { AlertStatus, Text, useDisclosure } from '@chakra-ui/react';
 
-import { FeedbackAlert, MissingReferenceForm } from '@/components/FeedbackForms';
+import { FeedbackAlert, FeedbackFormErrorBoundary, MissingReferenceForm } from '@/components/FeedbackForms';
 import { NextPage } from 'next';
 import { useMemo, useState } from 'react';
 import { FeedbackLayout } from '@/components/Layout';
@@ -61,7 +61,9 @@ const MissingReferences: NextPage = () => {
         </SimpleLink>
         for it first.
       </Text>
-      <MissingReferenceForm onOpenAlert={handleOnOpenAlert} />
+      <FeedbackFormErrorBoundary>
+        <MissingReferenceForm onOpenAlert={handleOnOpenAlert} />
+      </FeedbackFormErrorBoundary>
     </FeedbackLayout>
   );
 };

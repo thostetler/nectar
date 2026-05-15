@@ -232,7 +232,11 @@ export const RecordPanel = ({
           diff: diffString,
         });
       } catch {
-        onOpenAlert({ status: 'error', title: 'There was a problem processing diff. Plesae try again.' });
+        onOpenAlert({
+          status: 'error',
+          title: 'Unable to process changes',
+          description: 'Please reset the form and try again.',
+        });
         setState('idle');
       }
     } else if (state === 'preview') {
@@ -252,7 +256,11 @@ export const RecordPanel = ({
       } else if (recordError) {
         onOpenAlert({
           status: 'error',
-          title: recordError instanceof AxiosError ? recordError.message : 'Error fetching bibcode',
+          title: 'Unable to load record',
+          description:
+            recordError instanceof AxiosError
+              ? recordError.message
+              : 'An error occurred while fetching this record. Please check the bibcode and try again.',
         });
         setState('idle');
       }
@@ -308,10 +316,10 @@ export const RecordPanel = ({
     if (!isNew) {
       const {
         abstract = '',
-        aff,
+        aff = [],
         author = [],
         keyword = [],
-        orcid_pub,
+        orcid_pub = [],
         pub_raw,
         pubdate,
         title = [],
@@ -335,7 +343,7 @@ export const RecordPanel = ({
         bibcode: getValues('bibcode'),
         isNew,
         abstract,
-        title: title?.[0] ?? ' ',
+        title: title?.[0] ?? '',
         publication: pub_raw,
         pubDate: pubdate,
         noAuthors: !author || authors.length === 0,

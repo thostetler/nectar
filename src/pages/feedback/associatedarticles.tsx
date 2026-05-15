@@ -1,6 +1,6 @@
 import { AlertStatus, Text, useDisclosure } from '@chakra-ui/react';
 
-import { AssociatedArticlesForm, FeedbackAlert } from '@/components/FeedbackForms';
+import { AssociatedArticlesForm, FeedbackAlert, FeedbackFormErrorBoundary } from '@/components/FeedbackForms';
 import { NextPage } from 'next';
 import { useMemo, useState } from 'react';
 import { FeedbackLayout } from '@/components/Layout';
@@ -66,7 +66,9 @@ const AssociatedArticles: NextPage = () => {
         and one or more bibcodes for the associated articles. Use the &#34;Add a Record&#34; button to enter multiple
         records.
       </Text>
-      <AssociatedArticlesForm onOpenAlert={handleOnOpenAlert} />
+      <FeedbackFormErrorBoundary>
+        <AssociatedArticlesForm onOpenAlert={handleOnOpenAlert} />
+      </FeedbackFormErrorBoundary>
     </FeedbackLayout>
   );
 };
