@@ -2,7 +2,7 @@ import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { FormControl, FormLabel, HStack, IconButton, Input, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react';
 import { Select, SelectOption } from '@/components/Select';
 
-import { ChangeEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
+import { ChangeEvent, FocusEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { SelectInstance } from 'react-select';
 import { FormValues, IResourceUrl, ResourceUrlType, resourceUrlTypes } from './types';
@@ -93,10 +93,22 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
   };
 
   const handleAddUrl = () => {
+    if (!newUrlIsValid) {
+      return;
+    }
     append(newUrl);
     // clear input fields
     setNewUrl({ type: 'arXiv', url: `${ARXIV_ORIGIN}/` });
     (newURLTypeInputRef.current as SelectInstance).focus();
+  };
+
+  const handleNewUrlBlur = (e: FocusEvent<HTMLInputElement>) => {
+    if ((e.relatedTarget as Element)?.closest('[data-new-row]')) {
+      return;
+    }
+    if (newUrlIsValid) {
+      handleAddUrl();
+    }
   };
 
   // Changes to fields for existing url
@@ -120,6 +132,9 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
   };
 
   const handleApplyEditUrl = () => {
+    if (!editUrlisValid) {
+      return;
+    }
     update(editUrl.index, editUrl.url);
     setEditUrl({ index: -1, url: null });
   };
@@ -142,7 +157,7 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
 
   // Row for adding new url
   const newUrlTableRow = (
-    <Tr>
+    <Tr data-new-row>
       <Td color="gray.200">{urls.length + 1}</Td>
       <Td>
         {isClient && (
@@ -160,7 +175,13 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
         )}
       </Td>
       <Td>
-        <Input size="sm" onChange={handleNewUrlChange} value={newUrl?.url ?? ''} onKeyDown={handleKeydownNewUrl} />
+        <Input
+          size="sm"
+          onChange={handleNewUrlChange}
+          onBlur={handleNewUrlBlur}
+          value={newUrl?.url ?? ''}
+          onKeyDown={handleKeydownNewUrl}
+        />
       </Td>
       <Td>
         <IconButton
@@ -187,7 +208,7 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
       <Tbody>
         {urls.map((a, index) =>
           editUrl.index === index ? (
-            <Tr key={`url-${index}`}>
+            <Tr key={`url-${index}`} data-edit-row>
               <Td>{index + 1}</Td>
               <Td>
                 <Select<SelectOption<ResourceUrlType>>
@@ -206,6 +227,14 @@ export const UrlsTable = ({ editable }: { editable: boolean }) => {
                 <Input
                   size="sm"
                   onChange={handleEditUrlChange}
+                  onBlur={(e: FocusEvent<HTMLInputElement>) => {
+                    if ((e.relatedTarget as Element)?.closest('[data-edit-row]')) {
+                      return;
+                    }
+                    if (editUrlisValid) {
+                      handleApplyEditUrl();
+                    }
+                  }}
                   value={editUrl.url.url}
                   onKeyDown={handleKeydownEditUrl}
                 />

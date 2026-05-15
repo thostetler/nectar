@@ -25,9 +25,18 @@ export const KeywordsField = () => {
   };
 
   const handleAddKeyword = () => {
+    if (!isNewKeywordValid) {
+      return;
+    }
     append({ value: newKeyword });
     setNewKeyword('');
     inputRef.current.focus();
+  };
+
+  const handleKeywordBlur = () => {
+    if (isNewKeywordValid) {
+      handleAddKeyword();
+    }
   };
 
   return (
@@ -58,6 +67,7 @@ export const KeywordsField = () => {
           <Input
             value={newKeyword}
             onChange={handleNewKeywordChange}
+            onBlur={handleKeywordBlur}
             ref={inputRef}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && isNewKeywordValid) {

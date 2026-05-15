@@ -14,7 +14,7 @@ import {
   IconButton,
   FormErrorMessage,
 } from '@chakra-ui/react';
-import { useState, ChangeEvent, MouseEvent, useRef, KeyboardEvent } from 'react';
+import { useState, ChangeEvent, FocusEvent, MouseEvent, useRef, KeyboardEvent } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { FormValues, Reference } from './types';
 
@@ -72,7 +72,13 @@ export const MissingReferenceTable = () => {
     setEditingReference((prev) => ({ index: prev.index, reference: { ...prev.reference, cited: e.target.value } }));
   };
 
+  const isEditReferenceValid =
+    editingReference.reference.citing.length > 0 && editingReference.reference.cited.length > 0;
+
   const handleApplyEdit = (index: number) => {
+    if (!isEditReferenceValid) {
+      return;
+    }
     update(index, editingReference.reference);
     setEditingReference({ index: -1, reference: { citing: '', cited: '' } });
   };
@@ -82,10 +88,24 @@ export const MissingReferenceTable = () => {
     remove(index);
   };
 
+  const isNewReferenceValid = newReference.citing.length > 0 && newReference.cited.length > 0;
+
   const handleAddReference = () => {
+    if (!isNewReferenceValid) {
+      return;
+    }
     append(newReference);
     setNewReference({ citing: newReference.citing, cited: '' });
     newReferenceRef.current.focus();
+  };
+
+  const handleNewReferenceBlur = (e: FocusEvent<HTMLInputElement>) => {
+    if ((e.relatedTarget as Element)?.closest('[data-new-row]')) {
+      return;
+    }
+    if (isNewReferenceValid) {
+      handleAddReference();
+    }
   };
 
   const handleKeydownNewRef = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -120,7 +140,7 @@ export const MissingReferenceTable = () => {
           <Tbody>
             {references.map((r, index) =>
               editingReference.index === index ? (
-                <Tr key={`ref-${r.citing}+${r.cited}`}>
+                <Tr key={`ref-${r.citing}+${r.cited}`} data-edit-row>
                   <Td>{index + 1}</Td>
                   <Td>
                     <Input
@@ -135,6 +155,14 @@ export const MissingReferenceTable = () => {
                     <Input
                       size="sm"
                       onChange={handleEditCitedInputChange}
+                      onBlur={(e: FocusEvent<HTMLInputElement>) => {
+                        if ((e.relatedTarget as Element)?.closest('[data-edit-row]')) {
+                          return;
+                        }
+                        if (isEditReferenceValid) {
+                          handleApplyEdit(editingReference.index);
+                        }
+                      }}
                       value={editingReference.reference.cited}
                       onKeyDown={handleKeydownEditRef}
                     />
@@ -206,7 +234,7 @@ export const MissingReferenceTable = () => {
                 </Tr>
               ),
             )}
-            <Tr>
+            <Tr data-new-row>
               <Td color="gray.200">{references.length + 1}</Td>
               <Td>
                 <FormControl isInvalid={!!errors.references?.message}>
@@ -214,6 +242,7 @@ export const MissingReferenceTable = () => {
                     size="sm"
                     placeholder="1998ApJ...501L..41Y"
                     onChange={handleCitingInputChange}
+                    onBlur={handleNewReferenceBlur}
                     value={newReference.citing}
                     ref={newReferenceRef}
                     onKeyDown={handleKeydownNewRef}
@@ -226,6 +255,7 @@ export const MissingReferenceTable = () => {
                   size="sm"
                   placeholder="1998ApJ...501L..41Y"
                   onChange={handleCitedInputChange}
+                  onBlur={handleNewReferenceBlur}
                   value={newReference.cited}
                   onKeyDown={handleKeydownNewRef}
                 />
