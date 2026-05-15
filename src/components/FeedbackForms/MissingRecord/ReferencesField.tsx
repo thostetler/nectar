@@ -1,7 +1,7 @@
 import { CheckIcon, CloseIcon, DeleteIcon, EditIcon } from '@chakra-ui/icons';
 import { FormControl, FormLabel, HStack, IconButton, Input, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react';
 import { Select, SelectOption } from '@/components/Select';
-import { ChangeEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
+import { ChangeEvent, FocusEvent, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import { FormValues, IReference, ReferenceType, referenceTypes } from './types';
 import { SelectInstance } from 'react-select';
 import { useFieldArray } from 'react-hook-form';
@@ -61,10 +61,22 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
   };
 
   const handleAddReference = () => {
+    if (!newReferenceIsValid) {
+      return;
+    }
     append(newReference);
     // clear input fields
     setNewReference({ type: 'Bibcode', reference: '' });
     (newReferenceInputRef.current as SelectInstance).focus();
+  };
+
+  const handleNewReferenceBlur = (e: FocusEvent<HTMLInputElement>) => {
+    if ((e.relatedTarget as Element)?.closest('[data-new-row]')) {
+      return;
+    }
+    if (newReferenceIsValid) {
+      handleAddReference();
+    }
   };
 
   // Changes to fields for existing Reference
@@ -88,6 +100,9 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
   };
 
   const handleApplyEditReference = () => {
+    if (!editReferenceisValid) {
+      return;
+    }
     update(editReference.index, editReference.reference);
     setEditReference({ index: -1, reference: null });
   };
@@ -109,7 +124,7 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
   };
   // Row for adding new Reference
   const newReferenceTableRow = (
-    <Tr>
+    <Tr data-new-row>
       <Td color="gray.200">{references.length + 1}</Td>
       <Td>
         {isClient && (
@@ -130,6 +145,7 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
         <Input
           size="sm"
           onChange={handleNewReferenceChange}
+          onBlur={handleNewReferenceBlur}
           value={newReference?.reference ?? ''}
           onKeyDown={handleKeydownNewRef}
         />
@@ -160,7 +176,7 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
       <Tbody>
         {references.map((a, index) =>
           editReference.index === index ? (
-            <Tr key={`Reference-${index}`}>
+            <Tr key={`Reference-${index}`} data-edit-row>
               <Td>{index + 1}</Td>
               <Td>
                 <Select<SelectOption<ReferenceType>>
@@ -183,6 +199,14 @@ export const ReferencesTable = ({ editable }: { editable: boolean }) => {
                 <Input
                   size="sm"
                   onChange={handleEditReferenceChange}
+                  onBlur={(e: FocusEvent<HTMLInputElement>) => {
+                    if ((e.relatedTarget as Element)?.closest('[data-edit-row]')) {
+                      return;
+                    }
+                    if (editReferenceisValid) {
+                      handleApplyEditReference();
+                    }
+                  }}
                   value={editReference.reference.reference}
                   onKeyDown={handleKeydownEditRef}
                 />

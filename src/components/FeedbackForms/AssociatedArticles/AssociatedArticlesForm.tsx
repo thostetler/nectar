@@ -330,8 +330,17 @@ export const AssociatedTable = () => {
   };
 
   const handleAddAssociatedBibcode = () => {
+    if (!newAssociatedBibcode) {
+      return;
+    }
     append({ value: newAssociatedBibcode });
     setNewAssociatedBibcode('');
+  };
+
+  const handleAssociatedBibcodeBlur = () => {
+    if (newAssociatedBibcode.length > 0) {
+      handleAddAssociatedBibcode();
+    }
   };
 
   const handleKeydownNewBibcode = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -426,6 +435,7 @@ export const AssociatedTable = () => {
               <HStack>
                 <Input
                   onChange={handleNewAssociatedBibcodeChange}
+                  onBlur={handleAssociatedBibcodeBlur}
                   value={newAssociatedBibcode}
                   ref={newAssociatedBibcodeRef}
                   onKeyDown={handleKeydownNewBibcode}

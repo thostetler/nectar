@@ -8,7 +8,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { useState, ChangeEvent, MouseEvent, useRef, useMemo, KeyboardEvent } from 'react';
+import { useState, ChangeEvent, FocusEvent, MouseEvent, useRef, useMemo, KeyboardEvent } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { FormValues, IAuthor } from './types';
 import { PaginationControls } from '@/components/Pagination';
@@ -94,10 +94,22 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
   };
 
   const handleAddAuthor = () => {
+    if (!newAuthorIsValid) {
+      return;
+    }
     append(newAuthor);
     // clear input fields
     setNewAuthor(null);
     newAuthorNameRef.current.focus();
+  };
+
+  const handleNewAuthorBlur = (e: FocusEvent<HTMLInputElement>) => {
+    if ((e.relatedTarget as Element)?.closest('[data-new-row]')) {
+      return;
+    }
+    if (newAuthorIsValid) {
+      handleAddAuthor();
+    }
   };
 
   // Changes to fields for existing authors
@@ -147,6 +159,9 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
   };
 
   const handleApplyEditAuthor = () => {
+    if (!editAuthorIsValid) {
+      return;
+    }
     const position = parseInt(editAuthor.position) - 1;
     update(position, editAuthor.author);
     const newPosition = parseInt(editAuthor.newPosition) - 1;
@@ -179,12 +194,13 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
 
   // Row for adding new author
   const newAuthorTableRow = (
-    <Tr>
+    <Tr data-new-row>
       <Td color="gray.200">{authors.length + 1}</Td>
       <Td>
         <Input
           size="sm"
           onChange={handleNewNameChange}
+          onBlur={handleNewAuthorBlur}
           value={newAuthor?.name ?? ''}
           ref={newAuthorNameRef}
           onKeyDown={handleKeydownNewAuthor}
@@ -236,7 +252,7 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
         <Tbody>
           {table.getRowModel().rows.map((row, index) =>
             editAuthor.index === index ? (
-              <Tr key={`author-${index}`}>
+              <Tr key={`author-${index}`} data-edit-row>
                 <Td>
                   <Input
                     size="sm"
@@ -251,6 +267,14 @@ export const AuthorsTable = ({ editable }: { editable: boolean }) => {
                   <Input
                     size="sm"
                     onChange={handleEditNameChange}
+                    onBlur={(e: FocusEvent<HTMLInputElement>) => {
+                      if ((e.relatedTarget as Element)?.closest('[data-edit-row]')) {
+                        return;
+                      }
+                      if (editAuthorIsValid) {
+                        handleApplyEditAuthor();
+                      }
+                    }}
                     value={editAuthor.author.name}
                     autoFocus
                     onKeyDown={handleKeydownEditAuthor}
