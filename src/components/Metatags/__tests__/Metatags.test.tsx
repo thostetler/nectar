@@ -3,14 +3,14 @@ import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import { Metatags } from '../Metatags';
 import { IDocsEntity, Esources } from '@/api/search/types';
 
-const originalEnv = process.env.BASE_CANONICAL_URL;
+const originalEnv = process.env.NEXT_PUBLIC_BASE_CANONICAL_URL;
 
 beforeAll(() => {
-  process.env.BASE_CANONICAL_URL = 'https://scixplorer.org';
+  process.env.NEXT_PUBLIC_BASE_CANONICAL_URL = 'https://scixplorer.org';
 });
 
 afterAll(() => {
-  process.env.BASE_CANONICAL_URL = originalEnv;
+  process.env.NEXT_PUBLIC_BASE_CANONICAL_URL = originalEnv;
 });
 
 const createMockDoc = (overrides: Partial<IDocsEntity> = {}): IDocsEntity => ({
@@ -353,6 +353,48 @@ describe('Metatags Component', () => {
       const canonicalLink = container.querySelector('link[rel="canonical"]');
       expect(canonicalLink).toBeTruthy();
       expect(canonicalLink?.getAttribute('href')).toContain('/abs/2014ApJ...788..106L/abstract');
+    });
+  });
+
+  describe('Unfurl-safe absolute URLs', () => {
+    test('og:url and canonical are absolute against the canonical origin', () => {
+      const doc = createMockDoc();
+      const { container } = render(<Metatags doc={doc} />);
+
+      expect(container.querySelector('meta[property="og:url"]')?.getAttribute('content')).toBe(
+        'https://scixplorer.org/abs/2014ApJ...788..106L/abstract',
+      );
+      expect(container.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
+        'https://scixplorer.org/abs/2014ApJ...788..106L/abstract',
+      );
+    });
+
+    test('og:image and twitter:image use an absolute, raster (non-SVG) asset', () => {
+      const doc = createMockDoc();
+      const { container } = render(<Metatags doc={doc} />);
+
+      const ogImage = container.querySelector('meta[property="og:image"]')?.getAttribute('content');
+      const twitterImage = container.querySelector('meta[name="twitter:image:src"]')?.getAttribute('content');
+
+      for (const image of [ogImage, twitterImage]) {
+        expect(image).toMatch(/^https:\/\/scixplorer\.org\//);
+        expect(image).not.toMatch(/\.svg$/);
+        expect(image).toMatch(/\.(jpg|jpeg|png|webp)$/);
+      }
+    });
+
+    test('prefers NEXT_PUBLIC_BASE_CANONICAL_URL over the server-only var', () => {
+      const previousServerVar = process.env.BASE_CANONICAL_URL;
+      process.env.BASE_CANONICAL_URL = 'https://ui.adsabs.harvard.edu';
+
+      const doc = createMockDoc();
+      const { container } = render(<Metatags doc={doc} />);
+
+      expect(container.querySelector('meta[property="og:url"]')?.getAttribute('content')).toBe(
+        'https://scixplorer.org/abs/2014ApJ...788..106L/abstract',
+      );
+
+      process.env.BASE_CANONICAL_URL = previousServerVar;
     });
   });
 

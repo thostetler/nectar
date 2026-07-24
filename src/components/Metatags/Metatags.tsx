@@ -4,8 +4,25 @@ import { Esources, IDocsEntity } from '@/api/search/types';
 import { docToJsonld } from '@/components/Metatags/json-ld-abstract/docToJsonld';
 import { showsGoogleScholarTags } from '@/components/Metatags/scholarDoctypes';
 
-const baseUrl = process.env.BASE_CANONICAL_URL ?? '';
-const LINKGATEWAY_BASE_URL = `${baseUrl}/link_gateway`;
+/**
+ * Resolve the canonical site origin used to build the absolute URLs in the
+ * social / SEO meta tags (og:url, og:image, canonical, twitter:image, the
+ * citation_pdf_url gateway, and the JSON-LD @id/url).
+ *
+ * Prefers the public `NEXT_PUBLIC_BASE_CANONICAL_URL` for two reasons:
+ *   1. Non-public env vars are replaced with `undefined` in the client bundle,
+ *      so the old `BASE_CANONICAL_URL` read resolved to '' in the browser. After
+ *      hydration next/head re-rendered the head with those empty values, turning
+ *      og:url/og:image/canonical into relative URLs — which crawlers can't use,
+ *      so links stopped unfurling.
+ *   2. The public var points at the live SciX origin (scixplorer.org), matching
+ *      the rest of the app, whereas the server-only var pointed at the legacy
+ *      ADS UI domain.
+ * The server-only var is kept as a fallback for parity with older deployments.
+ */
+const getCanonicalBaseUrl = (): string =>
+  process.env.NEXT_PUBLIC_BASE_CANONICAL_URL ?? process.env.BASE_CANONICAL_URL ?? '';
+
 interface IMetatagsProps {
   doc: IDocsEntity;
 }
@@ -16,6 +33,9 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
   if (!doc) {
     return null;
   }
+
+  const baseUrl = getCanonicalBaseUrl();
+  const LINKGATEWAY_BASE_URL = `${baseUrl}/link_gateway`;
 
   const getLastPage = (page_range: string) => {
     const pages = page_range.split('-');
@@ -33,7 +53,11 @@ export const Metatags = (props: IMetatagsProps): ReactElement => {
   const encodedCanonicalID = doc.bibcode ? encodeURIComponent(doc.bibcode) : '';
   const url = `${baseUrl}/abs/${encodedCanonicalID}/abstract`;
 
-  const logo = `${baseUrl}/styles/images/transparent_logo.svg`;
+  // Unfurlers (Slack, X, Facebook, LinkedIn, iMessage, …) do not render SVG
+  // preview images, and the previous path (/styles/images/…) did not exist —
+  // the asset lives under /styles/img/. Point at a real raster asset so a
+  // preview image actually appears in the card.
+  const logo = `${baseUrl}/styles/img/scix-logo-abbr-h.jpg`;
 
   const formatted_numeric_pubdate = doc.pubdate ? getFormattedNumericPubdate(doc.pubdate) ?? '' : '';
   const citation_date = doc.pubdate ? getFormattedCitationDate(doc.pubdate) ?? '' : '';
