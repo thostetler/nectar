@@ -10,6 +10,7 @@ import { ErrorSource, handleError } from '@/lib/errorHandler.edge';
 import { getUserLogId, sanitizeHeaderValue } from '@/utils/logging';
 import { mapDisciplineParamToAppMode, mapPathToDisciplineParam } from '@/utils/appMode';
 import { AppMode } from '@/types';
+import { ADS_COMPAT_URL_PARAM, SearchMode } from '@/utils/common/search-mode-constants';
 import { isFromLegacyApp } from '@/utils/legacyAppDetection';
 import { pickTracingHeadersEdge } from '@/utils/tracing.edge';
 import { authTagForSession, SENTRY_AUTH_COOKIE_NAME, SENTRY_AUTH_TAG_NAME } from '@/lib/sentryAuthTag';
@@ -466,11 +467,20 @@ export async function middleware(req: NextRequest) {
     return response;
   }
 
+  const urlMode = mapDisciplineParamToAppMode(req.nextUrl.searchParams.get('d') ?? undefined);
+  const forcedMode = mapDisciplineParamToAppMode(req.nextUrl.searchParams.get('forceMode') ?? undefined);
+  const isDocumentNavigation = req.headers.get('accept')?.includes('text/html') ?? false;
+
   // scix_prefs cookie (not a URL param) lets updateUserStateSSR seed mode
   // without URL pollution.
   // The fromADS param guards a redirect loop: some browsers replay Referer
   // across same-origin redirects, re-triggering this block on the follow-up GET.
-  if (path === '/' && !req.nextUrl.searchParams.has('forceMode') && !req.nextUrl.searchParams.has('fromADS')) {
+  if (
+    path === '/' &&
+    !urlMode &&
+    !req.nextUrl.searchParams.has('forceMode') &&
+    !req.nextUrl.searchParams.has('fromADS')
+  ) {
     if (isFromLegacyApp(referer)) {
       const url = new URL('/', req.url);
       url.searchParams.set('fromADS', 'true');
@@ -485,12 +495,18 @@ export async function middleware(req: NextRequest) {
 
   // Handles /?fromADS=true reached directly (shared link, no legacy
   // referer) — the redirect block above skips once fromADS is present.
-  if (
-    path === '/' &&
-    req.nextUrl.searchParams.get('fromADS') === 'true' &&
-    !mapDisciplineParamToAppMode(req.nextUrl.searchParams.get('forceMode') ?? undefined)
-  ) {
+  if (path === '/' && !urlMode && req.nextUrl.searchParams.get('fromADS') === 'true' && !forcedMode) {
     setPrefsCookie(res, req, { mode: 'ASTROPHYSICS' });
+  }
+
+  if (urlMode && !forcedMode && isDocumentNavigation) {
+    const updates: Record<string, unknown> = { mode: urlMode };
+    if (urlMode !== AppMode.ASTROPHYSICS) {
+      updates.searchMode = undefined;
+    } else if (req.nextUrl.searchParams.get(ADS_COMPAT_URL_PARAM) === '1') {
+      updates.searchMode = SearchMode.ADS_COMPAT;
+    }
+    setPrefsCookie(res, req, updates);
   }
 
   // Emit analytics

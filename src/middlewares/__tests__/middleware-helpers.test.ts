@@ -164,6 +164,18 @@ describe('legacy search helpers', () => {
     expect(redirected.searchParams.get('q')).toBe('foo bar');
     expect(redirected.searchParams.get('fl')).toBe('abstract');
   });
+
+  test('keeps an appended query string out of the last legacy param', () => {
+    const req = new NextRequest('https://example.com/search/q=star&sort=date%20desc?ads_compat=1&d=astrophysics');
+    const res = legacySearchURLMiddleware(req);
+
+    const redirected = new URL(res.headers.get('Location')!);
+    expect(redirected.pathname).toBe('/search');
+    expect(redirected.searchParams.get('q')).toBe('star');
+    expect(redirected.searchParams.get('sort')).toBe('date desc');
+    expect(redirected.searchParams.get('ads_compat')).toBe('1');
+    expect(redirected.searchParams.get('d')).toBe('astrophysics');
+  });
 });
 
 describe('referer helpers', () => {

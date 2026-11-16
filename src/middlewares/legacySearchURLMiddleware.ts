@@ -47,7 +47,8 @@ export function legacySearchURLMiddleware(req: NextRequest): NextResponse {
   const rawSearch = req.nextUrl.search;
 
   const afterSearch = pathname.slice('/search/'.length);
-  const rawLegacy = afterSearch + (rawSearch || '');
+  const appendedQuery = rawSearch.startsWith('?') ? rawSearch.slice(1) : rawSearch;
+  const rawLegacy = appendedQuery ? `${afterSearch}&${appendedQuery}` : afterSearch;
   const decodedParams = new URLSearchParams(
     rawLegacy.startsWith('?') ? rawLegacy : `?${rawLegacy.replace(/\+/g, ' ')}`,
   );

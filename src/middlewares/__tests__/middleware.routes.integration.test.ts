@@ -151,6 +151,7 @@ describe('middleware route integration', () => {
       method: 'GET',
       nextUrl: {
         pathname: '/_next/data/build-id/search.json',
+        searchParams: new URLSearchParams(),
         toString: (): string => 'https://example.com/_next/data/build-id/search.json',
       },
       headers: new Headers(),
@@ -584,6 +585,77 @@ describe('middleware route integration', () => {
 
     test('fromADS param does not stamp a cookie when the value is not true', async () => {
       const req = makeReq('https://example.com/?fromADS=false');
+      const res = (await middleware(req)) as NextResponse;
+      expect(getPrefsCookie(res)).toBeNull();
+    });
+
+    const ADS_HANDOFF = 'ads_compat=1&d=astrophysics';
+    const documentRequest = { headers: { accept: 'text/html,application/xhtml+xml' } };
+
+    test.each([
+      ['the landing page', '/'],
+      ['the search page', '/search?q=star'],
+      ['an abstract page', '/abs/2026Icar..44416827M/abstract'],
+      ['a library page', '/user/libraries'],
+    ])('stamps the ADS handoff discipline into scix_prefs on %s', async (_name, path) => {
+      const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(new Response(null, { status: 200 }) as Response);
+      const separator = path.includes('?') ? '&' : '?';
+      const req = makeReq(`https://example.com${path}${separator}${ADS_HANDOFF}`, documentRequest);
+      const res = (await middleware(req)) as NextResponse;
+      const prefs = getPrefsCookie(res);
+      expect(prefs).not.toBeNull();
+      expect(prefs!.mode).toBe('ASTROPHYSICS');
+      expect(prefs!.searchMode).toBe('ADS_COMPAT');
+      fetchSpy.mockRestore();
+    });
+
+    test('a data prefetch carrying d does not stamp the discipline', async () => {
+      const req = makeReq('https://example.com/_next/data/build/search.json?ads_compat=1&d=astrophysics');
+      const res = (await middleware(req)) as NextResponse;
+      expect(getPrefsCookie(res)).toBeNull();
+    });
+
+    test('landing page d param survives a legacy ADS referrer without a redirect', async () => {
+      const req = makeReq('https://example.com/?ads_compat=1&d=astrophysics', {
+        headers: { referer: 'https://ui.adsabs.harvard.edu/search', accept: 'text/html' },
+      });
+      const res = (await middleware(req)) as NextResponse;
+      expect(res.headers.get('location')).toBeNull();
+      const prefs = getPrefsCookie(res);
+      expect(prefs!.mode).toBe('ASTROPHYSICS');
+      expect(prefs!.searchMode).toBe('ADS_COMPAT');
+    });
+
+    test('d without ads_compat leaves a persisted search mode alone', async () => {
+      const existingCookie = JSON.stringify({ mode: 'GENERAL', searchMode: 'ADS_COMPAT' });
+      const req = makeReq('https://example.com/?d=astrophysics', {
+        headers: { ...documentRequest.headers, cookie: `scix_prefs=${existingCookie}` },
+      });
+      const res = (await middleware(req)) as NextResponse;
+      const prefs = getPrefsCookie(res);
+      expect(prefs!.mode).toBe('ASTROPHYSICS');
+      expect(prefs!.searchMode).toBe('ADS_COMPAT');
+    });
+
+    test('a non-astrophysics d param clears searchMode', async () => {
+      const existingCookie = JSON.stringify({ mode: 'ASTROPHYSICS', searchMode: 'ADS_COMPAT' });
+      const req = makeReq('https://example.com/?ads_compat=1&d=heliophysics', {
+        headers: { ...documentRequest.headers, cookie: `scix_prefs=${existingCookie}` },
+      });
+      const res = (await middleware(req)) as NextResponse;
+      const prefs = getPrefsCookie(res);
+      expect(prefs!.mode).toBe('HELIOPHYSICS');
+      expect(prefs!.searchMode).toBeUndefined();
+    });
+
+    test('an unmappable d param stamps nothing', async () => {
+      const req = makeReq('https://example.com/?d=banana', documentRequest);
+      const res = (await middleware(req)) as NextResponse;
+      expect(getPrefsCookie(res)).toBeNull();
+    });
+
+    test('forceMode outranks the d param', async () => {
+      const req = makeReq('https://example.com/?d=astrophysics&forceMode=heliophysics', documentRequest);
       const res = (await middleware(req)) as NextResponse;
       expect(getPrefsCookie(res)).toBeNull();
     });

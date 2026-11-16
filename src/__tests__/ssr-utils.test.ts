@@ -141,7 +141,7 @@ describe('updateUserStateSSR', () => {
     );
   });
 
-  test('should ignore d param when NOT on /search page', async () => {
+  test('should apply d param on an abstract page', async () => {
     const context = getMockContext({}, { d: 'heliophysics' }, '/abs/2026Icar..44416827M/abstract?d=heliophysics');
     const result = await updateUserStateSSR(context, { props: {} });
 
@@ -149,14 +149,29 @@ describe('updateUserStateSSR', () => {
       throw new Error('Expected props in result');
     }
     const props = result.props as SSRPropsWithState;
-    expect(props.dehydratedAppState).not.toHaveProperty('mode');
+    expect(props.dehydratedAppState).toEqual(expect.objectContaining({ mode: AppMode.HELIOPHYSICS }));
   });
 
-  test('should ignore d param on other pages even with query params', async () => {
+  test('should apply d param alongside unrelated query params', async () => {
     const context = getMockContext(
       {},
       { d: 'planetary', some: 'other' },
       '/abs/2026Icar..44416827M/abstract?d=planetary&some=other',
+    );
+    const result = await updateUserStateSSR(context, { props: {} });
+
+    if (!('props' in result)) {
+      throw new Error('Expected props in result');
+    }
+    const props = result.props as SSRPropsWithState;
+    expect(props.dehydratedAppState).toEqual(expect.objectContaining({ mode: AppMode.PLANET_SCIENCE }));
+  });
+
+  test('should ignore an invalid d param outside /search', async () => {
+    const context = getMockContext(
+      {},
+      { d: 'invalid-discipline' },
+      '/abs/2026Icar..44416827M/abstract?d=invalid-discipline',
     );
     const result = await updateUserStateSSR(context, { props: {} });
 
@@ -426,6 +441,54 @@ describe('updateUserStateSSR', () => {
       }
       const props = result.props as SSRPropsWithState;
       expect(props.dehydratedAppState).not.toHaveProperty('mode');
+    });
+  });
+
+  describe('ADS handoff params', () => {
+    const stateFor = async (pathname: string, query: ParsedUrlQuery, cookie?: string) => {
+      const search = new URLSearchParams(query as Record<string, string>).toString();
+      const context = getMockContext({}, query, `${pathname}?${search}`, undefined, cookie);
+      const result = await updateUserStateSSR(context, { props: {} });
+      if (!('props' in result)) {
+        throw new Error('Expected props');
+      }
+      return (result.props as SSRPropsWithState).dehydratedAppState;
+    };
+
+    const ADS_HANDOFF = { ads_compat: '1', d: 'astrophysics' };
+
+    test.each(['/', '/search', '/abs/2026Icar..44416827M/abstract', '/user/libraries'])(
+      'seeds astrophysics and ADS compatibility mode on %s',
+      async (pathname) => {
+        expect(await stateFor(pathname, ADS_HANDOFF)).toEqual(
+          expect.objectContaining({ mode: AppMode.ASTROPHYSICS, searchMode: 'ADS_COMPAT' }),
+        );
+      },
+    );
+
+    test('d takes priority over a persisted discipline', async () => {
+      const cookie = `scix_prefs=${encodeURIComponent(JSON.stringify({ mode: 'EARTH_SCIENCE' }))}`;
+      expect(await stateFor('/', ADS_HANDOFF, cookie)).toEqual(
+        expect.objectContaining({ mode: AppMode.ASTROPHYSICS, searchMode: 'ADS_COMPAT' }),
+      );
+    });
+
+    test('ignores ads_compat outside astrophysics', async () => {
+      const state = await stateFor('/', { ads_compat: '1', d: 'heliophysics' });
+      expect(state).toEqual(expect.objectContaining({ mode: AppMode.HELIOPHYSICS }));
+      expect(state).not.toHaveProperty('searchMode');
+    });
+
+    test('ignores ads_compat when no discipline resolves to astrophysics', async () => {
+      const state = await stateFor('/', { ads_compat: '1' });
+      expect(state).not.toHaveProperty('mode');
+      expect(state).not.toHaveProperty('searchMode');
+    });
+
+    test('forceMode still outranks d', async () => {
+      expect(await stateFor('/', { d: 'astrophysics', forceMode: 'earth' })).toEqual(
+        expect.objectContaining({ mode: AppMode.EARTH_SCIENCE }),
+      );
     });
   });
 

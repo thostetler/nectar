@@ -11,7 +11,7 @@ import { mapDisciplineParamToAppMode } from '@/utils/appMode';
 import { parseAPIError } from '@/utils/common/parseAPIError';
 import { isUserData } from '@/auth-utils';
 import { readPrefsCookie } from '@/utils/common/prefs-cookie';
-import { SearchMode } from '@/utils/common/searchMode';
+import { ADS_COMPAT_URL_PARAM, SearchMode } from '@/utils/common/searchMode';
 import { getIsolationScope } from '@sentry/nextjs';
 import { authTagForSession, SENTRY_AUTH_TAG_NAME } from '@/lib/sentryAuthTag';
 import { ErrorSource, handleError } from '@/lib/errorHandler';
@@ -35,8 +35,7 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
   // forceMode query param — highest precedence (discipline routes)
   const forceMode = mapDisciplineParamToAppMode(ctx.query?.forceMode);
 
-  // URL discipline param (d) only applies on /search
-  const urlMode = pathname === '/search' ? mapDisciplineParamToAppMode(ctx.query?.d) : null;
+  const urlMode = mapDisciplineParamToAppMode(ctx.query?.d);
 
   const fromADSParam = ctx.query?.fromADS;
   const fromADS = pathname === '/' && (Array.isArray(fromADSParam) ? fromADSParam[0] : fromADSParam) === 'true';
@@ -54,6 +53,11 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
     prefs.searchMode && VALID_SEARCH_MODES.has(prefs.searchMode as SearchMode) && resolvedMode === AppMode.ASTROPHYSICS
       ? prefs.searchMode
       : undefined;
+
+  const adsCompatParam = ctx.query?.[ADS_COMPAT_URL_PARAM];
+  const urlAdsCompat = (Array.isArray(adsCompatParam) ? adsCompatParam[0] : adsCompatParam) === '1';
+  const resolvedSearchMode =
+    urlAdsCompat && resolvedMode === AppMode.ASTROPHYSICS ? SearchMode.ADS_COMPAT : cookieSearchMode;
 
   log.debug({
     msg: 'Injecting session data into client props',
@@ -80,7 +84,7 @@ export const updateUserStateSSR: IncomingGSSP = async (ctx, prevResult) => {
         user: isUserData(clientUserData) ? clientUserData : {},
         notification: getNotification(ctx.query?.notify as NotificationId),
         ...(resolvedMode && { mode: resolvedMode }),
-        ...(cookieSearchMode && { searchMode: cookieSearchMode }),
+        ...(resolvedSearchMode && { searchMode: resolvedSearchMode }),
       } as AppState,
       dehydratedState: dehydrate(qc),
     },
